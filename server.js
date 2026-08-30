@@ -1316,27 +1316,16 @@ function handleNightEnd(code) {
     targetToKill = actions.kukla_kill || (!actions.kukla_refused && actions.sf_target && actions.sf_target !== 'none' ? actions.sf_target : null);
   }
 
-  // Şövalye challenges SF?
-  if (sovalyeChallenge && sovalyeChallenge === room.sfId) {
-    // Successfully challenged SF → kill order blocked
+  // Şövalye challenge (directly stops the night kill order)
+  if (sovalyeChallenge) {
     targetToKill = null;
     const sovalyePlayer = room.players.find(p => p.role === ROLES.SOVALYE);
     if (sovalyePlayer) {
       io.to(sovalyePlayer.id).emit('private:message', {
         type: 'success',
         message: lang === 'tr'
-          ? 'Dokundun — bir şeyleri durdurdun. Gece kayıpsız geçti.'
-          : 'You touched something — and stopped it. The night passed without loss.',
-      });
-    }
-  } else if (sovalyeChallenge) {
-    const sovalyePlayer = room.players.find(p => p.role === ROLES.SOVALYE);
-    if (sovalyePlayer) {
-      io.to(sovalyePlayer.id).emit('private:message', {
-        type: 'info',
-        message: lang === 'tr'
-          ? 'Hedeflediğin kişi güvende. Gecede hiçbir şey değişmedi.'
-          : 'The one you targeted was safe. Nothing changed tonight.',
+          ? '⚔️ Karanlığa meydan okudun ve infazı engelledin. Gece kayıpsız geçti.'
+          : '⚔️ You challenged the darkness and thwarted the execution. The night passed without loss.',
       });
     }
   }

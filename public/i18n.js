@@ -127,7 +127,7 @@ const I18N = (function () {
       desc_kukla: 'Kukla ek bir gölge unvanıdır. Kendi orijinal rolünüzü ve yeteneklerinizi korurken, efendinizin infaz emirlerini gizlice yerine getirirsiniz. Gündüz masum bir köylü gibi davranmalısınız.',
       desc_mortisyen: 'Her ölümden sonra cesetleri inceler. Olay yerindeki adli kanıtlardan (Eşya & Rol İzi ve Davranış İzi) 3 kişilik şüpheli havuzu tespit eder; geceleri yaşayanları gözetleyebilir ve defterini köyle paylaşabilir.',
       desc_rahibe: 'Kutsal dualarınız ve tarot kartlarınızla geceleri bir köylüyü inceler, onun bu gece karanlıkta hareket edip etmediğini sezer ve gerçeği ortaya çıkarırsınız.',
-      desc_sovalye: 'Köyün muhafızı. Geceleri masumları koruyabilir veya doğrudan karanlığa meydan okuyabilirsiniz (maksimum 2 hak).',
+      desc_sovalye: 'Köyün muhafızı. Geceleri masumları koruyabilir (🛡️ Koru) veya karanlığa meydan okuyarak o geceki infaz emrini doğrudan durdurabilirsiniz (⚔️ Meydan Oku - maksimum 2 hak).',
       desc_madman: 'Karanlık bir lanetle mühürlü bir ruh. Eğer kukla tarafından öldürülürseniz, kuklayı da peşinizden ölüme sürüklersiniz.',
       desc_koylu: 'Masum bir köylü. İpuçlarını birleştirin, tartışın ve kuklayı asarak köyü karanlıktan kurtarın.',
 
@@ -151,7 +151,7 @@ const I18N = (function () {
       rahibe_waiting_dawn: 'Şafağın sökmesini ve ruhani fısıltıları bekle...',
       sovalye_protect: '🛡️ Koru',
       sovalye_challenge: '⚔️ Meydan Oku',
-      sovalye_challenge_info: '⚔️ Karanlığa meydan okuyorsun. Hedef gizlidir — eğer Mr. Schadenfreude\'ye dokunursan geceyi kurtarırsın.',
+      sovalye_challenge_info: '⚔️ Karanlığa meydan okuyorsun. Hedef seçmene gerek yoktur — bu eylem o geceki infaz emrini ve cinayeti doğrudan engeller.',
       sovalye_challenges_left: 'Kalan mücadele hakkı: {count}/2',
       sovalye_done: '✅ Gece aksiyonun alındı. Sabahı bekle.',
       pick_target: 'Hedef seç:',
@@ -387,7 +387,7 @@ const I18N = (function () {
       desc_kukla: 'The Puppet is an overlay shadow title. You keep your original role and abilities while secretly carrying out your master\'s execution orders. Act innocent by day.',
       desc_mortisyen: 'Examines corpses after deaths. Uncovers 3-suspect groups based on scene evidence (65% role craft items, 35% court behavior traces) and records them in the dossier.',
       desc_rahibe: 'Through holy prayers and tarot cards, inspect a player each night to sense if their soul was active in the dark, gathering vital clues for the town.',
-      desc_sovalye: 'Guardian of the village. Protect innocents each night or challenge the darkness directly (maximum 2 challenges).',
+      desc_sovalye: 'Guardian of the village. Protect innocents each night (🛡️ Protect) or challenge the darkness directly to stop the night execution order (⚔️ Challenge - maximum 2 uses).',
       desc_madman: 'A soul sealed with a dark curse. If slain by the puppet at night, you drag the puppet down into the grave with you!',
       desc_koylu: 'An innocent villager. Connect clues, debate at court, and execute the puppet to liberate the village from shadow.',
 
@@ -411,7 +411,7 @@ const I18N = (function () {
       rahibe_waiting_dawn: 'Awaiting dawn and spiritual whispers...',
       sovalye_protect: '🛡️ Protect',
       sovalye_challenge: '⚔️ Challenge',
-      sovalye_challenge_info: '⚔️ You challenge the darkness. If you strike Mr. Schadenfreude, tonight\'s tragedy is thwarted.',
+      sovalye_challenge_info: '⚔️ You are challenging the darkness. No target needed — this action directly halts the night execution order.',
       sovalye_challenges_left: '{count}/2 challenges left',
       sovalye_done: '✅ Night action recorded. Await dawn.',
       pick_target: 'Choose target:',
@@ -659,7 +659,7 @@ const I18N = (function () {
       rahibe_waiting_dawn: '夜明けと聖なる囁きを待っています…',
       sovalye_protect: '🛡️ 守護',
       sovalye_challenge: '⚔️ 挑戦',
-      sovalye_challenge_info: '⚔️ 闇に挑みます。Mr.シャーデンフロイデを捉えれば今夜の悲劇は防がれます。',
+      sovalye_challenge_info: '⚔️ 闇に立ち向かいます。ターゲットの選択は不要です — 今夜の殺害命令を直接阻止します。',
       sovalye_challenges_left: '残り挑戦回数: {count}/2',
       sovalye_done: '✅ 行動を決定しました。夜明けをお待ちください。',
       pick_target: '対象を選択:',
@@ -903,7 +903,7 @@ const I18N = (function () {
       rahibe_waiting_dawn: 'Warte auf den Morgen und das Seelenflüstern...',
       sovalye_protect: '🛡️ Schützen',
       sovalye_challenge: '⚔️ Herausfordern',
-      sovalye_challenge_info: '⚔️ Du forderst die Dunkelheit heraus. Triffst du Mr. Schadenfreude, ist die Nacht gerettet.',
+      sovalye_challenge_info: '⚔️ Du forderst die Dunkelheit heraus. Kein Ziel erforderlich — blockiert den nächtlichen Hinrichtungsbefehl direkt.',
       sovalye_challenges_left: 'Verbleibende Herausforderungen: {count}/2',
       sovalye_done: '✅ Nachtaktion gespeichert. Warte auf den Morgen.',
       pick_target: 'Ziel wählen:',
@@ -1147,7 +1147,7 @@ const I18N = (function () {
       rahibe_waiting_dawn: 'Esperando el amanecer y los susurros espirituales...',
       sovalye_protect: '🛡️ Proteger',
       sovalye_challenge: '⚔️ Desafiar',
-      sovalye_challenge_info: '⚔️ Desafías a la oscuridad. Si aciertas contra Mr. Schadenfreude, la noche se salvará.',
+      sovalye_challenge_info: '⚔️ Desafías a la oscuridad. No requiere objetivo — bloquea directamente la orden de ejecución nocturna.',
       sovalye_challenges_left: 'Desafíos restantes: {count}/2',
       sovalye_done: '✅ Acción nocturna registrada. Espera al amanecer.',
       pick_target: 'Seleccionar objetivo:',
@@ -1391,7 +1391,7 @@ const I18N = (function () {
       rahibe_waiting_dawn: 'En attente de l\'aube et des murmures spirituels...',
       sovalye_protect: '🛡️ Protéger',
       sovalye_challenge: '⚔️ Défier',
-      sovalye_challenge_info: '⚔️ Vous défiez l\'ombre. Si vous visez Mr. Schadenfreude, la nuit sera sauvée.',
+      sovalye_challenge_info: '⚔️ Vous défiez l\'ombre. Aucune cible requise — bloque directement l\'ordre d\'exécution nocturne.',
       sovalye_challenges_left: 'Défis restants : {count}/2',
       sovalye_done: '✅ Action enregistrée. Attendez l\'aube.',
       pick_target: 'Choisir la cible :',
@@ -1634,7 +1634,7 @@ const I18N = (function () {
         overview: 'Köyün zırhlı muhafızı. Geceleri masumları korumak veya doğrudan karanlıkla yüzleşmek için kılıcını çeker.',
         abilities: [
           '<strong>🛡️ Koru:</strong> Geceleri bir köylüyü korur; kukla o kişiye saldırırsa saldırıyı engeller.',
-          '<strong>⚔️ Meydan Oku (Max 2 Hak):</strong> Karanlığa doğrudan meydan okur. Hedef Mr. Schadenfreude ise o geceki infazı tamamen durdurur.'
+          '<strong>⚔️ Meydan Oku (Max 2 Hak):</strong> Karanlığa doğrudan meydan okur; herhangi bir hedef seçimi gerektirmeden o geceki infaz emrini ve cinayeti doğrudan engeller.'
         ],
         rules: [
           'Kendisini doğrudan koruyamaz.',
@@ -1748,7 +1748,7 @@ const I18N = (function () {
         overview: 'Armored protector of the innocent. Draws sword to shield townsfolk or confront shadow head-on.',
         abilities: [
           '<strong>🛡️ Protect:</strong> Shields a player each night. If attacked by the puppet, the kill is prevented.',
-          '<strong>⚔️ Challenge (Max 2 Uses):</strong> Directly challenges the darkness. If targeting SF, stops the night kill completely!'
+          '<strong>⚔️ Challenge (Max 2 Uses):</strong> Directly challenges the darkness; completely blocks the night execution order without requiring a target!'
         ],
         rules: [
           'Cannot protect yourself directly.',
