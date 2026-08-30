@@ -4073,3 +4073,198 @@ select option {
   filter: grayscale(0.2);
 }
 
+/* ══════════════════════════════════════════════
+   COMPREHENSIVE MOBILE RESPONSIVENESS (< 768px & < 480px)
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Server Status Banner */
+  .server-status-banner {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.74rem;
+    line-height: 1.3;
+  }
+
+  /* Landing Disclaimer & Credits Hub */
+  .landing-footer-credits {
+    margin-top: 1.25rem;
+    padding: 0 0.25rem;
+    width: 100%;
+  }
+  .landing-disclaimer-card {
+    padding: 0.85rem 0.75rem;
+  }
+  .disclaimer-header {
+    font-size: 0.76rem;
+  }
+  .disclaimer-text {
+    font-size: 0.72rem;
+    line-height: 1.45;
+    margin-bottom: 0.65rem;
+  }
+  .credits-links-grid {
+    gap: 0.35rem;
+  }
+  .credit-link-chip {
+    padding: 0.22rem 0.5rem;
+    font-size: 0.68rem;
+  }
+  .credit-chip-icon {
+    font-size: 0.78rem;
+  }
+
+  /* Mortisyen Traces & Dossier UI on mobile */
+  .clue-traces-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.45rem 0.6rem;
+    margin: 0.4rem 0;
+    border-radius: var(--radius-sm);
+  }
+  .clue-trace-item {
+    font-size: 0.75rem;
+    line-height: 1.35;
+  }
+  .trace-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .dossier-common-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0.35rem 0;
+  }
+  .dossier-suspect-chip {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.45rem;
+  }
+  .clue-publish-all-btn,
+  .clue-publish-btn {
+    width: 100%;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.76rem;
+    justify-content: center;
+  }
+
+  /* SF Night Multi-action Box on mobile */
+  .sf-night-multiaction-box {
+    padding: 0.75rem 0.6rem;
+    gap: 0.65rem;
+  }
+  .sf-action-section {
+    padding: 0.55rem 0.5rem;
+  }
+  .sf-section-title {
+    font-size: 0.8rem;
+  }
+  .sf-section-subtitle {
+    font-size: 0.74rem;
+  }
+  .sf-puppet-row {
+    font-size: 0.78rem;
+  }
+
+  /* Kukla Night Overlay Banner on mobile */
+  .kukla-night-overlay-banner {
+    padding: 0.55rem 0.65rem;
+    font-size: 0.76rem;
+    gap: 0.45rem;
+    border-radius: var(--radius-sm);
+  }
+  .kukla-overlay-icon {
+    font-size: 1.4rem;
+  }
+  .kukla-overlay-title {
+    font-size: 0.8rem;
+  }
+  .kukla-overlay-desc {
+    font-size: 0.72rem;
+  }
+
+  /* Role Detail Dossier Modal on mobile */
+  .role-detail-book {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 88vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+  .role-detail-header {
+    padding: 0.65rem 0.85rem !important;
+    flex-shrink: 0 !important;
+    border-bottom: 1px solid var(--gold-border) !important;
+  }
+  .role-detail-icon {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 1.25rem !important;
+  }
+  .role-detail-titles h3 {
+    font-size: 1rem !important;
+  }
+  .role-detail-body {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding: 0.75rem 0.8rem 1.2rem !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .rd-sec-title {
+    font-size: 0.82rem !important;
+    margin-bottom: 0.35rem !important;
+  }
+  .rd-text {
+    font-size: 0.8rem !important;
+    line-height: 1.45 !important;
+  }
+  .rd-list li {
+    font-size: 0.78rem !important;
+    line-height: 1.4 !important;
+    margin-bottom: 0.3rem !important;
+  }
+  .role-detail-footer {
+    padding: 0.55rem 0.85rem !important;
+    flex-shrink: 0 !important;
+    border-top: 1px solid var(--gold-border) !important;
+  }
+
+  /* Pending Kill Order Badge (Positioned safely above mobile nav) */
+  .pending-order-badge {
+    bottom: 4.2rem !important;
+    right: 0.75rem !important;
+    padding: 0.45rem 0.75rem !important;
+    font-size: 0.76rem !important;
+    z-index: 50 !important;
+  }
+}
+
+/* ─── Extra Small Mobile (< 420px) ─── */
+@media (max-width: 420px) {
+  .landing-card {
+    padding: 1.1rem 0.65rem;
+  }
+  .tab-btn {
+    font-size: 0.74rem;
+    padding: 0.42rem 0.4rem;
+  }
+  .target-selection-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+  }
+  .settings-timer-grid {
+    grid-template-columns: 1fr;
+  }
+  .endgame-stats-row {
+    grid-template-columns: 1fr;
+  }
+  .credits-links-grid {
+    gap: 0.25rem;
+  }
+  .credit-link-chip {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+  }
+}
+
