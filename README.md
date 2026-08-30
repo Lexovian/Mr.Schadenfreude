@@ -21,10 +21,10 @@
 > ### Inspired by the Vocaloid Masterpiece: **「Mr. Schadenfreude / ミスター・シャーデンフロイデ」**
 > This web game is an interactive fan-made tribute based on the gothic murder-mystery universe and storyline created by the legendary original team:
 > 
-> - **Music & Lyrics:** [Hitoshizuku-P (ひとしずく)](https://x.com/samorira9) × [Yama△ (やま△)](https://x.com/shoma1983) ([Official Website](https://hitoyamamusic.com/))
+> - **Music & Lyrics:** [Hitoshizuku-P (ひとしずく)](https://x.com/samorira9) × [Yama△ (やま△)](https://x.com/shoma1983) ([Official Website](http://yamashizuku.web.fc2.com/))
 > - **Character Design & Illustration:** [Suzunosuke (鈴ノ助)](https://x.com/suzu3939)
 > - **Video & Movie Production:** [TSO (とさお)](https://x.com/anarchylily)
-> - **Official Channel:** [Hitoshizuku_Yamasankakkei YouTube Channel](https://www.youtube.com/channel/UC-S5N15Z6xR-v3D5b_vC75Q)
+> - **Official Channel:** [Hitoshizuku × Yama△ YouTube Channel](https://www.youtube.com/@hitoshizuku_yama)
 > - **Official Music Video:** [Watch "Mr. Schadenfreude" on YouTube](https://www.youtube.com/watch?v=ADy8Xlj0mBc)
 
 ---
@@ -35,13 +35,13 @@ The vocalists whose character archetypes inspired the in-game villagers and abil
 
 | Character | Role / Archetype | Voice Provider (Seiyuu / Artist) | Official Links |
 | :--- | :--- | :--- | :--- |
-| **Kagamine Rin & Len** (鏡音リン・レン) | Knight / Villagers | **Asami Shimoda** (下田麻美) | [X (Twitter)](https://x.com/shimoda_asami) |
-| **Hatsune Miku** (初音ミク) | Village Inhabitant | **Saki Fujita** (藤田咲) | [YouTube Channel](https://www.youtube.com/channel/UC-oYjt27a8q-yRfHgJZQPhg) • [Official X](https://x.com/cfm_miku) |
-| **Megurine Luka** (巡音ルカ) | Priest | **Yuu Asakawa** (浅川悠) | [YouTube Channel](https://www.youtube.com/channel/UCyM7a2X8KzOq8v6K-K7Zq7A) • [X (Twitter)](https://x.com/Julia320) |
-| **KAITO** | Mr. Schadenfreude / Master | **Naoto Fuuga** (風雅なおと) | [YouTube Channel](https://www.youtube.com/channel/UCqXF2fK0s5l6p_uU_aM7z_Q) • [X (Twitter)](https://x.com/fuganaoto) |
-| **MEIKO** | Mortician | **Meiko Haigo** (拝郷メイコ) | [YouTube Channel](https://www.youtube.com/channel/UC0U0g0i9bC5w2j8vX7lqZrg) • [X (Twitter)](https://x.com/meikohaigo) |
-| **GUMI** (Megpoid) | Villager / Seeker | **Megumi Nakajima** (中島愛) | [YouTube Channel](https://www.youtube.com/channel/UC81h_6iVvYy-u6QG7O_vUbw) • [X (Twitter)](https://x.com/mamegu_staff) |
-| **Camui Gackpo** (神威がくぽ) | Noble / Madman | **GACKT** | [YouTube Channel](https://www.youtube.com/channel/UCNGBRcUwu5IyvFsIr2P-q3w) • [X (Twitter)](https://x.com/GACKT) |
+| **Kagamine Rin & Len** (鏡音リン・レン) | Knight / Villagers | **Asami Shimoda** (下田麻美) | [X (Twitter)](https://x.com/shimoda_asami) • [Official Blog](https://asaponmax.fc2.net/) |
+| **Hatsune Miku** (初音ミク) | Village Inhabitant | **Saki Fujita** (藤田咲) | [X (Twitter)](https://x.com/sakitaf_1019) • [Agency Profile](https://www.artsvision.co.jp/talent/607/) |
+| **Megurine Luka** (巡音ルカ) | Priest | **Yuu Asakawa** (浅川悠) | [X (Twitter)](https://x.com/Julia320) • [Twitch](https://www.twitch.tv/yuu_twitch) |
+| **KAITO** | Mr. Schadenfreude / Master | **Naoto Fuuga** (風雅なおと) | [X (Twitter)](https://x.com/fuganaoto) • [YouTube Channel](https://www.youtube.com/@NaotoFuga) |
+| **MEIKO** | Mortician | **Meiko Haigo** (拝郷メイコ) | [X (Twitter)](https://x.com/meikohaigou) • [Official Website](https://haigoumeiko.net/) |
+| **GUMI** (Megpoid) | Villager / Seeker | **Megumi Nakajima** (中島愛) | [X (Twitter)](https://x.com/mamegu_staff) • [Official Website](https://nakajima-megumi.jp/) |
+| **Camui Gackpo** (神威がくぽ) | Noble / Madman | **GACKT** | [X (Twitter)](https://x.com/GACKT) • [YouTube Channel](https://www.youtube.com/@GACKT_official) • [Official Website](https://gackt.com/) |
 
 > *All original characters, lore, voice assets, art concepts, and musical themes belong to their respective creators and copyright owners (Crypton Future Media, Internet Co., Ltd., Yamaha). This project is open-source and created strictly for non-commercial community entertainment and artistic appreciation.*
 
