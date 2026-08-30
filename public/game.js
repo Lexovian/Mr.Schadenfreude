@@ -5,7 +5,52 @@
 /* global io */
 
 // eslint-disable-next-line no-undef
-const socket = io();
+const socket = io({
+  transports: ['websocket', 'polling'],
+  reconnection: true,
+  reconnectionAttempts: 30,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  timeout: 25000,
+});
+
+let pendingActionAfterConnect = null;
+
+function showServerConnectingBanner(text) {
+  const banner = document.getElementById('server-status-banner');
+  const textEl = document.getElementById('server-status-text');
+  if (textEl && text) textEl.textContent = text;
+  else if (textEl) textEl.textContent = t('server_waking_up');
+  if (banner) banner.classList.remove('hidden');
+}
+
+function hideServerConnectingBanner() {
+  const banner = document.getElementById('server-status-banner');
+  if (banner) banner.classList.add('hidden');
+}
+
+socket.on('connect', () => {
+  hideServerConnectingBanner();
+  if (pendingActionAfterConnect) {
+    const fn = pendingActionAfterConnect;
+    pendingActionAfterConnect = null;
+    fn();
+  }
+});
+
+socket.on('connect_error', () => {
+  showServerConnectingBanner(t('server_waking_up'));
+});
+
+socket.on('reconnect_attempt', () => {
+  showServerConnectingBanner(t('server_reconnecting'));
+});
+
+socket.on('disconnect', (reason) => {
+  if (reason === 'io server disconnect') {
+    socket.connect();
+  }
+});
 
 // ─── STATE ───
 let state = {
@@ -314,6 +359,20 @@ function createRoom() {
   const name = document.getElementById('create-name').value.trim();
   if (!name) return showError('landing-error', t('error_name_required'));
   state.myName = name;
+
+  const btn = document.getElementById('btn-create');
+  if (btn) btn.classList.add('btn-loading');
+
+  if (!socket.connected) {
+    showServerConnectingBanner(t('server_waking_up'));
+    showToast(t('server_waking_up'), 'info');
+    pendingActionAfterConnect = () => {
+      socket.emit('room:create', { name, language: state.lang });
+    };
+    socket.connect();
+    return;
+  }
+
   socket.emit('room:create', { name, language: state.lang });
 }
 
@@ -325,10 +384,26 @@ function joinRoom() {
   if (!name) return showError('landing-error', t('error_name_required'));
   if (!code) return showError('landing-error', t('error_code_required'));
   state.myName = name;
+
+  const btn = document.getElementById('btn-join');
+  if (btn) btn.classList.add('btn-loading');
+
+  if (!socket.connected) {
+    showServerConnectingBanner(t('server_waking_up'));
+    showToast(t('server_waking_up'), 'info');
+    pendingActionAfterConnect = () => {
+      socket.emit('room:join', { name, code });
+    };
+    socket.connect();
+    return;
+  }
+
   socket.emit('room:join', { name, code });
 }
 
 function showError(id, msg) {
+  document.getElementById('btn-create')?.classList.remove('btn-loading');
+  document.getElementById('btn-join')?.classList.remove('btn-loading');
   const el = document.getElementById(id);
   if (el) { el.textContent = msg; setTimeout(() => { el.textContent = ''; }, 3000); }
 }
@@ -412,6 +487,8 @@ function switchMobileView(viewName) {
 
 // ─── SOCKET EVENTS ───
 socket.on('room:created', ({ code }) => {
+  document.getElementById('btn-create')?.classList.remove('btn-loading');
+  document.getElementById('btn-join')?.classList.remove('btn-loading');
   state.roomCode = code;
   state.isHost = true;
   document.getElementById('lobby-code').textContent = code;
@@ -421,6 +498,8 @@ socket.on('room:created', ({ code }) => {
 });
 
 socket.on('room:joined', ({ code }) => {
+  document.getElementById('btn-create')?.classList.remove('btn-loading');
+  document.getElementById('btn-join')?.classList.remove('btn-loading');
   state.roomCode = code;
   state.isHost = false;
   document.getElementById('lobby-code').textContent = code;
@@ -432,6 +511,8 @@ socket.on('room:joined', ({ code }) => {
 });
 
 socket.on('error', ({ message }) => {
+  document.getElementById('btn-create')?.classList.remove('btn-loading');
+  document.getElementById('btn-join')?.classList.remove('btn-loading');
   showError('landing-error', message);
   showToast(message, 'error');
 });

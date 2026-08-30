@@ -5,12 +5,20 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 
 const app = express();
+app.set('trust proxy', 1); // Enable proxy support for Render / Cloudflare / Heroku
+
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: '*' },
+  cors: { origin: '*', methods: ['GET', 'POST'] },
+  transports: ['websocket', 'polling'],
   pingTimeout: 60000,
+  pingInterval: 25000,
   maxHttpBufferSize: 1e6, // 1MB payload cap to prevent socket buffer exhaustion
 });
+
+// Health check endpoints for Cloud & Render keep-alive
+app.get('/health', (req, res) => res.status(200).send('OK'));
+app.get('/ping', (req, res) => res.status(200).send('pong'));
 
 // Security & Hardening Headers
 app.use((req, res, next) => {
@@ -1946,9 +1954,10 @@ io.on('connection', (socket) => {
 
   // Create room (Rate limited & sanitized)
   socket.on('room:create', ({ name, language }) => {
-    const clientIp = socket.handshake.address || socket.id;
-    if (isRateLimited(createRoomLimits, clientIp, 5, 30000)) {
-      return socket.emit('error', { message: 'Too many rooms created. Please wait 30 seconds.' });
+    const forwarded = socket.handshake.headers['x-forwarded-for'];
+    const clientIp = (forwarded ? forwarded.split(',')[0].trim() : socket.handshake.address) || socket.id;
+    if (isRateLimited(createRoomLimits, clientIp, 8, 30000)) {
+      return socket.emit('error', { message: (language === 'tr' ? 'Lütfen yeni lobi kurmadan önce 30 saniye bekleyin.' : 'Too many rooms created. Please wait 30 seconds.') });
     }
 
     const cleanName = String(name || '')

@@ -22,6 +22,12 @@
   <!-- Arka plan parçacık ve kül efekti -->
   <canvas id="particles"></canvas>
 
+  <!-- Sunucu Bağlantı / Uyanma Bildirimi (Render Cold-Start Banner) -->
+  <div id="server-status-banner" class="server-status-banner hidden">
+    <span class="banner-pulse"></span>
+    <span id="server-status-text" data-i18n="server_waking_up">🕯️ Sunucu uyanıyor, lütfen birkaç saniye bekleyin...</span>
+  </div>
+
   <!-- Üst Bar: Ses ve Grimoire / Kılavuz Butonları -->
   <header class="global-floating-bar">
     <button id="btn-grimoire-open" class="floating-btn grimoire-btn" onclick="openGrimoire()" title="Grimoire — Rehber & Roller">

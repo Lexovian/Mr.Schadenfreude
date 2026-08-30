@@ -4022,3 +4022,54 @@ select option {
   font-size: 0.85rem;
 }
 
+/* ══════════════════════════════════════════════
+   SERVER STATUS BANNER & BUTTON LOADING
+══════════════════════════════════════════════ */
+.server-status-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  background: linear-gradient(90deg, #2b1100, #612d00, #2b1100);
+  color: #ffe082;
+  border-bottom: 1px solid #ffd54f;
+  padding: 0.45rem 1rem;
+  text-align: center;
+  font-family: var(--font-title);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.banner-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffb300;
+  box-shadow: 0 0 8px #ffb300;
+  animation: pulseGlow 1.2s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.4; }
+}
+
+.btn.btn-loading {
+  opacity: 0.75;
+  pointer-events: none;
+  cursor: wait;
+  filter: grayscale(0.2);
+}
+

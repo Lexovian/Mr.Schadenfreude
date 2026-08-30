@@ -49,6 +49,9 @@ const I18N = (function () {
       credit_video_label: 'Video & Prodüksiyon',
       credit_mv_label: 'Orijinal Klip',
       credit_github_label: 'Kaynak Kodu',
+      server_waking_up: '🕯️ Sunucu uyanıyor, lütfen birkaç saniye bekleyin...',
+      server_connected: '✅ Sunucuya bağlanıldı!',
+      server_reconnecting: '⚠️ Sunucu bağlantısı koptu, yeniden bağlanılıyor...',
 
       // Lobby
       lobby_theatre_name: 'Bekleme Odası',
@@ -303,6 +306,9 @@ const I18N = (function () {
       credit_video_label: 'Video Production',
       credit_mv_label: 'Official Music Video',
       credit_github_label: 'Source Code',
+      server_waking_up: '🕯️ Server is waking up, please wait a few seconds...',
+      server_connected: '✅ Connected to server!',
+      server_reconnecting: '⚠️ Connection lost, reconnecting...',
 
       // Lobby
       lobby_theatre_name: 'Waiting Room',
@@ -555,6 +561,9 @@ const I18N = (function () {
       credit_video_label: '動画制作',
       credit_mv_label: '公式MV',
       credit_github_label: 'ソースコード',
+      server_waking_up: '🕯️ サーバー起動中... 少々お待ちください...',
+      server_connected: '✅ サーバーに接続しました！',
+      server_reconnecting: '⚠️ 切断されました。再接続中...',
 
       lobby_theatre_name: '控え室',
       room_code: 'ルームコード:',
@@ -793,6 +802,9 @@ const I18N = (function () {
       credit_video_label: 'Videoproduktion',
       credit_mv_label: 'Offizielles Musikvideo',
       credit_github_label: 'Quellcode',
+      server_waking_up: '🕯️ Server startet, bitte einige Sekunden warten...',
+      server_connected: '✅ Mit Server verbunden!',
+      server_reconnecting: '⚠️ Verbindung getrennt, verbinde neu...',
 
       lobby_theatre_name: 'Warteraum',
       room_code: 'Raumcode:',
@@ -1031,6 +1043,9 @@ const I18N = (function () {
       credit_video_label: 'Producción de Video',
       credit_mv_label: 'Video Musical Oficial',
       credit_github_label: 'Código Fuente',
+      server_waking_up: '🕯️ El servidor se está iniciando, espera unos segundos...',
+      server_connected: '✅ ¡Conectado al servidor!',
+      server_reconnecting: '⚠️ Conexión perdida, reconectando...',
 
       lobby_theatre_name: 'Sala de Espera',
       room_code: 'Código de Sala:',
@@ -1269,6 +1284,9 @@ const I18N = (function () {
       credit_video_label: 'Production Vidéo',
       credit_mv_label: 'Clip Officiel',
       credit_github_label: 'Code Source',
+      server_waking_up: '🕯️ Le serveur démarre, veuillez patienter quelques secondes...',
+      server_connected: '✅ Connecté au serveur !',
+      server_reconnecting: '⚠️ Connexion perdue, reconnexion en cours...',
 
       lobby_theatre_name: 'Foyer d\'Attente',
       room_code: 'Code de Salle :',
