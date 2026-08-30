@@ -122,7 +122,7 @@ const I18N = (function () {
       desc_sf: 'Görünürsünüz ancak dokunulmazsınız. Gece 0\'da kuklanızı seçer, geceleri infaz emri verirsiniz. Cinayet mahalline masumların eşyalarını bırakarak Mortisyen\'i yanıltabilirsiniz. Köyü birbirine düşürüp ele geçirmeyi amaçlarsınız.',
       desc_sf_secret: 'Halkın arasına sızmış gizli bir katilsiniz; kuklanız yoktur. Geceleri kurbanlarınızı bizzat infaz eder ve delil bırakarak Mortisyen\'i yanıltabilirsiniz. Kimliğinizi gizleyin; köylüler sizden şüphelenip asarsa oyunu kaybedersiniz!',
       desc_kukla: 'Kukla ek bir gölge unvanıdır. Kendi orijinal rolünüzü ve yeteneklerinizi korurken, efendinizin infaz emirlerini gizlice yerine getirirsiniz. Gündüz masum bir köylü gibi davranmalısınız.',
-      desc_mortisyen: 'Her ölümden sonra cesetleri inceler. Olay yerindeki kanıtlardan (%65 rol/zanaat eşyaları, %35 mahkeme/davranış izleri) 3 kişilik bir şüpheli grubu tespit eder ve defterine kaydeder.',
+      desc_mortisyen: 'Her ölümden sonra cesetleri inceler. Olay yerindeki adli kanıtlardan (Eşya & Rol İzi ve Davranış İzi) 3 kişilik şüpheli havuzu tespit eder; geceleri yaşayanları gözetleyebilir ve defterini köyle paylaşabilir.',
       desc_rahibe: 'Kutsal dualarınız ve tarot kartlarınızla geceleri bir köylüyü inceler, onun bu gece karanlıkta hareket edip etmediğini sezer ve gerçeği ortaya çıkarırsınız.',
       desc_sovalye: 'Köyün muhafızı. Geceleri masumları koruyabilir veya doğrudan karanlığa meydan okuyabilirsiniz (maksimum 2 hak).',
       desc_madman: 'Karanlık bir lanetle mühürlü bir ruh. Eğer kukla tarafından öldürülürseniz, kuklayı da peşinizden ölüme sürüklersiniz.',
@@ -1581,18 +1581,18 @@ const I18N = (function () {
         title: 'Mortisyen',
         badge: 'Adli Tıp / Köylü',
         badgeClass: 'town',
-        overview: 'Köyün adli tabibi. Her cinayetten sonra cesetleri ve olay yerini inceleyerek katilin kimliğine dair delil toplar.',
+        overview: 'Köyün adli tabibi. Her cinayetten sonra cesetleri ve olay mahallini titizlikle inceleyerek katilin kimliğine dair somut adli izler toplar.',
         abilities: [
-          '<strong>Gece Odaklanması:</strong> Geceleri olay yeri otopsisi veya yaşayan bir şüpheliyi gözetleme arasında seçim yapar.',
-          '<strong>Vaka Defteri:</strong> Elde ettiği tüm bulgular, zanaat kalıntıları ve şüpheliler otomatik olarak defterine işlenir.',
-          '<strong>Köye Duyuru:</strong> İpuçlarını veya tüm dava dosyasını tek tıkla köy meydanına açıklayabilir.'
+          '<strong>Gece Araştırma Odağı:</strong> Geceleri "Olay Yeri & Derin Otopsi" veya yaşayan bir şüpheliye yönelik "Şüpheli Gözetimi" arasında seçim yapar.',
+          '<strong>Otopsi & Vaka Defteri:</strong> Elde ettiği tüm bulgular (Eşya & Rol İzi, Davranış İzi ve 3\'lü Şüpheli havuzu) otomatik olarak defterine kaydedilir ve ortak şüpheli hesaplanır.',
+          '<strong>Köye Duyuru:</strong> Tek bir ipucunu veya birleşik tüm dava dosyasını gündüz vakti tek tıkla köy meydanına açıklayabilir.'
         ],
         rules: [
-          '<strong>%65 Rol & Zanaat İzi:</strong> Cesedin üzerinde katilin rol sınıfına dair somut eşyalar (kılıç yağı, balmumu, keten lifi) bulur.',
-          '<strong>%35 Davranış & Olay İzi:</strong> Katilin dünkü mahkemedeki tavrını veya boğuşma izlerini tespit eder.',
-          '<strong>3\'lü Şüphe Grubu:</strong> Raporlar tek kişi yerine 3 kişilik bir şüpheli grubu verir (masum isimler geceler arasında tekrarlanabilir).'
+          '<strong>Bulunan Eşya & Rol İzi:</strong> Katilin mesleki ve zanaat sınıfına dair olay yerinde bıraktığı somut eşya kalıntısını (demir tozu, mum lekesi, asil ipek, köylü çuvalı vb.) tespit eder.',
+          '<strong>Davranış İzi:</strong> Katilin cinayet anındaki hareket tarzını ve psikolojik izini (sessiz süzülme, panik adımları, teatral tebessüm vb.) ortaya çıkarır.',
+          '<strong>3\'lü Şüpheli Havuzu:</strong> Raporlar katilin yanında 2 masumu da içeren 3 kişilik bir şüpheli grubu sunar (birden fazla gece karşılaştırılarak ortak isim elenir).'
         ],
-        tips: 'Tek bir rapora aldanma; birkaç gecenin bulgularını ve zanaat izlerini oyuncuların rol iddialarıyla karşılaştırarak çelişkileri yakala.'
+        tips: 'Tek bir rapora bakarak acele hüküm verme. Birden fazla gecenin eşya ve davranış kalıntılarını oyuncuların iddia ettiği rollerle çapraz eşleştirerek çelişkileri yakala.'
       },
       rahibe: {
         icon: '🕯️',
@@ -1695,18 +1695,18 @@ const I18N = (function () {
         title: 'The Undertaker',
         badge: 'Forensics / Town',
         badgeClass: 'town',
-        overview: 'The village\'s forensic coroner. Examines bodies and crime scenes after every death to unearth clues.',
+        overview: 'The village medical examiner. Scrutinizes crime scenes and corpses to uncover vital forensic traces of the killer.',
         abilities: [
-          '<strong>Forensic Focus:</strong> Choose between deep crime scene autopsy or surveillance on a living suspect.',
-          '<strong>Autopsy Ledger:</strong> Clues and suspect groups are automatically recorded in a personal case file.',
-          '<strong>Town Announcement:</strong> Publish individual clues or the consolidated dossier directly to village chat.'
+          '<strong>Night Investigation Focus:</strong> Choose between "Crime Scene & Deep Autopsy" or "Suspect Surveillance" on a living player.',
+          '<strong>Autopsy Ledger & Dossier:</strong> All findings (Item & Role trace, Behavioral trace, 3-suspect pool) are automatically logged, calculating the primary common suspect.',
+          '<strong>Town Announcement:</strong> Publish individual clues or the complete case dossier directly to village chat with one click.'
         ],
         rules: [
-          '<strong>65% Chance (Role & Craft Trace):</strong> Uncovers role-specific items on the corpse (iron dust, candle wax, linen).',
-          '<strong>35% Chance (Court / Behavioral Trace):</strong> Identifies voting behavior or struggle traces.',
-          '<strong>3-Suspect Pool:</strong> Each report contains 3 suspects (innocents can repeat across nights as noise).'
+          '<strong>Item & Role Trace:</strong> Discovers craft and role-specific items left at the scene (iron shavings, candle wax, noble silk, burlap, etc.).',
+          '<strong>Behavioral Trace:</strong> Detects the killer\'s psychological and physical movements at the crime scene.',
+          '<strong>3-Suspect Pool:</strong> Each report yields a 3-suspect group containing the true culprit and innocents (cross-reference across nights to find the overlap).'
         ],
-        tips: 'Do not jump to conclusions based on a single report. Cross-reference multiple reports and craft items with players\' claimed roles.'
+        tips: 'Do not jump to conclusions based on a single report. Cross-reference item traces and behavior patterns across multiple nights against players\' role claims.'
       },
       rahibe: {
         icon: '🕯️',
