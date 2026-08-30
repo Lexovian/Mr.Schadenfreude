@@ -1856,7 +1856,10 @@ function renderPrivateInfo(priv) {
 
   // Mortisyen clue log
   if (role === 'mortisyen') {
-    document.getElementById('clue-log')?.classList.remove('hidden');
+    if (priv.mortisyenClues && Array.isArray(priv.mortisyenClues)) {
+      state.clueHistory = priv.mortisyenClues;
+    }
+    renderMorticianLedger();
   }
 
   // Rahibe Tarot log
@@ -1999,7 +2002,7 @@ function renderMorticianLedger() {
     const text  = typeof c === 'object' ? (c.translations?.[currentL] || c.clue) : c;
     const eType = typeof c === 'object' ? (c.evidenceType || 'info') : 'info';
     const fabric = typeof c === 'object' ? (c.fabricTranslations?.[currentL] || c.fabricTrace) : '';
-    const location = typeof c === 'object' ? (c.locationTranslations?.[currentL] || c.locationTrace) : '';
+    const behavior = typeof c === 'object' ? (c.behaviorTranslations?.[currentL] || c.behaviorTrace) : '';
 
     const li = document.createElement('li');
     li.className = `clue-card clue-${eType}`;
@@ -2007,11 +2010,11 @@ function renderMorticianLedger() {
     const safeText = escHtml(text);
 
     let extraTracesHtml = '';
-    if (fabric || location) {
+    if (fabric || behavior) {
       extraTracesHtml = `
         <div class="clue-traces-box">
-          ${fabric ? `<div class="clue-trace-item"><span class="trace-tag">🧵 ${t('clue_trace_fabric')}:</span> <em>${escHtml(fabric)}</em></div>` : ''}
-          ${location ? `<div class="clue-trace-item"><span class="trace-tag">📍 ${t('clue_trace_location')}:</span> <em>${escHtml(location)}</em></div>` : ''}
+          ${fabric ? `<div class="clue-trace-item"><span class="trace-tag">🪶 ${t('clue_trace_fabric')}:</span> <em>${escHtml(fabric)}</em></div>` : ''}
+          ${behavior ? `<div class="clue-trace-item"><span class="trace-tag">👁️ ${t('clue_trace_behavior')}:</span> <em>${escHtml(behavior)}</em></div>` : ''}
         </div>
       `;
     }

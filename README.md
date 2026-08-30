@@ -62,7 +62,7 @@ As dawn breaks, the villagers must analyze **Forensic Autopsy Reports**, listen 
   - **Classic Puppet Master:** Mr. Schadenfreude's identity is publicly known, commanding a secret puppet from the front.
   - **Secret Killer:** Mr. Schadenfreude hides among ordinary villagers—no one knows who the killer is.
 - **Chaos Score & Backup Puppet:** When the village wrongly executes innocent citizens (2/2 Chaos), Mr. Schadenfreude earns the right to choose a replacement puppet!
-- **Undertaker Autopsy Ledger:** The Mortician extracts forensic evidence from corpses (fabric traces, seating proximity, suspect pairs) and can stake out living suspects.
+- **Undertaker Autopsy Ledger:** The Mortician extracts forensic evidence from corpses (item & fabric traces, behavioral auras, suspect triads) and can stake out living suspects.
 - **Sacred Tarot Prophecies:** The Priest senses soul movements in the dark with a 1-night cooldown. Passing on a night preserves and carries over the charge to the next round.
 - **Knight's Aegis & Challenge:** Protect an innocent villager each night or stake your blade to challenge the shadow directly.
 - **Smart Bot System:** Autonomous AI bots that vote, use night abilities, and mimic real player behavior to fill empty seats.
@@ -77,7 +77,7 @@ As dawn breaks, the villagers must analyze **Forensic Autopsy Reports**, listen 
 | :--- | :---: | :--- |
 | **Mr. Schadenfreude** | **Evil** | Secretly commands the Puppet each night to execute villagers. Can plant fabricated evidence (necklaces) to frame innocents. |
 | **Puppet** | **Evil** | Retains original role abilities while executing night kill orders for their master. Appears innocent to the village. |
-| **Mortician** | **Village** | Gathers forensic clues from victims (fabric, positioning) or conducts surveillance on living players to uncover shadow auras. |
+| **Mortician** | **Village** | Gathers forensic clues from victims (item traces, behavioral aura, suspect triad) or conducts surveillance on living players to uncover shadow auras. |
 | **Priest** | **Village** | Draws Sacred Tarot cards (1-night cooldown, carry-over enabled) to divine whether a suspect was active in the dark. |
 | **Knight** | **Village** | Shields one living player per night from attacks, or challenges the shadow up to 2 times per game. |
 | **Madman** | **Village** | An eccentric villager whose unpredictable intuition and chaotic murmurs can either save or mislead the town. |

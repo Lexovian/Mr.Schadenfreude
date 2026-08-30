@@ -283,10 +283,12 @@ const FORENSIC_TRACES = {
       'Olay yerinde tapınak mumu isi ve solgun bir koku saptandı.',
       'Kurbanın tırnaklarında siyah kadife kumaş kalıntıları var.',
     ],
-    locations: [
-      'Katilin, kurbanın masadaki 1 veya 2 sıra yakınında oturduğu belirlendi.',
-      'İzler, katilin kurbanın sol kanadındaki masumlardan birine yakın olduğunu gösteriyor.',
-      'Olay yeri mesafesi: Katil kurbanın tam karşısındaki sıralardan yaklaştı.',
+    behaviors: [
+      'Kurban son anlarında soğukkanlı ve acele etmeyen adımlarla yaklaşan bir siluet hissetti.',
+      'Olay yerinde tereddüt, ani bir geri çekilme ve fısıltılı mırıldanma izleri var.',
+      'Katilin saldırı anında son derece sakin ve planlı hareket ettiği belirlendi.',
+      'Kurbanın direnmeye fırsat bulamadığı, tanıdık birine güvenir gibi yaklaştığı sezildi.',
+      'Gece boyunca katilin etrafta sinsi ve gölgeli hareketlerle dolaştığı saptandı.',
     ],
   },
   en: {
@@ -296,10 +298,12 @@ const FORENSIC_TRACES = {
       'Temple candle soot and a faint mystic fragrance were detected.',
       'Black velvet fabric residues were found under victim\'s fingernails.',
     ],
-    locations: [
-      'The killer was seated within 1-2 positions from the victim.',
-      'Traces indicate the killer approached from the victim\'s left side.',
-      'Spatial trace: The killer approached from the opposite side of the circle.',
+    behaviors: [
+      'The victim sensed a silhouette approaching with cold, unhurried steps in their final moments.',
+      'Traces of hesitation, a sudden recoil, and faint whispered murmurs linger at the scene.',
+      'The killer acted with calculated stillness and methodical precision.',
+      'The victim did not resist, suggesting they trusted the approaching figure.',
+      'Stealthy, shadow-cloaked movements were traced through the area that night.',
     ],
   },
   ja: {
@@ -308,9 +312,11 @@ const FORENSIC_TRACES = {
       '衣服に錆びた鉄粉と鞘の擦れ跡が見つかった。',
       '現場から蝋燭の煤と微かな香煙が感知された。',
     ],
-    locations: [
-      '犯人は被害者から1〜2席以内の距離にいたと推定される。',
-      '痕跡は犯人が被害者の左手側から接近したことを示している。',
+    behaviors: [
+      '被害者は最期の瞬間、冷徹で躊躇のない足音を感じ取っていた。',
+      '現場には一瞬の躊躇いと、微かな囁き声の残響が漂っている。',
+      '犯人は極めて冷静沈着に、計画的な動作で行動していた。',
+      '被害者に抵抗の痕跡はなく、知人を信じ切っていたかのように接近を許していた。',
     ],
   },
   de: {
@@ -319,9 +325,11 @@ const FORENSIC_TRACES = {
       'Rostiger Eisenstaub und Scheidenspuren an der Kleidung.',
       'Kerzenruß und ein feiner Duft am Tatort wahrgenommen.',
     ],
-    locations: [
-      'Der Täter saß 1-2 Plätze vom Opfer entfernt.',
-      'Spuren deuten auf Annäherung von der linken Seite hin.',
+    behaviors: [
+      'Das Opfer spürte in den letzten Momenten eine Gestalt mit kalten, ruhigen Schritten.',
+      'Spuren von Zögern und leises Flüstern verbleiben am Tatort.',
+      'Der Täter handelte mit kalkulierter Ruhe und methodischer Präzision.',
+      'Keine Abwehrspuren — das Opfer schien der herantretenden Person vertraut zu haben.',
     ],
   },
   es: {
@@ -330,9 +338,11 @@ const FORENSIC_TRACES = {
       'Polvo de hierro y marcas de vaina detectados en la ropa.',
       'Hollín de vela del templo y aroma sutil detectados en la escena.',
     ],
-    locations: [
-      'El asesino estaba sentado a 1-2 posiciones de la víctima.',
-      'Las huellas indican aproximación por el flanco izquierdo.',
+    behaviors: [
+      'La víctima sintió una silueta acercándose con pasos fríos y sin prisa en sus últimos instantes.',
+      'Quedan en la escena rastros de vacilación y susurros apagados.',
+      'El asesino actuó con calma calculada y precisión metódica.',
+      'La víctima no opuso resistencia, como si confiara plenamente en la figura que se acercaba.',
     ],
   },
   fr: {
@@ -341,9 +351,11 @@ const FORENSIC_TRACES = {
       'Poussière de fer rouillé et traces de fourreau sur les vêtements.',
       'Suie de bougie du temple et léger parfum détectés sur place.',
     ],
-    locations: [
-      'Le meurtrier était assis à 1-2 sièges de la victime.',
-      'Les traces indiquent une approche par le côté gauche.',
+    behaviors: [
+      'La victime a perçu une silhouette approchant d\'un pas froid et mesuré dans ses derniers instants.',
+      'Des traces d\'hésitation et de légers murmures flottent encore sur les lieux.',
+      'Le meurtrier a agi avec un calme calculé et une précision méthodique.',
+      'Aucune trace de lutte — la victime semblait faire confiance à la silhouette qui approchait.',
     ],
   },
 };
@@ -411,19 +423,21 @@ function generateMortisianClue(room, player, isDeep = true) {
   let suspects = [];
   const translations = {};
   const fabricTranslations = {};
-  const locationTranslations = {};
+  const behaviorTranslations = {};
 
   if (!room.mortisyenClueHistory) room.mortisyenClueHistory = [];
 
   if (player.deathCause === 'night') {
+    const isSecretSF = room.settings?.gameMode === 'secretKiller';
     const kuklaPlayer = room.kuklaId ? getPlayer(room, room.kuklaId) : null;
+    const killerPlayer = isSecretSF ? getPlayer(room, room.sfId) : kuklaPlayer;
     const framedPlayer = room.nightActions?.sf_frame ? getPlayer(room, room.nightActions.sf_frame) : null;
-    const focalPlayer = (framedPlayer && framedPlayer.alive) ? framedPlayer : kuklaPlayer;
+    const focalPlayer = (framedPlayer && framedPlayer.alive) ? framedPlayer : killerPlayer;
 
     if (focalPlayer) {
       const distractors = alive.filter(p =>
         p.id !== focalPlayer.id &&
-        p.id !== room.sfId &&
+        (!isSecretSF ? p.id !== room.sfId : true) &&
         p.id !== player.id &&
         p.id !== room.mortisyen
       );
@@ -431,48 +445,49 @@ function generateMortisianClue(room, player, isDeep = true) {
 
       const chosenDistractors = distractors.slice(0, 2);
       const triad = [focalPlayer.name, ...chosenDistractors.map(d => d.name)].sort(() => Math.random() - 0.5);
-      const useRoleTrace = Math.random() < 0.65;
       const roleKey = focalPlayer.role || 'koylu';
 
-      if (useRoleTrace) {
-        const itemIdx = Math.floor(Math.random() * (ROLE_ARCHETYPE_ITEMS.tr[roleKey]?.length || 3));
-        const itemTR = ROLE_ARCHETYPE_ITEMS.tr[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.tr.koylu[0];
-        const itemEN = ROLE_ARCHETYPE_ITEMS.en[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.en.koylu[0];
-        const itemJA = ROLE_ARCHETYPE_ITEMS.ja[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.ja.koylu[0];
-        const itemDE = ROLE_ARCHETYPE_ITEMS.de[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.de.koylu[0];
-        const itemES = ROLE_ARCHETYPE_ITEMS.es[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.es.koylu[0];
-        const itemFR = ROLE_ARCHETYPE_ITEMS.fr[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.fr.koylu[0];
+      // Always pick an item belonging to the focal player's role/archetype
+      const itemIdx = Math.floor(Math.random() * (ROLE_ARCHETYPE_ITEMS.tr[roleKey]?.length || 3));
+      const itemTR = ROLE_ARCHETYPE_ITEMS.tr[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.tr.koylu[0];
+      const itemEN = ROLE_ARCHETYPE_ITEMS.en[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.en.koylu[0];
+      const itemJA = ROLE_ARCHETYPE_ITEMS.ja[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.ja.koylu[0];
+      const itemDE = ROLE_ARCHETYPE_ITEMS.de[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.de.koylu[0];
+      const itemES = ROLE_ARCHETYPE_ITEMS.es[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.es.koylu[0];
+      const itemFR = ROLE_ARCHETYPE_ITEMS.fr[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.fr.koylu[0];
 
-        const suspectsJoined = triad.join(', ');
-        translations.tr = `🔍 Olay yerinde "${itemTR}" tespit edildi! Şüpheliler: ${suspectsJoined}.`;
-        translations.en = `🔍 "${itemEN}" detected at the scene! Suspects: ${suspectsJoined}.`;
-        translations.ja = `🔍 現場から「${itemJA}」が検出された！容疑者：${suspectsJoined}。`;
-        translations.de = `🔍 Tatortfund: "${itemDE}"! Verdächtige: ${suspectsJoined}.`;
-        translations.es = `🔍 ¡"${itemES}" detectado en la escena! Sospechosos: ${suspectsJoined}.`;
-        translations.fr = `🔍 "${itemFR}" détecté sur les lieux ! Suspects : ${suspectsJoined}.`;
+      // Behavioral trace of the killer / suspect at the crime scene
+      const behIdx = Math.floor(Math.random() * (FORENSIC_TRACES.tr.behaviors?.length || 5));
+      const behTR = FORENSIC_TRACES.tr.behaviors?.[behIdx] || FORENSIC_TRACES.tr.behaviors[0];
+      const behEN = FORENSIC_TRACES.en.behaviors?.[behIdx] || FORENSIC_TRACES.en.behaviors[0];
+      const behJA = FORENSIC_TRACES.ja.behaviors?.[behIdx] || FORENSIC_TRACES.ja.behaviors[0];
+      const behDE = FORENSIC_TRACES.de.behaviors?.[behIdx] || FORENSIC_TRACES.de.behaviors[0];
+      const behES = FORENSIC_TRACES.es.behaviors?.[behIdx] || FORENSIC_TRACES.es.behaviors[0];
+      const behFR = FORENSIC_TRACES.fr.behaviors?.[behIdx] || FORENSIC_TRACES.fr.behaviors[0];
 
-        fabricTranslations.tr = `${itemTR} (Zanaat & Rol İzi)`;
-        fabricTranslations.en = `${itemEN} (Role Trace)`;
-        fabricTranslations.ja = `${itemJA} (役職の痕跡)`;
-        fabricTranslations.de = `${itemDE} (Rollen-Spur)`;
-        fabricTranslations.es = `${itemES} (Rastro de Rol)`;
-        fabricTranslations.fr = `${itemFR} (Trace de Rôle)`;
-      } else {
-        const suspectsJoined = triad.join(', ');
-        translations.tr = `🔍 Katilin kurbana karşı şüpheli davrandığı gözlendi. Şüpheliler: ${suspectsJoined}.`;
-        translations.en = `🔍 Suspicious behavioral traces noted near the victim. Suspects: ${suspectsJoined}.`;
-        translations.ja = `🔍 被害者の周辺で不審な行動が記録された。容疑者：${suspectsJoined}。`;
-        translations.de = `🔍 Verdächtige Verhaltensspuren festgestellt. Verdächtige: ${suspectsJoined}.`;
-        translations.es = `🔍 Rastros de comportamiento sospechoso detectados. Sospechosos: ${suspectsJoined}.`;
-        translations.fr = `🔍 Traces de comportement suspect relevées. Suspects : ${suspectsJoined}.`;
+      const suspectsJoined = triad.join(', ');
+      const isFramed = !!framedPlayer;
 
-        fabricTranslations.tr = `Davranışsal Şüphe İzi`;
-        fabricTranslations.en = `Behavioral Suspicion Trace`;
-        fabricTranslations.ja = `不審行動の痕跡`;
-        fabricTranslations.de = `Verhaltensspur`;
-        fabricTranslations.es = `Rastro de Conducta`;
-        fabricTranslations.fr = `Trace Comportementale`;
-      }
+      translations.tr = `🔍 Olay yerinde bulunan delil: "${itemTR}"! Bu ize uyan şüpheliler: ${suspectsJoined}.`;
+      translations.en = `🔍 Evidence found at the crime scene: "${itemEN}"! Matching suspects: ${suspectsJoined}.`;
+      translations.ja = `🔍 現場から発見された証拠：「${itemJA}」！該当する容疑者：${suspectsJoined}。`;
+      translations.de = `🔍 Gefundener Beweis am Tatort: "${itemDE}"! Passende Verdächtige: ${suspectsJoined}.`;
+      translations.es = `🔍 ¡Evidencia hallada en la escena: "${itemES}"! Sospechosos coincidentes: ${suspectsJoined}.`;
+      translations.fr = `🔍 Indice retrouvé sur les lieux : "${itemFR}" ! Suspects correspondants : ${suspectsJoined}.`;
+
+      fabricTranslations.tr = `${itemTR} (${isFramed ? 'Olay Yerine Bırakılan Eşya' : 'Kişisel Zanaat & Rol İzi'})`;
+      fabricTranslations.en = `${itemEN} (${isFramed ? 'Planted Item' : 'Role & Craft Trace'})`;
+      fabricTranslations.ja = `${itemJA} (${isFramed ? '残された遺留品' : '役職の痕跡'})`;
+      fabricTranslations.de = `${itemDE} (${isFramed ? 'Platzierter Gegenstand' : 'Rollen-Spur'})`;
+      fabricTranslations.es = `${itemES} (${isFramed ? 'Objeto Plantado' : 'Rastro de Rol'})`;
+      fabricTranslations.fr = `${itemFR} (${isFramed ? 'Objet Déposé' : 'Trace de Rôle'})`;
+
+      behaviorTranslations.tr = behTR;
+      behaviorTranslations.en = behEN;
+      behaviorTranslations.ja = behJA;
+      behaviorTranslations.de = behDE;
+      behaviorTranslations.es = behES;
+      behaviorTranslations.fr = behFR;
 
       evidenceType = 'suspects';
       suspects = triad;
@@ -566,7 +581,7 @@ function generateMortisianClue(room, player, isDeep = true) {
     evidenceType: evidenceType,
     suspects: suspects,
     fabricTrace: fabricTranslations[lang] || fabricTranslations.tr || '',
-    locationTrace: locationTranslations[lang] || locationTranslations.tr || '',
+    behaviorTrace: behaviorTranslations[lang] || behaviorTranslations.tr || '',
     translations,
     roleTranslations: {
       tr: roleLabel(player.role, 'tr'),
@@ -577,7 +592,7 @@ function generateMortisianClue(room, player, isDeep = true) {
       fr: roleLabel(player.role, 'fr'),
     },
     fabricTranslations,
-    locationTranslations,
+    behaviorTranslations,
   };
 }
 
@@ -1389,6 +1404,8 @@ function handleNightEnd(code) {
           fr: 'Rapport de Surveillance',
         }
       };
+      if (!room.mortisyenClues) room.mortisyenClues = [];
+      room.mortisyenClues.push(survClueObj);
       io.to(room.mortisyen).emit('private:clue', survClueObj);
     }
   }
@@ -1506,6 +1523,8 @@ function killPlayer(room, player, cause, announcements, lang) {
   if (room.mortisyen && room.mortisyen !== player.id) {
     const isDeep = room.nightActions.mortisyen_mode !== 'surveillance';
     const clueObj = generateMortisianClue(room, player, isDeep);
+    if (!room.mortisyenClues) room.mortisyenClues = [];
+    room.mortisyenClues.push(clueObj);
     io.to(room.mortisyen).emit('private:clue', clueObj);
   }
 
@@ -1554,6 +1573,8 @@ function startDawn(code) {
 
           if (room.mortisyen) {
             const clueObj = generateMortisianClue(room, target);
+            if (!room.mortisyenClues) room.mortisyenClues = [];
+            room.mortisyenClues.push(clueObj);
             io.to(room.mortisyen).emit('private:clue', clueObj);
           }
 
@@ -1699,6 +1720,8 @@ function handleVoteEnd(code) {
   // Mortisyen clue
   if (room.mortisyen && room.mortisyen !== lynched.id) {
     const clueData = generateMortisianClue(room, lynched);
+    if (!room.mortisyenClues) room.mortisyenClues = [];
+    room.mortisyenClues.push(clueData);
     io.to(room.mortisyen).emit('private:clue', clueData);
   }
 
@@ -1899,6 +1922,7 @@ function buildPrivateState(room, playerId) {
     mortisyenActionDone: player.role === ROLES.MORTISYEN ? (!!room.nightActions.mortisyen_mode) : undefined,
     mortisyenMode: player.role === ROLES.MORTISYEN ? room.nightActions.mortisyen_mode : undefined,
     mortisyenTarget: player.role === ROLES.MORTISYEN ? room.nightActions.mortisyen_target : undefined,
+    mortisyenClues: player.role === ROLES.MORTISYEN ? (room.mortisyenClues || []) : undefined,
     // Rahibe: tarot prophecy state
     isRahibe: player.role === ROLES.RAHIBE,
     rahibeActionDone: player.role === ROLES.RAHIBE ? (!!room.nightActions.rahibe_target || !!room.nightActions.rahibe_passed) : undefined,
