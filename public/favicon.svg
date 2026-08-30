@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <!-- Arka Plan Radyal Gradyan -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2a0038" />
+      <stop offset="70%" stop-color="#12001a" />
+      <stop offset="100%" stop-color="#07000b" />
+    </radialGradient>
+
+    <!-- Altın Gradyan -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffecb3" />
+      <stop offset="50%" stop-color="#d4af37" />
+      <stop offset="100%" stop-color="#aa7c11" />
+    </linearGradient>
+
+    <!-- Kırmızı Parıltı Gradyan -->
+    <linearGradient id="redGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff1744" />
+      <stop offset="100%" stop-color="#b71c1c" />
+    </linearGradient>
+
+    <!-- Filtre: Neon Altın & Kırmızı Parıltı -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Arka Plan Daire -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGrad)" stroke="url(#goldGrad)" stroke-width="2" />
+  <circle cx="32" cy="32" r="27.5" fill="none" stroke="#b71c1c" stroke-width="0.75" stroke-dasharray="2 1.5" opacity="0.6" />
+
+  <!-- Şapka (Top Hat) -->
+  <g filter="url(#glow)">
+    <!-- Şapka Gövdesi -->
+    <path d="M22 14 L42 14 L40 29 L24 29 Z" fill="#180020" stroke="url(#goldGrad)" stroke-width="1.2" stroke-linejoin="round" />
+    
+    <!-- Şapka Kırmızı Kurdelesi -->
+    <path d="M23.5 25.5 L40.5 25.5 L40 29 L24 29 Z" fill="url(#redGrad)" />
+
+    <!-- Şapka Kenarı (Brim) -->
+    <ellipse cx="32" cy="29.5" rx="16" ry="3.5" fill="#1f002b" stroke="url(#goldGrad)" stroke-width="1.2" />
+    
+    <!-- Maske / Yüz Silüeti -->
+    <path d="M22 34 C22 46, 32 50, 32 50 C32 50, 42 46, 42 34 C42 32, 22 32, 22 34 Z" fill="#0d0014" stroke="url(#goldGrad)" stroke-width="1" />
+
+    <!-- Parlayan Kırmızı Gözler -->
+    <path d="M25.5 37.5 Q28 35.5 30 38.5 Q28 39.5 25.5 37.5 Z" fill="#ff1744" />
+    <path d="M38.5 37.5 Q36 35.5 34 38.5 Q36 39.5 38.5 37.5 Z" fill="#ff1744" />
+
+    <!-- Sinsi SF Gülümsemesi -->
+    <path d="M26 43 Q32 48 38 43" fill="none" stroke="url(#goldGrad)" stroke-width="1.2" stroke-linecap="round" />
+    
+    <!-- İplik / Kukla Çizgisi -->
+    <line x1="32" y1="50" x2="32" y2="56" stroke="#ff1744" stroke-width="0.8" stroke-dasharray="1 1" />
+    <circle cx="32" cy="57" r="1" fill="#ffd700" />
+  </g>
+</svg>

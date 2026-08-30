@@ -1,0 +1,291 @@
+<!-- Top bar -->
+<div class="game-topbar card">
+  <!-- Top Row: Phase Status & Player Role Badge -->
+  <div class="topbar-row topbar-row-status">
+    <div class="phase-badge-box">
+      <span class="phase-icon" id="phase-icon">🎭</span>
+      <span id="phase-label" class="phase-label"></span>
+      <span id="round-label" class="round-label"></span>
+    </div>
+    <div id="my-role-badge" class="role-badge role-velvet-ribbon"></div>
+  </div>
+
+  <!-- Tools & Astrological Timer Row -->
+  <div class="topbar-row topbar-row-tools">
+    <div class="topbar-left-tools">
+      <button id="btn-topbar-grimoire" class="topbar-tool-btn" onclick="openGrimoire()" title="Grimoire — Rehber & Roller">
+        <span>📜</span>
+        <span class="tool-btn-txt" data-i18n="grimoire_btn">Grimoire</span>
+      </button>
+      <button id="btn-topbar-sound" class="topbar-tool-btn" onclick="Sound.toggleMute()" title="Sesi Aç / Kapat">
+        <span id="topbar-sound-icon">🔊</span>
+      </button>
+      <div class="lang-selector-wrap lang-selector-topbar">
+        <span class="lang-icon">🌐</span>
+        <select class="lang-select lang-select-topbar" onchange="changeLanguage(this.value)" title="Dil Seç / Language">
+          <option value="tr">🇹🇷 TR</option>
+          <option value="en">EN</option>
+          <option value="ja">🇯🇵 JA</option>
+          <option value="de">🇩🇪 DE</option>
+          <option value="es">🇪🇸 ES</option>
+          <option value="fr">🇫🇷 FR</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="topbar-center-timer">
+      <div id="timer-ring" class="timer-ring clockwork-housing">
+        <div class="clockwork-notch top"></div>
+        <div class="clockwork-notch bottom"></div>
+        <svg viewBox="0 0 60 60">
+          <circle cx="30" cy="30" r="26" class="timer-track" />
+          <circle cx="30" cy="30" r="26" class="timer-fill" id="timer-svg-circle" />
+        </svg>
+        <span id="timer-text" class="timer-text">--</span>
+      </div>
+    </div>
+
+    <div class="topbar-right-tools">
+      <button id="btn-phase-ready" class="topbar-tool-btn topbar-ready-btn" onclick="toggleReady()" title="Hazırım / Fazı Geç">
+        <span id="ready-status-icon">⚡</span>
+        <span id="ready-btn-text" class="ready-txt" data-i18n="btn_ready">Hazırım</span>
+        <span id="ready-counter" class="ready-pill-counter">0/0</span>
+      </button>
+      <button id="btn-skip-phase" class="btn btn-sm btn-ghost host-skip-btn hidden" onclick="skipPhase()" title="Fazı Geç (Host Test)">
+        ⏩ <span class="skip-btn-txt" data-i18n="skip_phase_host">Fazı Geç</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Mobil Sekme Seçici (Mobile Tabs Navigation) -->
+<nav class="mobile-game-nav" aria-label="Mobil Oyun Sekmeleri">
+  <button class="mob-tab-btn active" id="mob-tab-main" onclick="switchMobileView('main')">
+    <span class="mob-tab-icon">🎭</span>
+    <span class="mob-tab-label">Sahne</span>
+  </button>
+  <button class="mob-tab-btn" id="mob-tab-players" onclick="switchMobileView('players')">
+    <span class="mob-tab-icon">👥</span>
+    <span class="mob-tab-label">Sahnedekiler</span>
+  </button>
+  <button class="mob-tab-btn" id="mob-tab-secret" onclick="switchMobileView('secret')">
+    <span class="mob-tab-icon">🔮</span>
+    <span class="mob-tab-label">Gizli Bilgi</span>
+    <span id="mob-secret-dot" class="mob-unread-dot hidden"></span>
+  </button>
+</nav>
+
+<div class="game-body">
+  <!-- Left: player list -->
+  <aside class="game-sidebar card mob-view-panel" id="game-sidebar-left">
+    <div class="card-corner tl">✦</div>
+    <div class="card-corner tr">✦</div>
+    <div class="sidebar-header">
+      <h4 data-i18n="players">Sahnedekiler</h4>
+      <span class="sidebar-ornament">❦</span>
+    </div>
+    <ul id="game-players" class="game-player-list"></ul>
+    <div id="chaos-indicator" class="chaos-indicator"></div>
+  </aside>
+
+  <!-- Center: main area -->
+  <main class="game-main mob-view-panel mob-panel-active" id="game-main-area">
+    <!-- Announcements -->
+    <div id="announcements" class="announcements-area"></div>
+
+    <!-- Phase panels -->
+    <div id="panel-night0" class="phase-panel card hidden">
+      <div class="card-corner tl">✦</div>
+      <div class="card-corner tr">✦</div>
+      <div class="panel-header-row">
+        <div class="panel-title" data-i18n="phase_night0">Gece 0 — İpler Çekiliyor</div>
+      </div>
+      <p id="night0-desc" class="panel-desc"></p>
+      <div id="sf-pick-area" class="action-area hidden">
+        <p class="action-prompt" data-i18n="pick_target">Kuklayı seç:</p>
+        <ul id="sf-pick-list" class="target-list"></ul>
+      </div>
+      <div id="waiting-night0" class="waiting-msg">
+        <div class="gothic-spinner"></div>
+        <p data-i18n="night0_wait">Mr. Schadenfreude iplerini uzatıyor...</p>
+      </div>
+    </div>
+
+    <div id="panel-night" class="phase-panel card hidden">
+      <div class="card-corner tl">✦</div>
+      <div class="card-corner tr">✦</div>
+      <div class="panel-header-row">
+        <div class="panel-title" data-i18n="phase_night">🌙 Gece — Karanlık Saatler</div>
+      </div>
+      <div id="night-action-area" class="action-area"></div>
+    </div>
+
+    <div id="panel-dawn" class="phase-panel card hidden">
+      <div class="card-corner tl">✦</div>
+      <div class="card-corner tr">✦</div>
+      <div class="panel-header-row">
+        <div class="panel-title" data-i18n="phase_dawn">🌅 Şafak — Hasar Raporu</div>
+      </div>
+      <div id="dawn-events" class="event-list"></div>
+    </div>
+
+    <div id="panel-day" class="phase-panel card hidden">
+      <div class="card-corner tl">✦</div>
+      <div class="card-corner tr">✦</div>
+      <div class="panel-header-row">
+        <div class="panel-title" data-i18n="phase_day">☀️ Gündüz — Köy Meydanı</div>
+      </div>
+      <div id="chat-box" class="chat-box">
+        <div id="chat-messages" class="chat-messages"></div>
+      </div>
+      <div class="chat-input-row" id="chat-input-row">
+        <input id="chat-input" type="text" maxlength="200" placeholder="Konuş..." data-i18n-placeholder="type_message" autocomplete="off" />
+        <button class="btn btn-sm btn-chat-send" onclick="sendChat()">
+          <span>➤</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="panel-vote" class="phase-panel card hidden">
+      <div class="card-corner tl">✦</div>
+      <div class="card-corner tr">✦</div>
+      <div class="panel-header-row">
+        <div class="panel-title" data-i18n="vote_title">⚖️ Mahkeme</div>
+      </div>
+      <p class="panel-desc" data-i18n="vote_desc">Kimi asıyoruz?</p>
+      <ul id="vote-list" class="target-list"></ul>
+      <div id="vote-skip-area" style="display:flex;justify-content:center;margin-top:1rem">
+        <button id="btn-skip-vote" class="btn-skip-vote" onclick="skipVote()" data-i18n="skip_vote_btn">🚫 Çekimser</button>
+      </div>
+      <div id="vote-progress" class="vote-progress"></div>
+    </div>
+
+    <div id="panel-result" class="phase-panel card hidden">
+      <div id="result-content" class="result-content"></div>
+    </div>
+
+    <div id="panel-ended" class="phase-panel card hidden">
+      <div id="ended-content" class="ended-content"></div>
+      <div class="ended-actions-bar">
+        <button class="btn btn-primary btn-play-again" onclick="location.reload()">
+          <span class="btn-shine"></span>
+          <span class="btn-icon">🎭</span>
+          <span data-i18n="play_again">Tekrar Oyna</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right: private info -->
+  <aside class="game-sidebar game-sidebar-right card mob-view-panel" id="game-sidebar-right">
+    <div class="card-corner tl">✦</div>
+    <div class="card-corner tr">✦</div>
+    <div class="sidebar-header">
+      <h4 data-i18n="secret_info">Gizli Bilgi</h4>
+      <span class="sidebar-ornament">❦</span>
+    </div>
+    <div id="private-info" class="private-info-box"></div>
+    <div id="clue-log" class="clue-log hidden">
+      <div class="clue-log-header">
+        <span class="clue-seal">⚰️</span>
+        <h5 data-i18n="mortician_ledger">Otopsi Defteri</h5>
+      </div>
+      <ul id="clue-list"></ul>
+    </div>
+
+    <!-- Rahibe Tarot Defteri -->
+    <div id="rahibe-tarot-log" class="clue-log hidden">
+      <div class="clue-log-header">
+        <span class="clue-seal">🃏</span>
+        <h5 data-i18n="rahibe_tarot_ledger">Kutsal Kehanet Defteri</h5>
+      </div>
+      <ul id="rahibe-tarot-list"></ul>
+    </div>
+
+    <!-- Gölge Sohbeti (SF & Kukla Özel) -->
+    <div id="shadow-chat-container" class="shadow-chat-box hidden">
+      <div class="shadow-chat-header">
+        <span class="shadow-chat-icon">🔮</span>
+        <span data-i18n="shadow_whispers">Gölge Fısıltıları</span>
+      </div>
+      <div id="shadow-chat-messages" class="shadow-chat-messages"></div>
+      <div class="shadow-chat-input-row">
+        <input id="shadow-chat-input" type="text" maxlength="150" placeholder="Fısılda..." data-i18n-placeholder="type_whisper" autocomplete="off" />
+        <button class="btn btn-sm btn-shadow-send" onclick="sendShadowChat()">➤</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- Modals -->
+<div id="role-modal" class="modal hidden">
+  <div class="modal-inner card">
+    <div class="card-corner tl">✦</div>
+    <div class="card-corner tr">✦</div>
+    <div class="card-corner bl">✦</div>
+    <div class="card-corner br">✦</div>
+    <div id="role-modal-symbol" class="role-modal-symbol"></div>
+    <div id="role-modal-title" class="role-modal-title"></div>
+    <div id="role-modal-desc" class="role-modal-desc"></div>
+    <button class="btn btn-primary" onclick="closeRoleModal()">
+      <span class="btn-shine"></span>
+      <span data-i18n="understood">Kaderimi Kabul Ediyorum</span>
+    </button>
+  </div>
+</div>
+
+<div id="kill-modal" class="modal hidden">
+  <div class="modal-inner modal-dark card">
+    <div class="card-corner tl">✦</div>
+    <div class="card-corner tr">✦</div>
+    <div class="card-corner bl">✦</div>
+    <div class="card-corner br">✦</div>
+    <div class="kill-modal-symbol" id="kill-modal-symbol">💀</div>
+    <div id="kill-modal-msg" class="kill-modal-msg"></div>
+    <button class="btn btn-danger" id="btn-confirm-kill" onclick="confirmKill()">
+      <span class="btn-shine"></span>
+      <span data-i18n="confirm_kill">Kanı Dök</span>
+    </button>
+    <button class="btn btn-warning" id="btn-refuse-kill" onclick="refuseKill()" style="margin-top:0.6rem;display:none">
+      <span data-i18n="refuse_kill">🚫 Reddet</span>
+    </button>
+    <button class="btn btn-ghost" id="btn-minimize-kill" onclick="closeKillModal()" style="margin-top:0.6rem">
+      <span data-i18n="wait_minimize">⏳ Beklet</span>
+    </button>
+    <button class="btn btn-primary" id="btn-ack-no-order" onclick="ackNoOrder()" style="margin-top:0.8rem;display:none;width:100%">
+      <span class="btn-shine"></span>
+      <span data-i18n="btn_ok">Tamam</span>
+    </button>
+  </div>
+</div>
+
+<!-- Bekleyen İnfaz Emri Bildirimi (Kukla küçülttüğünde görünür) -->
+<div id="pending-order-badge" class="pending-order-badge hidden" onclick="reopenKillModal()">
+  <span class="pending-order-pulse"></span>
+  <span class="pending-order-icon">💀</span>
+  <span class="pending-order-text" data-i18n="pending_kill_order">İnfaz Emri Bekliyor</span>
+</div>
+
+<!-- Ayrılma Onay Modalı (Leave Confirmation Modal) -->
+<div id="leave-modal" class="modal hidden">
+  <div class="modal-inner card" style="max-width:420px;text-align:center">
+    <div class="card-corner tl">✦</div>
+    <div class="card-corner tr">✦</div>
+    <div class="card-corner bl">✦</div>
+    <div class="card-corner br">✦</div>
+    <div style="font-size:2.4rem;margin-bottom:0.4rem">🚪</div>
+    <h3 id="leave-modal-title" style="font-family:var(--font-title);color:var(--gold-light);margin-bottom:0.6rem" data-i18n="leave_title">Oyundan Ayrıl</h3>
+    <p id="leave-modal-desc" style="color:var(--text-dim);font-size:0.92rem;line-height:1.55;margin-bottom:1.3rem" data-i18n="leave_desc">
+      Devam eden oyundan ayrılmak istediğinize emin misiniz? Tekrar katılmak için 60 saniyeniz olacak.
+    </p>
+    <div style="display:flex;gap:0.75rem;justify-content:center">
+      <button class="btn btn-ghost" onclick="cancelLeave()">
+        <span data-i18n="stay_in_game">Oyunda Kal</span>
+      </button>
+      <button class="btn btn-danger" onclick="confirmLeave()">
+        <span class="btn-shine"></span>
+        <span data-i18n="confirm_leave">Ayrıl</span>
+      </button>
+    </div>
+  </div>
+</div>
