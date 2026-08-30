@@ -1007,41 +1007,79 @@ function botNightAction(code) {
   const room = rooms[code];
   if (!room) return;
   const isSecretSF = room.settings?.gameMode === 'secretKiller';
-  // SF bot: send kill order / direct kill
+  
+  // SF bot: send kill order / direct kill / pick new replacement puppet
   const sfPlayer = room.players.find(p => p.id === room.sfId);
-  if (sfPlayer?.isBot && (room.kuklaId || isSecretSF)) {
+  if (sfPlayer?.isBot) {
     setTimeout(() => {
       const r = rooms[code];
-      if (!r || r.phase !== PHASES.NIGHT || r.nightActions.sf_target) return;
-      const targets = r.players.filter(p => p.alive && p.id !== r.sfId && p.id !== r.kuklaId);
-      if (!targets.length) return;
-      const target = targets[Math.floor(Math.random() * targets.length)];
-      r.nightActions.sf_target = target.id;
+      if (!r || r.phase !== PHASES.NIGHT) return;
 
-      // Bot SF: 60% chance to plant false evidence on a living innocent
-      const frameCandidates = r.players.filter(p => p.alive && p.id !== r.sfId && p.id !== r.kuklaId && p.id !== target.id);
-      if (frameCandidates.length > 0 && Math.random() < 0.6) {
-        const framed = frameCandidates[Math.floor(Math.random() * frameCandidates.length)];
-        r.nightActions.sf_frame = framed.id;
-      } else {
-        r.nightActions.sf_frame = null;
-      }
+      // 1) Check if SF can & needs to pick a replacement Kukla (Chaos Score: 2/2 innocent lynches)
+      const canPickNewKukla = !isSecretSF && !r.kuklaId && ((r.consecutiveInnocentLynches || 0) >= 2);
+      if (canPickNewKukla) {
+        const candidates = r.players.filter(p => p.alive && p.id !== r.sfId);
+        if (candidates.length > 0) {
+          const newKukla = candidates[Math.floor(Math.random() * candidates.length)];
+          r.kuklaId = newKukla.id;
+          newKukla.isKukla = true;
+          if (!r.kuklaHistory) r.kuklaHistory = [];
+          if (!r.kuklaHistory.includes(newKukla.id)) r.kuklaHistory.push(newKukla.id);
+          r.newKuklaJustSet = true;
+          r.consecutiveInnocentLynches = 0;
 
-      if (!isSecretSF) {
-        // Notify human kukla
-        const kuklaPlayer = r.kuklaId ? getPlayer(r, r.kuklaId) : null;
-        if (kuklaPlayer && !kuklaPlayer.isBot) {
-          io.to(r.kuklaId).emit('game:killOrder', {
-            targetId: target.id,
-            targetName: target.name,
-            message: r.language === 'tr'
-              ? `Mr. Schadenfreude bu gece "${target.name}" adlı köylüyü öldürmeni emretti.`
-              : `Mr. Schadenfreude ordered you to kill "${target.name}" tonight.`,
-          });
+          if (!newKukla.isBot) {
+            io.to(newKukla.id).emit('game:becomeKukla', {
+              baseRole: newKukla.role,
+              message: r.language === 'tr'
+                ? `Mr. Schadenfreude sizi yeni kuklası olarak seçti. Artık hem ${roleLabel(newKukla.role, r.language)} hem de onun kuklasısınız!`
+                : `Mr. Schadenfreude has chosen you as his new puppet. You are both ${roleLabel(newKukla.role, r.language)} and his puppet!`,
+            });
+            io.to(newKukla.id).emit('game:role', buildPrivateState(r, newKukla.id));
+          }
+          broadcastState(code);
         }
       }
-      setPlayerReady(r, sfPlayer.id, true);
-    }, 2000 + Math.random() * 6000);
+
+      // 2) If SF has a kukla (or in Secret Killer mode), issue nighttime execution order
+      if (r.kuklaId || isSecretSF) {
+        if (r.nightActions.sf_target) return;
+        const targets = r.players.filter(p => p.alive && p.id !== r.sfId && p.id !== r.kuklaId);
+        if (!targets.length) {
+          setPlayerReady(r, sfPlayer.id, true);
+          return;
+        }
+        const target = targets[Math.floor(Math.random() * targets.length)];
+        r.nightActions.sf_target = target.id;
+
+        // Bot SF: 60% chance to plant false evidence on a living innocent
+        const frameCandidates = r.players.filter(p => p.alive && p.id !== r.sfId && p.id !== r.kuklaId && p.id !== target.id);
+        if (frameCandidates.length > 0 && Math.random() < 0.6) {
+          const framed = frameCandidates[Math.floor(Math.random() * frameCandidates.length)];
+          r.nightActions.sf_frame = framed.id;
+        } else {
+          r.nightActions.sf_frame = null;
+        }
+
+        if (!isSecretSF) {
+          // Notify human kukla
+          const kuklaPlayer = r.kuklaId ? getPlayer(r, r.kuklaId) : null;
+          if (kuklaPlayer && !kuklaPlayer.isBot) {
+            io.to(r.kuklaId).emit('game:killOrder', {
+              targetId: target.id,
+              targetName: target.name,
+              message: r.language === 'tr'
+                ? `Mr. Schadenfreude bu gece "${target.name}" adlı köylüyü öldürmeni emretti.`
+                : `Mr. Schadenfreude ordered you to kill "${target.name}" tonight.`,
+            });
+          }
+        }
+        setPlayerReady(r, sfPlayer.id, true);
+      } else {
+        // If SF still has no kukla and cannot pick one yet, become ready
+        setPlayerReady(r, sfPlayer.id, true);
+      }
+    }, 2000 + Math.random() * 5000);
   }
   // Şövalye bot: protect or challenge
   const sovalyePlayer = room.players.find(p => p.role === ROLES.SOVALYE && p.isBot && p.alive);
