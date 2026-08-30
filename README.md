@@ -41,7 +41,7 @@ The vocalists whose character archetypes inspired the in-game villagers and abil
 | **KAITO** | Mr. Schadenfreude / Master | **Naoto Fuuga** (風雅なおと) | [X (Twitter)](https://x.com/fuganaoto) • [YouTube Channel](https://www.youtube.com/@NaotoFuga) |
 | **MEIKO** | Mortician | **Meiko Haigo** (拝郷メイコ) | [X (Twitter)](https://x.com/meikohaigou) • [Official Website](https://haigoumeiko.net/) |
 | **GUMI** (Megpoid) | Villager / Seeker | **Megumi Nakajima** (中島愛) | [X (Twitter)](https://x.com/mamegu_staff) • [Official Website](https://nakajima-megumi.jp/) |
-| **Camui Gackpo** (神威がくぽ) | Noble / Madman | **GACKT** | [X (Twitter)](https://x.com/GACKT) • [YouTube Channel](https://www.youtube.com/@GACKT_official) • [Official Website](https://gackt.com/) |
+| **Camui Gackpo** (神威がくぽ) | Noble / Madman | **GACKT** | [X (Twitter)](https://x.com/GACKT) • [YouTube Channel](https://www.youtube.com/c/GACKT) • [Official Website](https://gackt.com/) |
 
 > *All original characters, lore, voice assets, art concepts, and musical themes belong to their respective creators and copyright owners (Crypton Future Media, Internet Co., Ltd., Yamaha). This project is open-source and created strictly for non-commercial community entertainment and artistic appreciation.*
 
