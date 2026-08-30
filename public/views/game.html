@@ -61,16 +61,16 @@
 <!-- Mobil Sekme Seçici (Mobile Tabs Navigation) -->
 <nav class="mobile-game-nav" aria-label="Mobil Oyun Sekmeleri">
   <button class="mob-tab-btn active" id="mob-tab-main" onclick="switchMobileView('main')">
-    <span class="mob-tab-icon">🎭</span>
-    <span class="mob-tab-label">Sahne</span>
+    <span class="mob-tab-icon">🌾</span>
+    <span class="mob-tab-label" data-i18n="mob_tab_village">Köy</span>
   </button>
   <button class="mob-tab-btn" id="mob-tab-players" onclick="switchMobileView('players')">
     <span class="mob-tab-icon">👥</span>
-    <span class="mob-tab-label">Sahnedekiler</span>
+    <span class="mob-tab-label" data-i18n="mob_tab_villagers">Köydekiler</span>
   </button>
   <button class="mob-tab-btn" id="mob-tab-secret" onclick="switchMobileView('secret')">
     <span class="mob-tab-icon">🔮</span>
-    <span class="mob-tab-label">Gizli Bilgi</span>
+    <span class="mob-tab-label" data-i18n="mob_tab_secret">Gizli Bilgi</span>
     <span id="mob-secret-dot" class="mob-unread-dot hidden"></span>
   </button>
 </nav>
@@ -81,7 +81,7 @@
     <div class="card-corner tl">✦</div>
     <div class="card-corner tr">✦</div>
     <div class="sidebar-header">
-      <h4 data-i18n="players">Sahnedekiler</h4>
+      <h4 data-i18n="players">Köydekiler</h4>
       <span class="sidebar-ornament">❦</span>
     </div>
     <ul id="game-players" class="game-player-list"></ul>
