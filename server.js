@@ -1947,6 +1947,7 @@ function buildPrivateState(room, playerId) {
 
   const isSovalye = player.role === ROLES.SOVALYE;
   return {
+    alive: player.alive,
     myRole: player.role, // Base role is preserved!
     isSF,
     isKukla,
@@ -2181,6 +2182,8 @@ io.on('connection', (socket) => {
     const code = socket.data.roomCode;
     const room = rooms[code];
     if (!room || room.sfId !== socket.id) return;
+    const sfPlayer = getPlayer(room, socket.id);
+    if (!sfPlayer || !sfPlayer.alive) return;
 
     const isNight0 = room.phase === PHASES.NIGHT0;
     const isNight = room.phase === PHASES.NIGHT;

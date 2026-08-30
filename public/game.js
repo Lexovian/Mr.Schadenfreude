@@ -1050,6 +1050,24 @@ function renderNight(gs, myRole, priv) {
   const area = document.getElementById('night-action-area');
   area.innerHTML = '';
 
+  const myPlayer = gs.players.find(p => p.id === socket.id || p.name === state.myName);
+  const isAlive = (myPlayer?.alive ?? priv?.alive) ?? true;
+
+  if (!isAlive) {
+    area.innerHTML = `
+      <div class="waiting-msg dead-waiting-msg" style="padding:2.2rem 1.2rem;text-align:center">
+        <div style="font-size:2.8rem;margin-bottom:0.6rem">👻 ⚰️</div>
+        <p style="color:var(--gold-light);font-size:1.1rem;font-family:var(--font-title);margin-bottom:0.4rem">
+          ${state.lang === 'tr' ? 'Ölüler Gece Eylem Yapamaz' : 'The Dead Cannot Act'}
+        </p>
+        <p style="color:var(--text-muted);font-size:0.9rem;font-style:italic;max-width:380px;margin:0 auto">
+          ${state.lang === 'tr' ? 'Ruhun sessizliğe büründü. Köyün kaderini gölgelerden izliyorsun...' : 'Your spirit rests in peace. You watch the village fate from the shadows...'}
+        </p>
+      </div>
+    `;
+    return;
+  }
+
   if (myRole === 'sf') {
     renderSFNightPanel(gs, priv, area);
   } else if (myRole === 'sovalye') {
@@ -2059,13 +2077,20 @@ function renderMorticianLedger() {
       return `[${c.name || 'Ceset'}]: ${cText}`;
     }).join(' | ');
 
+    const myPlayer = state.gameState?.players?.find(p => p.id === socket.id || p.name === state.myName);
+    const isAlive = (myPlayer?.alive ?? state.privateState?.alive) ?? true;
+    const canPublish = isDay && isAlive;
+    const publishBtnTitle = !isAlive
+      ? (state.lang === 'tr' ? 'Ölüyken rapor paylaşamazsın' : 'Cannot publish while dead')
+      : (!isDay ? t('publish_clue_day_only') : '');
+
     summaryLi.innerHTML = `
       <div class="dossier-header">
         <span class="dossier-icon">📜</span>
         <span class="dossier-title">${t('mortisyen_dossier_title')} (${clues.length} ${t('mortisyen_reports_count') || 'Rapor'})</span>
       </div>
       ${commonHtml}
-      <button class="clue-publish-all-btn ${isDay ? '' : 'disabled'}" ${isDay ? '' : 'title="' + t('publish_clue_day_only') + '"'}>
+      <button class="clue-publish-all-btn ${canPublish ? '' : 'disabled'}" ${canPublish ? '' : 'title="' + publishBtnTitle + '"'}>
         <span class="clue-publish-icon">📢</span>
         <span>${t('mortisyen_dossier_btn')}</span>
       </button>
@@ -2120,7 +2145,7 @@ function renderMorticianLedger() {
       </div>
       ${extraTracesHtml}
       <div class="clue-card-body">${safeText}</div>
-      <button class="clue-publish-btn ${isDay ? '' : 'disabled'}" ${isDay ? '' : 'title="' + t('publish_clue_day_only') + '"'}>
+      <button class="clue-publish-btn ${canPublish ? '' : 'disabled'}" ${canPublish ? '' : 'title="' + publishBtnTitle + '"'}>
         <span class="clue-publish-icon">📢</span>
         <span>${t('publish_clue')}</span>
       </button>
@@ -2131,6 +2156,12 @@ function renderMorticianLedger() {
 }
 
 function publishClue(text) {
+  const myPlayer = state.gameState?.players?.find(p => p.id === socket.id || p.name === state.myName);
+  const isAlive = (myPlayer?.alive ?? state.privateState?.alive) ?? true;
+  if (!isAlive) {
+    showToast(state.lang === 'tr' ? 'Ölüyken rapor paylaşamazsın.' : 'Cannot publish reports while dead.', 'error');
+    return;
+  }
   if (state.gameState?.phase !== 'day') {
     showToast(t('publish_clue_day_only'), 'error');
     return;
