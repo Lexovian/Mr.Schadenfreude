@@ -35,7 +35,7 @@ The vocalists whose character archetypes inspired the in-game villagers and abil
 
 | Character | Original Role | Voice Provider (Seiyuu / Artist) | Official Links |
 | :--- | :--- | :--- | :--- |
-| **Kagamine Rin & Len** (鏡音リン・レン) | Knight/The Devil | **Asami Shimoda** (下田麻美) | [X (Twitter)](https://x.com/shimoda_asami) • [Official Blog](https://asaponmax.fc2.net/) |
+| **Kagamine Rin & Len** (鏡音リン・レン) | Knight&The Devil | **Asami Shimoda** (下田麻美) | [X (Twitter)](https://x.com/shimoda_asami) • [Official Blog](https://asaponmax.fc2.net/) |
 | **Hatsune Miku** (初音ミク) | Village Girl | **Saki Fujita** (藤田咲) | [X (Twitter)](https://x.com/sakitaf_1019) • [Agency Profile](https://www.artsvision.co.jp/talent/607/) |
 | **Megurine Luka** (巡音ルカ) | Nun | **Yuu Asakawa** (浅川悠) | [X (Twitter)](https://x.com/Julia320) • [Twitch](https://www.twitch.tv/yuu_twitch) |
 | **KAITO** | Mr. Schadenfreude | **Naoto Fuuga** (風雅なおと) | [X (Twitter)](https://x.com/fuganaoto) • [YouTube Channel](https://www.youtube.com/@NaotoFuga) |
