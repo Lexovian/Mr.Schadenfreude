@@ -37,9 +37,9 @@ The vocalists whose character archetypes inspired the in-game villagers and abil
 | :--- | :--- | :--- | :--- |
 | **Kagamine Rin & Len** (鏡音リン・レン) | Knight / Villagers | **Asami Shimoda** (下田麻美) | [X (Twitter)](https://x.com/shimoda_asami) |
 | **Hatsune Miku** (初音ミク) | Village Inhabitant | **Saki Fujita** (藤田咲) | [YouTube Channel](https://www.youtube.com/channel/UC-oYjt27a8q-yRfHgJZQPhg) • [Official X](https://x.com/cfm_miku) |
-| **Megurine Luka** (巡音ルカ) | Priest (Rahibe) | **Yuu Asakawa** (浅川悠) | [YouTube Channel](https://www.youtube.com/channel/UCyM7a2X8KzOq8v6K-K7Zq7A) • [X (Twitter)](https://x.com/Julia320) |
+| **Megurine Luka** (巡音ルカ) | Priest | **Yuu Asakawa** (浅川悠) | [YouTube Channel](https://www.youtube.com/channel/UCyM7a2X8KzOq8v6K-K7Zq7A) • [X (Twitter)](https://x.com/Julia320) |
 | **KAITO** | Mr. Schadenfreude / Master | **Naoto Fuuga** (風雅なおと) | [YouTube Channel](https://www.youtube.com/channel/UCqXF2fK0s5l6p_uU_aM7z_Q) • [X (Twitter)](https://x.com/fuganaoto) |
-| **MEIKO** | Mortician (Undertaker) | **Meiko Haigo** (拝郷メイコ) | [YouTube Channel](https://www.youtube.com/channel/UC0U0g0i9bC5w2j8vX7lqZrg) • [X (Twitter)](https://x.com/meikohaigo) |
+| **MEIKO** | Mortician | **Meiko Haigo** (拝郷メイコ) | [YouTube Channel](https://www.youtube.com/channel/UC0U0g0i9bC5w2j8vX7lqZrg) • [X (Twitter)](https://x.com/meikohaigo) |
 | **GUMI** (Megpoid) | Villager / Seeker | **Megumi Nakajima** (中島愛) | [YouTube Channel](https://www.youtube.com/channel/UC81h_6iVvYy-u6QG7O_vUbw) • [X (Twitter)](https://x.com/mamegu_staff) |
 | **Camui Gackpo** (神威がくぽ) | Noble / Madman | **GACKT** | [YouTube Channel](https://www.youtube.com/channel/UCNGBRcUwu5IyvFsIr2P-q3w) • [X (Twitter)](https://x.com/GACKT) |
 
@@ -76,10 +76,10 @@ As dawn breaks, the villagers must analyze **Forensic Autopsy Reports**, listen 
 | Role | Team | Night Ability & Lore |
 | :--- | :---: | :--- |
 | **Mr. Schadenfreude** | **Evil** | Secretly commands the Puppet each night to execute villagers. Can plant fabricated evidence (necklaces) to frame innocents. |
-| **Puppet (Kukla)** | **Evil** | Retains original role abilities while executing night kill orders for their master. Appears innocent to the village. |
-| **Mortician (Undertaker)** | **Village** | Gathers forensic clues from victims (fabric, positioning) or conducts surveillance on living players to uncover shadow auras. |
-| **Priest (Rahibe)** | **Village** | Draws Sacred Tarot cards (1-night cooldown, carry-over enabled) to divine whether a suspect was active in the dark. |
-| **Knight (Şövalye)** | **Village** | Shields one living player per night from attacks, or challenges the shadow up to 2 times per game. |
+| **Puppet** | **Evil** | Retains original role abilities while executing night kill orders for their master. Appears innocent to the village. |
+| **Mortician** | **Village** | Gathers forensic clues from victims (fabric, positioning) or conducts surveillance on living players to uncover shadow auras. |
+| **Priest** | **Village** | Draws Sacred Tarot cards (1-night cooldown, carry-over enabled) to divine whether a suspect was active in the dark. |
+| **Knight** | **Village** | Shields one living player per night from attacks, or challenges the shadow up to 2 times per game. |
 | **Madman** | **Village** | An eccentric villager whose unpredictable intuition and chaotic murmurs can either save or mislead the town. |
 | **Villager** | **Village** | Participates in daytime debates, analyzes clues, and votes during the trial to lynch suspects. |
 
