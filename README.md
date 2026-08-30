@@ -95,8 +95,8 @@ As dawn breaks, the villagers must analyze **Forensic Autopsy Reports**, listen 
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/YOUR_USERNAME/mr-schadenfreude.git
-cd mr-schadenfreude
+git clone https://github.com/Lexovian/Mr.Schadenfreude.git
+cd Mr.Schadenfreude
 ```
 
 2. **Install dependencies:**
