@@ -1088,7 +1088,7 @@ function botNightAction(code) {
       const r = rooms[code];
       if (!r || r.phase !== PHASES.NIGHT) return;
       if (r.nightActions.sovalye_protect || r.nightActions.sovalye_challenge) return;
-      const targets = r.players.filter(p => p.alive);
+      const targets = r.players.filter(p => p.alive && p.id !== sovalyePlayer.id && p.id !== r.sfId);
       if (!targets.length) return;
       const target = targets[Math.floor(Math.random() * targets.length)];
       // Bot challenge only if limit not reached — auto-targets SF (blind)
@@ -2495,6 +2495,9 @@ io.on('connection', (socket) => {
 
     if (type === 'protect') {
       if (!targetId) return socket.emit('error', { message: room.language === 'tr' ? 'Hedef seç.' : 'Select a target.' });
+      if (targetId === socket.id) {
+        return socket.emit('error', { message: room.language === 'tr' ? 'Şövalye kendisini doğrudan koruyamaz!' : 'The Knight cannot protect himself!' });
+      }
       if (targetId === room.sfId) {
         return socket.emit('error', { message: room.language === 'tr' ? 'Mr. Schadenfreude karanlığın efendisidir — korunamaz!' : 'Mr. Schadenfreude cannot be protected!' });
       }

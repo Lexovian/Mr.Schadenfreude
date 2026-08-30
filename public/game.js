@@ -1348,16 +1348,15 @@ function renderSovalyeNightPanel(gs, area) {
     ul.className = 'target-selection-grid';
     ul.id = 'sovalye-target-list';
 
-    gs.players.filter(p => p.alive && p.id !== gs.sfId).forEach(p => {
+    gs.players.filter(p => p.alive && p.id !== gs.sfId && p.name !== state.myName && p.id !== socket.id).forEach(p => {
       const initial = (p.name || '?').charAt(0).toUpperCase();
       const isSelected = state.sovalyeTargetSelected === p.id;
-      const isMe = p.name === state.myName;
       const li = document.createElement('li');
       li.className = 'target-card' + (isSelected ? ' selected' : '');
       li.dataset.id = p.id;
       li.innerHTML = `
         <div class="target-avatar">${initial}</div>
-        <div class="target-name">${escHtml(p.name)}${isMe ? ` (${t('you')})` : ''}</div>
+        <div class="target-name">${escHtml(p.name)}</div>
         <div class="target-pill">🛡️ Koru</div>
       `;
       li.onclick = () => {
