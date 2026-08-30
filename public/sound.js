@@ -8,21 +8,27 @@ const Sound = (function() {
   let muted = false;
 
   function getContext() {
-    if (!ctx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtx) {
-        ctx = new AudioCtx();
+    try {
+      if (!ctx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          ctx = new AudioCtx();
+        }
       }
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+      return ctx;
+    } catch (err) {
+      return null;
     }
-    if (ctx && ctx.state === 'suspended') {
-      ctx.resume().catch(() => {});
-    }
-    return ctx;
   }
 
   // Kullanıcı ilk etkileşiminde AudioContext'i uyandır
-  window.addEventListener('click', () => getContext(), { once: true });
-  window.addEventListener('keydown', () => getContext(), { once: true });
+  try {
+    window.addEventListener('click', () => getContext(), { once: true, passive: true });
+    window.addEventListener('keydown', () => getContext(), { once: true, passive: true });
+  } catch (e) {}
 
   function isMuted() {
     return muted;
@@ -288,26 +294,28 @@ const Sound = (function() {
 
   /** 9. Buton & Seçim Tıkırtısı (Click) */
   function playClick() {
-    if (muted) return;
-    const c = getContext();
-    if (!c) return;
+    try {
+      if (muted) return;
+      const c = getContext();
+      if (!c) return;
 
-    const t = c.currentTime;
-    const osc = c.createOscillator();
-    const gain = c.createGain();
+      const t = c.currentTime;
+      const osc = c.createOscillator();
+      const gain = c.createGain();
 
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(320, t);
-    osc.frequency.exponentialRampToValueAtTime(80, t + 0.05);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, t);
+      osc.frequency.exponentialRampToValueAtTime(80, t + 0.05);
 
-    gain.gain.setValueAtTime(0.12, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+      gain.gain.setValueAtTime(0.12, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
 
-    osc.connect(gain);
-    gain.connect(c.destination);
+      osc.connect(gain);
+      gain.connect(c.destination);
 
-    osc.start(t);
-    osc.stop(t + 0.07);
+      osc.start(t);
+      osc.stop(t + 0.07);
+    } catch (e) {}
   }
 
   /** 10. Zafer: Mr. Schadenfreude Kazandı (Dark Victory) */

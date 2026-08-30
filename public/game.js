@@ -361,7 +361,10 @@ function createRoom() {
   state.myName = name;
 
   const btn = document.getElementById('btn-create');
-  if (btn) btn.classList.add('btn-loading');
+  if (btn) {
+    btn.classList.add('btn-loading');
+    setTimeout(() => btn.classList.remove('btn-loading'), 4000);
+  }
 
   if (!socket.connected) {
     showServerConnectingBanner(t('server_waking_up'));
@@ -386,7 +389,10 @@ function joinRoom() {
   state.myName = name;
 
   const btn = document.getElementById('btn-join');
-  if (btn) btn.classList.add('btn-loading');
+  if (btn) {
+    btn.classList.add('btn-loading');
+    setTimeout(() => btn.classList.remove('btn-loading'), 4000);
+  }
 
   if (!socket.connected) {
     showServerConnectingBanner(t('server_waking_up'));
@@ -2443,8 +2449,9 @@ function initApp() {
   const initialLang = typeof I18N !== 'undefined' ? I18N.getLanguage() : 'tr';
   changeLanguage(initialLang);
 
-  // Set initial landing state in history
+  // Set initial landing state in history and ensure active screen class
   if (!window.location.hash || window.location.hash === '#landing') {
+    showScreen('landing', false);
     history.replaceState({ screen: 'landing' }, '', '#landing');
   }
 }
