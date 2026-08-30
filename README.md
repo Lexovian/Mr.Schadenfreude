@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎭 Mr. Schadenfreude
+# Mr. Schadenfreude
 
 **A Gothic Multiplayer Social Deduction & Detective Web Game**
 
@@ -10,15 +10,15 @@
 [![Render](https://img.shields.io/badge/Deploy%20on-Render-46E3B7.svg)](https://render.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
 
-[🌟 Original Credits](#-original-credits--tribute) • [🎤 Vocal Cast](#-vocaloid-cast--voice-providers) • [🎮 Key Features](#-key-features) • [📜 Roles & Abilities](#-roles--abilities) • [🚀 Local Setup](#-getting-started) • [☁️ Deploy to Render](#-deployment-rendercom)
+[Original Credits](#original-credits--tribute) • [Vocal Cast](#vocaloid-cast--voice-providers) • [Key Features](#key-features) • [Roles & Abilities](#roles--abilities) • [Local Setup](#getting-started) • [Deploy to Render](#deployment-rendercom)
 
 </div>
 
 ---
 
-## 🌟 Original Credits & Tribute
+## Original Credits & Tribute
 
-> ### 🎵 Inspired by the Vocaloid Masterpiece: **「Mr. Schadenfreude / ミスター・シャーデンフロイデ」**
+> ### Inspired by the Vocaloid Masterpiece: **「Mr. Schadenfreude / ミスター・シャーデンフロイデ」**
 > This web game is an interactive fan-made tribute based on the gothic murder-mystery universe and storyline created by the legendary original team:
 > 
 > - **Music & Lyrics:** [Hitoshizuku-P (ひとしずく)](https://x.com/samorira9) × [Yama△ (やま△)](https://x.com/shoma1983) ([Official Website](https://hitoyamamusic.com/))
@@ -29,7 +29,7 @@
 
 ---
 
-### 🎤 Vocaloid Cast & Voice Providers
+### Vocaloid Cast & Voice Providers
 
 The vocalists whose character archetypes inspired the in-game villagers and abilities:
 
@@ -47,7 +47,7 @@ The vocalists whose character archetypes inspired the in-game villagers and abil
 
 ---
 
-## 📖 Story & Game Concept
+## Story & Game Concept
 
 In an isolated village shrouded in perpetual mist, **Mr. Schadenfreude**—the sinister puppet master—orchestrates nighttime assassinations from behind the scenes. Each night, he secretly pulls the strings of an unwitting **Puppet** chosen among the villagers.
 
@@ -55,37 +55,37 @@ As dawn breaks, the villagers must analyze **Forensic Autopsy Reports**, listen 
 
 ---
 
-## ✨ Key Features
+## Key Features
 
--  **Real-Time Multiplayer:** Instant room synchronization, live lobbies, and synchronized countdown timers powered by **Socket.IO**.
--  **Dual Game Modes:**
+- **Real-Time Multiplayer:** Instant room synchronization, live lobbies, and synchronized countdown timers powered by **Socket.IO**.
+- **Dual Game Modes:**
   - **Classic Puppet Master:** Mr. Schadenfreude's identity is publicly known, commanding a secret puppet from the front.
   - **Secret Killer:** Mr. Schadenfreude hides among ordinary villagers—no one knows who the killer is.
--  **Chaos Score & Backup Puppet:** When the village wrongly executes innocent citizens (2/2 Chaos), Mr. Schadenfreude earns the right to choose a replacement puppet!
--  **Undertaker Autopsy Ledger:** The Mortician extracts forensic evidence from corpses (fabric traces, seating proximity, suspect pairs) and can stake out living suspects.
--  **Sacred Tarot Prophecies:** The Priest senses soul movements in the dark with a 1-night cooldown. Passing on a night preserves and carries over the charge to the next round.
--  **Knight's Aegis & Challenge:** Protect an innocent villager each night or stake your blade to challenge the shadow directly.
--  **Smart Bot System:** Autonomous AI bots that vote, use night abilities, and mimic real player behavior to fill empty seats.
--  **Synthesized Gothic Audio:** Dynamic web-synthesizer engine providing church bells, Tarot chimes, whisper alerts, and tension soundscapes.
--  **Fully Responsive UI:** Atmospheric gothic dark mode optimized for desktop, tablets, and mobile devices.
+- **Chaos Score & Backup Puppet:** When the village wrongly executes innocent citizens (2/2 Chaos), Mr. Schadenfreude earns the right to choose a replacement puppet!
+- **Undertaker Autopsy Ledger:** The Mortician extracts forensic evidence from corpses (fabric traces, seating proximity, suspect pairs) and can stake out living suspects.
+- **Sacred Tarot Prophecies:** The Priest senses soul movements in the dark with a 1-night cooldown. Passing on a night preserves and carries over the charge to the next round.
+- **Knight's Aegis & Challenge:** Protect an innocent villager each night or stake your blade to challenge the shadow directly.
+- **Smart Bot System:** Autonomous AI bots that vote, use night abilities, and mimic real player behavior to fill empty seats.
+- **Synthesized Gothic Audio:** Dynamic web-synthesizer engine providing church bells, Tarot chimes, whisper alerts, and tension soundscapes.
+- **Fully Responsive UI:** Atmospheric gothic dark mode optimized for desktop, tablets, and mobile devices.
 
 ---
 
-## 🎭 Roles & Abilities
+## Roles & Abilities
 
 | Role | Team | Night Ability & Lore |
 | :--- | :---: | :--- |
-| ** Mr. Schadenfreude** | **Evil** | Secretly commands the Puppet each night to execute villagers. Can plant fabricated evidence (necklaces) to frame innocents. |
-| ** Puppet (Kukla)** | **Evil** | Retains original role abilities while executing night kill orders for their master. Appears innocent to the village. |
-| ** Mortician (Undertaker)** | **Village** | Gathers forensic clues from victims (fabric, positioning) or conducts surveillance on living players to uncover shadow auras. |
-| ** Priest (Rahibe)** | **Village** | Draws Sacred Tarot cards (1-night cooldown, carry-over enabled) to divine whether a suspect was active in the dark. |
-| ** Knight (Şövalye)** | **Village** | Shields one living player per night from attacks, or challenges the shadow up to 2 times per game. |
-| ** Madman** | **Village** | An eccentric villager whose unpredictable intuition and chaotic murmurs can either save or mislead the town. |
-| ** Villager** | **Village** | Participates in daytime debates, analyzes clues, and votes during the trial to lynch suspects. |
+| **Mr. Schadenfreude** | **Evil** | Secretly commands the Puppet each night to execute villagers. Can plant fabricated evidence (necklaces) to frame innocents. |
+| **Puppet (Kukla)** | **Evil** | Retains original role abilities while executing night kill orders for their master. Appears innocent to the village. |
+| **Mortician (Undertaker)** | **Village** | Gathers forensic clues from victims (fabric, positioning) or conducts surveillance on living players to uncover shadow auras. |
+| **Priest (Rahibe)** | **Village** | Draws Sacred Tarot cards (1-night cooldown, carry-over enabled) to divine whether a suspect was active in the dark. |
+| **Knight (Şövalye)** | **Village** | Shields one living player per night from attacks, or challenges the shadow up to 2 times per game. |
+| **Madman** | **Village** | An eccentric villager whose unpredictable intuition and chaotic murmurs can either save or mislead the town. |
+| **Villager** | **Village** | Participates in daytime debates, analyzes clues, and votes during the trial to lynch suspects. |
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js (v16.0.0 or higher)
@@ -117,7 +117,7 @@ http://localhost:3000
 
 ---
 
-## ☁️ Deployment (Render.com)
+## Deployment (Render.com)
 
 This application is ready for instant 1-click deployment on **Render Web Services**:
 
@@ -133,19 +133,19 @@ This application is ready for instant 1-click deployment on **Render Web Service
 
 ---
 
-## 🌐 Multilingual Support (i18n)
+## Multilingual Support (i18n)
 
 Switch between 6 supported languages in real time:
-- 🇬🇧 **English** (`en`)
-- 🇹🇷 **Türkçe** (`tr`)
-- 🇯🇵 **日本語** (`ja`)
-- 🇩🇪 **Deutsch** (`de`)
-- 🇪🇸 **Español** (`es`)
-- 🇫🇷 **Français** (`fr`)
+- English (`en`)
+- Türkçe (`tr`)
+- 日本語 (`ja`)
+- Deutsch (`de`)
+- Español (`es`)
+- Français (`fr`)
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Backend:** Node.js, Express, Socket.IO
 - **Frontend:** Vanilla JavaScript (ES6+), Semantic HTML5, CSS3 Custom Properties (Gothic Design System)
@@ -154,6 +154,6 @@ Switch between 6 supported languages in real time:
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the [MIT License](LICENSE).
