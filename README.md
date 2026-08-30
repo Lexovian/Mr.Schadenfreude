@@ -57,17 +57,17 @@ As dawn breaks, the villagers must analyze **Forensic Autopsy Reports**, listen 
 
 ## ✨ Key Features
 
-- ⚡ **Real-Time Multiplayer:** Instant room synchronization, live lobbies, and synchronized countdown timers powered by **Socket.IO**.
-- 🎭 **Dual Game Modes:**
+-  **Real-Time Multiplayer:** Instant room synchronization, live lobbies, and synchronized countdown timers powered by **Socket.IO**.
+-  **Dual Game Modes:**
   - **Classic Puppet Master:** Mr. Schadenfreude's identity is publicly known, commanding a secret puppet from the front.
   - **Secret Killer:** Mr. Schadenfreude hides among ordinary villagers—no one knows who the killer is.
-- 🕯️ **Chaos Score & Backup Puppet:** When the village wrongly executes innocent citizens (2/2 Chaos), Mr. Schadenfreude earns the right to choose a replacement puppet!
-- ⚰️ **Undertaker Autopsy Ledger:** The Mortician extracts forensic evidence from corpses (fabric traces, seating proximity, suspect pairs) and can stake out living suspects.
-- 🃏 **Sacred Tarot Prophecies:** The Priest senses soul movements in the dark with a 1-night cooldown. Passing on a night preserves and carries over the charge to the next round.
-- ⚔️ **Knight's Aegis & Challenge:** Protect an innocent villager each night or stake your blade to challenge the shadow directly.
-- 🤖 **Smart Bot System:** Autonomous AI bots that vote, use night abilities, and mimic real player behavior to fill empty seats.
-- 🔊 **Synthesized Gothic Audio:** Dynamic web-synthesizer engine providing church bells, Tarot chimes, whisper alerts, and tension soundscapes.
-- 📱 **Fully Responsive UI:** Atmospheric gothic dark mode optimized for desktop, tablets, and mobile devices.
+-  **Chaos Score & Backup Puppet:** When the village wrongly executes innocent citizens (2/2 Chaos), Mr. Schadenfreude earns the right to choose a replacement puppet!
+-  **Undertaker Autopsy Ledger:** The Mortician extracts forensic evidence from corpses (fabric traces, seating proximity, suspect pairs) and can stake out living suspects.
+-  **Sacred Tarot Prophecies:** The Priest senses soul movements in the dark with a 1-night cooldown. Passing on a night preserves and carries over the charge to the next round.
+-  **Knight's Aegis & Challenge:** Protect an innocent villager each night or stake your blade to challenge the shadow directly.
+-  **Smart Bot System:** Autonomous AI bots that vote, use night abilities, and mimic real player behavior to fill empty seats.
+-  **Synthesized Gothic Audio:** Dynamic web-synthesizer engine providing church bells, Tarot chimes, whisper alerts, and tension soundscapes.
+-  **Fully Responsive UI:** Atmospheric gothic dark mode optimized for desktop, tablets, and mobile devices.
 
 ---
 
@@ -75,13 +75,13 @@ As dawn breaks, the villagers must analyze **Forensic Autopsy Reports**, listen 
 
 | Role | Team | Night Ability & Lore |
 | :--- | :---: | :--- |
-| **🎩 Mr. Schadenfreude** | **Evil** | Secretly commands the Puppet each night to execute villagers. Can plant fabricated evidence (necklaces) to frame innocents. |
-| **🪆 Puppet (Kukla)** | **Evil** | Retains original role abilities while executing night kill orders for their master. Appears innocent to the village. |
-| **⚰️ Mortician (Undertaker)** | **Village** | Gathers forensic clues from victims (fabric, positioning) or conducts surveillance on living players to uncover shadow auras. |
-| **🕯️ Priest (Rahibe)** | **Village** | Draws Sacred Tarot cards (1-night cooldown, carry-over enabled) to divine whether a suspect was active in the dark. |
-| **⚔️ Knight (Şövalye)** | **Village** | Shields one living player per night from attacks, or challenges the shadow up to 2 times per game. |
-| **🃏 Madman** | **Village** | An eccentric villager whose unpredictable intuition and chaotic murmurs can either save or mislead the town. |
-| **🌾 Villager** | **Village** | Participates in daytime debates, analyzes clues, and votes during the trial to lynch suspects. |
+| ** Mr. Schadenfreude** | **Evil** | Secretly commands the Puppet each night to execute villagers. Can plant fabricated evidence (necklaces) to frame innocents. |
+| ** Puppet (Kukla)** | **Evil** | Retains original role abilities while executing night kill orders for their master. Appears innocent to the village. |
+| ** Mortician (Undertaker)** | **Village** | Gathers forensic clues from victims (fabric, positioning) or conducts surveillance on living players to uncover shadow auras. |
+| ** Priest (Rahibe)** | **Village** | Draws Sacred Tarot cards (1-night cooldown, carry-over enabled) to divine whether a suspect was active in the dark. |
+| ** Knight (Şövalye)** | **Village** | Shields one living player per night from attacks, or challenges the shadow up to 2 times per game. |
+| ** Madman** | **Village** | An eccentric villager whose unpredictable intuition and chaotic murmurs can either save or mislead the town. |
+| ** Villager** | **Village** | Participates in daytime debates, analyzes clues, and votes during the trial to lynch suspects. |
 
 ---
 
