@@ -2083,8 +2083,16 @@ function renderMorticianLedger() {
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count);
 
-  // If we have 2+ clues, render a Consolidated Dossier Summary Card at top!
+  // Calculate publish permissions in outer scope
   const isDay = state.gameState?.phase === 'day';
+  const myPlayer = state.gameState?.players?.find(p => p.id === socket.id || p.name === state.myName);
+  const isAlive = (myPlayer?.alive ?? state.privateState?.alive) ?? true;
+  const canPublish = isDay && isAlive;
+  const publishBtnTitle = !isAlive
+    ? (state.lang === 'tr' ? 'Ölüyken rapor paylaşamazsın' : 'Cannot publish while dead')
+    : (!isDay ? t('publish_clue_day_only') : '');
+
+  // If we have 2+ clues, render a Consolidated Dossier Summary Card at top!
   if (clues.length >= 2) {
     const summaryLi = document.createElement('li');
     summaryLi.className = 'clue-dossier-summary-card';
@@ -2106,13 +2114,6 @@ function renderMorticianLedger() {
       const cText = c.translations?.[currentL] || c.clue;
       return `[${c.name || 'Ceset'}]: ${cText}`;
     }).join(' | ');
-
-    const myPlayer = state.gameState?.players?.find(p => p.id === socket.id || p.name === state.myName);
-    const isAlive = (myPlayer?.alive ?? state.privateState?.alive) ?? true;
-    const canPublish = isDay && isAlive;
-    const publishBtnTitle = !isAlive
-      ? (state.lang === 'tr' ? 'Ölüyken rapor paylaşamazsın' : 'Cannot publish while dead')
-      : (!isDay ? t('publish_clue_day_only') : '');
 
     summaryLi.innerHTML = `
       <div class="dossier-header">
