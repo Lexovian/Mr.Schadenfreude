@@ -1848,13 +1848,23 @@ function handleNightEnd(code) {
   if (mortMode === 'surveillance' && mortTargetId && mortPlayer && mortPlayer.alive) {
     const mortTarget = getPlayer(room, mortTargetId);
     if (mortTarget) {
-      const isTargetKukla = mortTarget.id === room.kuklaId;
+      let targetActed = false;
+      if (mortTarget.role === ROLES.SOVALYE && (actions.sovalye_protect || actions.sovalye_challenge)) {
+        targetActed = true;
+      } else if (mortTarget.role === ROLES.RAHIBE && actions.rahibe_target) {
+        targetActed = true;
+      } else if (mortTarget.id === room.kuklaId && !actions.kukla_refused && targetToKill) {
+        targetActed = true;
+      } else if (mortTarget.id === room.sfId && isSecretSF && actions.sf_target && actions.sf_target !== 'none') {
+        targetActed = true;
+      }
+
       const isTargetKilled = targetToKill && mortTarget.id === targetToKill;
       let survType = 'info';
 
       if (isTargetKilled) {
         survType = 'warning';
-      } else if (isTargetKukla) {
+      } else if (targetActed) {
         survType = 'warning';
       } else {
         survType = 'confirm';
@@ -1862,35 +1872,35 @@ function handleNightEnd(code) {
 
       const survTranslations = {
         tr: isTargetKilled
-          ? `⚡ Suçüstü Tanıklığı: ${mortTarget.name} bu gece saldırıya uğradı! Karanlıkta bir siluetin ona doğru sinsi adımlarla yaklaştığına uzaktan tanık oldun.`
-          : isTargetKukla
-            ? `⚠️ Gölge İzi Tespiti: Gece boyunca ${mortTarget.name}'in etrafında karanlık bir aura ve gizli bir hareketlilik sezildi.`
-            : `🛡️ Masumiyet Teyidi: ${mortTarget.name} gece boyunca tamamen hareketsiz ve huzur içinde uyudu.`,
+          ? `⚡ Suçüstü Tanıklığı: ${mortTarget.name} bu gece saldırıya uğradı! Karanlıkta bir siluetin ona doğru yaklaştığına uzaktan tanık oldun.`
+          : targetActed
+            ? `⚠️ Gece Hareketi: ${mortTarget.name} bu gece karanlıkta hareket halindeydi.`
+            : `🛡️ Hareketsiz: ${mortTarget.name} gece boyunca tamamen hareketsizdi ve sessizce uyudu.`,
         en: isTargetKilled
           ? `⚡ Witnessed: ${mortTarget.name} was attacked tonight! You caught a glimpse of a shadow closing in.`
-          : isTargetKukla
-            ? `⚠️ Shadow Aura Detected: A dark aura and clandestine movement was sensed around ${mortTarget.name} tonight.`
-            : `🛡️ Innocence Confirmed: ${mortTarget.name} slept quietly and undisturbed through the night.`,
+          : targetActed
+            ? `⚠️ Night Activity: ${mortTarget.name} was active in the dark tonight.`
+            : `🛡️ Inactive: ${mortTarget.name} remained completely quiet and undisturbed through the night.`,
         ja: isTargetKilled
           ? `⚡ 現場目撃: ${mortTarget.name}が今夜襲撃された！忍び寄る影を目撃した。`
-          : isTargetKukla
-            ? `⚠️ 影の気配: 一晩中${mortTarget.name}の周りに不穏な気配が漂っていた。`
-            : `🛡️ 潔白確認: ${mortTarget.name}は夜の間静かに眠っていた。`,
+          : targetActed
+            ? `⚠️ 夜の活動: ${mortTarget.name}は今夜闇の中で活動していた。`
+            : `🛡️ 静寂確認: ${mortTarget.name}は夜の間静かに眠っていた。`,
         de: isTargetKilled
           ? `⚡ Auf frischer Tat: ${mortTarget.name} wurde heute Nacht angegriffen!`
-          : isTargetKukla
-            ? `⚠️ Schattenaura: Eine dunkle Aura wurde um ${mortTarget.name} gespürt.`
-            : `🛡️ Unschuld bestätigt: ${mortTarget.name} schlief die ganze Nacht friedlich.`,
+          : targetActed
+            ? `⚠️ Nachtaktivität: ${mortTarget.name} war heute Nacht in der Dunkelheit aktiv.`
+            : `🛡️ Inaktiv: ${mortTarget.name} schlief die ganze Nacht friedlich und ruhig.`,
         es: isTargetKilled
           ? `⚡ Testigo directo: ¡${mortTarget.name} fue atacado esta noche!`
-          : isTargetKukla
-            ? `⚠️ Aura oscura: Se detectó una extraña actividad alrededor de ${mortTarget.name}.`
-            : `🛡️ Inocencia confirmada: ${mortTarget.name} durmió plácidamente toda la noche.`,
+          : targetActed
+            ? `⚠️ Actividad nocturna: ${mortTarget.name} estuvo activo en la oscuridad esta noche.`
+            : `🛡️ Inactivo: ${mortTarget.name} permaneció en silencio y durmió tranquilamente.`,
         fr: isTargetKilled
           ? `⚡ Témoignage direct : ${mortTarget.name} a été attaqué cette nuit !`
-          : isTargetKukla
-            ? `⚠️ Aura d'ombre : Une présence sombre rôdait autour de ${mortTarget.name}.`
-            : `🛡️ Innocence confirmée : ${mortTarget.name} a dormi paisiblement toute la nuit.`,
+          : targetActed
+            ? `⚠️ Activité nocturne : ${mortTarget.name} était actif dans l'obscurité cette nuit.`
+            : `🛡️ Inactif : ${mortTarget.name} est resté paisible et a dormi tranquillement toute la nuit.`,
       };
 
       const survClueObj = {
@@ -1900,7 +1910,7 @@ function handleNightEnd(code) {
         clue: survTranslations[lang] || survTranslations.tr,
         evidenceType: survType,
         isSurveillance: true,
-        suspects: isTargetKukla ? [mortTarget.name] : [],
+        suspects: targetActed ? [mortTarget.name] : [],
         translations: survTranslations,
         roleTranslations: {
           tr: 'Gözetim Raporu',
