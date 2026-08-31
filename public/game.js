@@ -632,7 +632,7 @@ socket.on('private:clue', (clueData) => {
 socket.on('private:tarot', (tarotData) => {
   if (!state.rahibeTarots) state.rahibeTarots = [];
   state.rahibeTarots.push(tarotData);
-  if (typeof Sound !== 'undefined') Sound.playClue();
+  if (typeof Sound !== 'undefined') Sound.playTarot();
   renderRahibeTarotLedger();
   if (state.gameState?.phase === 'dawn') {
     renderDawn(state.gameState);
@@ -782,11 +782,13 @@ function renderState(gs) {
     document.getElementById('kill-modal')?.classList.add('hidden');
   }
 
-  // Faz geçiş ses efekti
+  // Faz geçiş ses efekti ve dinamik gotik ambiyans
   if (state.lastRenderedPhase !== gs.phase && typeof Sound !== 'undefined') {
+    Sound.setAmbience(gs.phase);
     if (gs.phase === 'night0' || gs.phase === 'night') Sound.playNightBell();
     else if (gs.phase === 'dawn' || gs.phase === 'day') Sound.playDawn();
     else if (gs.phase === 'vote') Sound.playGavel();
+    else if (gs.phase === 'ended') Sound.stopAmbience();
   }
 
   state.lastRenderedPhase = gs.phase;
@@ -1620,7 +1622,7 @@ function renderRahibeNightPanel(gs, area) {
       showToast(t('pick_target'), 'error');
       return;
     }
-    if (typeof Sound !== 'undefined') Sound.playClick();
+    if (typeof Sound !== 'undefined') Sound.playTarot();
     socket.emit('action:rahibe', { targetId: state.rahibeTargetSelected });
     state.rahibeActionConfirmed = true;
     state.rahibePassed = false;
@@ -1818,7 +1820,7 @@ function renderVote(gs, myRole) {
       document.getElementById('btn-skip-vote')?.classList.remove('active-skip');
       li.classList.add('selected');
       state.voteSelected = p.id;
-      if (typeof Sound !== 'undefined') Sound.playClick();
+      if (typeof Sound !== 'undefined') Sound.playVote();
       socket.emit('game:vote', { targetId: p.id });
     };
 
@@ -2373,19 +2375,32 @@ function startClientTimer(endsAt) {
   const totalMs = endsAt - Date.now();
   if (totalMs <= 0) return;
   state.timerDuration = totalMs / 1000;
+  let lastTickedSecond = null;
 
   function tick() {
     const remaining = Math.max(0, (endsAt - Date.now()) / 1000);
+    const wholeSec = Math.ceil(remaining);
     const pct = remaining / state.timerDuration;
     const offset = circumference * (1 - pct);
-    circle.style.strokeDashoffset = offset;
-    circle.classList.toggle('urgent', remaining <= 10);
-    text.textContent = Math.ceil(remaining) + 's';
+    if (circle) {
+      circle.style.strokeDashoffset = offset;
+      circle.classList.toggle('urgent', remaining <= 10);
+    }
+    if (text) text.textContent = wholeSec + 's';
+
+    // Clockwork tension tick sound in final 5 seconds of active phases
+    if (wholeSec <= 5 && wholeSec > 0 && lastTickedSecond !== wholeSec) {
+      lastTickedSecond = wholeSec;
+      if (typeof Sound !== 'undefined' && state.gameState?.phase !== 'ended') {
+        Sound.playTick(wholeSec <= 3);
+      }
+    }
+
     if (remaining <= 0) clearInterval(state.timerInterval);
   }
 
   tick();
-  state.timerInterval = setInterval(tick, 500);
+  state.timerInterval = setInterval(tick, 250);
 }
 
 // ─── PARTICLE SYSTEM ───
