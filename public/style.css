@@ -366,6 +366,69 @@ body.phase-ended .global-floating-bar {
   font-size: 0.8rem;
 }
 
+/* ─── RAHIBE TAROT ACTIONS ─── */
+.btn-tarot-inspect {
+  background: linear-gradient(135deg, #4a148c 0%, #7b1fa2 45%, #ab47bc 100%) !important;
+  color: #ffffff !important;
+  border-color: #ba68c8 !important;
+  box-shadow: 0 4px 20px rgba(186, 104, 200, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  width: 100%;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  transition: all var(--transition);
+}
+.btn-tarot-inspect:hover {
+  background: linear-gradient(135deg, #6a1b9a 0%, #8e24aa 45%, #ce93d8 100%) !important;
+  box-shadow: 0 6px 28px rgba(186, 104, 200, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  border-color: #e1bee7 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+}
+.btn-tarot-inspect:active {
+  transform: translateY(0);
+}
+
+.btn-tarot-pass {
+  background: rgba(45, 20, 65, 0.55) !important;
+  color: #f3e5f5 !important;
+  border: 1px solid rgba(186, 104, 200, 0.55) !important;
+  width: 100%;
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all var(--transition);
+}
+.btn-tarot-pass:hover {
+  background: rgba(123, 31, 162, 0.4) !important;
+  border-color: #ba68c8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(186, 104, 200, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+#rahibe-target-list .target-card.selected {
+  border-color: #ba68c8 !important;
+  box-shadow: 0 0 20px rgba(186, 104, 200, 0.5), inset 0 0 10px rgba(186, 104, 200, 0.2) !important;
+  background: rgba(74, 20, 140, 0.35) !important;
+}
+#rahibe-target-list .target-card.selected .target-pill {
+  background: #ba68c8 !important;
+  color: #ffffff !important;
+  border-color: #e1bee7 !important;
+  font-weight: 700;
+}
+
+#rahibe-ready-btn.is-ready {
+  background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%) !important;
+  border-color: #81c784 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.5) !important;
+}
+
 /* ─── GOTHIC FORM INPUTS & BESPOKE SELECTS ─── */
 .form-group {
   margin-bottom: 1.3rem;

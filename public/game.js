@@ -682,10 +682,20 @@ socket.on('room:readyUpdate', ({ readyCount, totalRequired, readyPlayers }) => {
   if (iconEl) {
     iconEl.textContent = isMeReady ? '✅' : '⚡';
   }
+
+  // Also sync in-panel Rahibe ready button if present
+  const rahibeBtn = document.getElementById('rahibe-ready-btn');
+  if (rahibeBtn) {
+    rahibeBtn.className = `btn ${isMeReady ? 'btn-primary is-ready' : 'btn-ghost'}`;
+    const txtSpan = rahibeBtn.querySelector('.rahibe-ready-txt') || rahibeBtn.querySelector('span:last-child');
+    if (txtSpan) {
+      txtSpan.textContent = isMeReady ? '✅ ' + t('btn_ready_active') : '⚡ ' + t('btn_ready');
+    }
+  }
 });
 
-function toggleReady() {
-  state.isReady = !state.isReady;
+function setReady(val) {
+  state.isReady = val !== undefined ? !!val : !state.isReady;
   if (typeof Sound !== 'undefined') Sound.playClick();
   socket.emit('action:setReady', { ready: state.isReady });
   if (state.isReady) {
@@ -693,6 +703,10 @@ function toggleReady() {
   } else {
     showToast(t('ready_toast_off'), 'info');
   }
+}
+
+function toggleReady() {
+  setReady(!state.isReady);
 }
 
 socket.on('room:botsAdded', ({ count }) => {
@@ -1506,15 +1520,22 @@ function renderRahibeNightPanel(gs, area) {
   const isDone = state.rahibeActionConfirmed || state.privateState?.rahibeActionDone;
 
   if (!isAvailable) {
+    // Automatically give ready if not already ready so Rahibe doesn't block the phase
+    if (!state.isReady) {
+      state.isReady = true;
+      socket.emit('action:setReady', { ready: true });
+    }
+    const isMeReady = state.isReady;
+
     area.innerHTML = `
       <div class="night-action-box" style="text-align:center;padding:1.5rem 1rem">
         <div style="font-size:2.4rem;margin-bottom:0.6rem">⏳ 🃏</div>
         <div class="sf-section-title" style="margin-bottom:0.4rem;color:#ce93d8">🃏 ${t('rahibe_cooldown_title')}</div>
         <p class="sf-section-subtitle" style="color:var(--text-muted);font-size:0.9rem;line-height:1.5;max-width:380px;margin:0 auto">${t('rahibe_cooldown_desc')}</p>
         <div style="margin-top:1.2rem">
-          <button class="btn btn-primary" onclick="setReady(true)">
+          <button id="rahibe-ready-btn" class="btn ${isMeReady ? 'btn-primary is-ready' : 'btn-ghost'}" onclick="setReady(!state.isReady)">
             <span class="btn-shine"></span>
-            <span>${t('btn_ready')}</span>
+            <span class="rahibe-ready-txt">${isMeReady ? '✅ ' + t('btn_ready_active') : '⚡ ' + t('btn_ready')}</span>
           </button>
         </div>
       </div>`;
@@ -1558,9 +1579,9 @@ function renderRahibeNightPanel(gs, area) {
     li.className = 'target-card' + (isSelected ? ' selected' : '');
     li.dataset.id = p.id;
     li.innerHTML = `
-      <div class="target-avatar" style="border-color:#a94fd8;background:#4a148c33;color:#e1bee7">${initial}</div>
+      <div class="target-avatar" style="border-color:#ba68c8;background:#4a148c33;color:#e1bee7">${initial}</div>
       <div class="target-name">${escHtml(p.name)}</div>
-      <div class="target-pill" style="border-color:#ba68c8;color:#e1bee7">🃏 Tarot Çek</div>
+      <div class="target-pill" style="border-color:#ba68c8;color:#f3e5f5">🃏 Tarot Çek</div>
     `;
     li.onclick = () => {
       if (typeof Sound !== 'undefined') Sound.playClick();
@@ -1574,7 +1595,7 @@ function renderRahibeNightPanel(gs, area) {
   box.appendChild(ul);
 
   const btnSend = document.createElement('button');
-  btnSend.className = 'btn btn-primary';
+  btnSend.className = 'btn btn-tarot-inspect';
   btnSend.style.marginTop = '1rem';
   btnSend.style.width = '100%';
   btnSend.innerHTML = `<span class="btn-shine"></span><span>${t('rahibe_btn_inspect')}</span>`;
@@ -1591,11 +1612,9 @@ function renderRahibeNightPanel(gs, area) {
   box.appendChild(btnSend);
 
   const btnPass = document.createElement('button');
-  btnPass.className = 'btn btn-secondary';
+  btnPass.className = 'btn btn-tarot-pass';
   btnPass.style.marginTop = '0.6rem';
   btnPass.style.width = '100%';
-  btnPass.style.borderColor = 'rgba(255,255,255,0.2)';
-  btnPass.style.color = 'var(--text-muted)';
   btnPass.innerHTML = `<span>${t('rahibe_btn_pass')}</span>`;
   btnPass.onclick = () => {
     if (typeof Sound !== 'undefined') Sound.playClick();
@@ -1624,18 +1643,18 @@ function renderDawn(gs) {
     }).join('');
   }
 
-  // If player is Rahibe and has a Tarot reading for this round or overall
+  // If player is Rahibe and has a Tarot reading specifically for this round
   if (state.privateState?.myRole === 'rahibe') {
     const tarots = state.rahibeTarots || state.privateState?.rahibeTarots || [];
-    const latestTarot = tarots.find(t => t.round === gs.round) || tarots[tarots.length - 1];
-    if (latestTarot) {
+    const currentRoundTarot = tarots.find(t => Number(t.round) === Number(gs.round));
+    if (currentRoundTarot) {
       const lang = state.lang || 'tr';
-      const msg = (latestTarot.translations && latestTarot.translations[lang]) || latestTarot.message || '';
+      const msg = (currentRoundTarot.translations && currentRoundTarot.translations[lang]) || currentRoundTarot.message || '';
       html += `
         <div class="event-item warning" style="border:1px solid #ba68c8;background:#4a148c33;color:#f3e5f5;font-weight:600;display:flex;align-items:center;gap:0.75rem;margin-top:0.75rem;padding:0.75rem 1rem;border-radius:8px">
           <span style="font-size:1.6rem">🃏</span>
           <div>
-            <div style="font-size:0.75rem;color:#ba68c8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.15rem">${t('rahibe_tarot_revelation')} (Tur ${latestTarot.round || gs.round})</div>
+            <div style="font-size:0.75rem;color:#ba68c8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.15rem">${t('rahibe_tarot_revelation')} (${t('round')} ${currentRoundTarot.round || gs.round})</div>
             <div style="font-size:0.95rem;color:#fff">${escHtml(msg)}</div>
           </div>
         </div>
