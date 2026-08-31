@@ -59,6 +59,8 @@ function isRateLimited(map, key, maxEvents, windowMs) {
 // Abandoned & Idle Room Garbage Collector (Runs every 5 minutes)
 setInterval(() => {
   const now = Date.now();
+
+  // 1) Clean up abandoned rooms
   Object.keys(rooms).forEach(code => {
     const room = rooms[code];
     if (!room) return;
@@ -76,6 +78,18 @@ setInterval(() => {
       }
     } else {
       delete room.emptySince;
+    }
+  });
+
+  // 2) Purge stale rate limiter entries
+  [createRoomLimits, chatLimits, voteLimits, cluePublishLimits, nightActionLimits].forEach(map => {
+    for (const [key, timestamps] of map.entries()) {
+      const active = timestamps.filter(t => now - t < 60000);
+      if (active.length === 0) {
+        map.delete(key);
+      } else {
+        map.set(key, active);
+      }
     }
   });
 }, 5 * 60 * 1000);
@@ -1127,7 +1141,42 @@ function scheduleBotActions(code) {
   const phase = room.phase;
 
   if (phase === PHASES.NIGHT0) botNight0Action(code);
-  else if (phase === PHASES.NIGHT) botNightAction(code);
+  else if (phase === PHASES.NIGHT) {
+    botNightAction(code);
+    // Proactive shadow whisper if SF is human and Kukla is bot
+    const isSecretSF = room.settings?.gameMode === 'secretKiller';
+    if (!isSecretSF && room.sfId && room.kuklaId) {
+      const sfPlayer = getPlayer(room, room.sfId);
+      const kuklaPlayer = getPlayer(room, room.kuklaId);
+      if (sfPlayer && !sfPlayer.isBot && kuklaPlayer?.isBot && kuklaPlayer.alive) {
+        setTimeout(() => {
+          const r = rooms[code];
+          if (!r || r.phase !== PHASES.NIGHT || r.nightActions.sf_target) return;
+          const whispers = {
+            tr: ['Emrinizi bekliyorum, Efendim...', 'Kimi kurban edelim bu gece?', 'Karanlık çöktü, bıçağım hazır...'],
+            en: ['Awaiting your command, Master...', 'Who shall we sacrifice tonight?', 'Darkness has fallen, I am ready...'],
+            ja: ['ご命令をお待ちしております、ご主人様...', '今夜は誰を生贄に捧げましょうか？', '闇が訪れました、準備完了です...'],
+            de: ['Ich erwarte Euren Befehl, Meister...', 'Wen sollen wir heute Nacht opfern?', 'Die Dunkelheit ist da, ich bin bereit...'],
+            es: ['Espero su orden, Maestro...', '¿A quién sacrificaremos esta noche?', 'La oscuridad ha caído, estoy listo...'],
+            fr: ['J\'attends vos ordres, Maître...', 'Qui devons-nous sacrifier ce soir ?', 'L\'obscurité est tombée, je suis prêt...'],
+          };
+          const lang = r.language || 'tr';
+          const list = whispers[lang] || whispers.tr;
+          const msg = list[Math.floor(Math.random() * list.length)];
+          const chatMsg = {
+            role: 'kukla',
+            senderTitle: 'Kukla',
+            name: kuklaPlayer.name,
+            message: msg,
+            time: Date.now(),
+          };
+          if (!r.shadowChat) r.shadowChat = [];
+          r.shadowChat.push(chatMsg);
+          io.to(r.sfId).emit('game:shadowChatMessage', chatMsg);
+        }, 3000 + Math.random() * 2500);
+      }
+    }
+  }
   else if (phase === PHASES.VOTE) botVoteAction(code);
   else if (phase === PHASES.DAY) {
     botDayChat(code);
@@ -1658,9 +1707,9 @@ function startPhase(code, phase) {
 
 function broadcastReadyUpdate(room) {
   if (!room) return;
-  const living = room.players.filter(p => p.alive);
-  const readyCount = living.filter(p => !!room.readyPlayers?.[p.id]).length;
-  const totalRequired = living.length;
+  const activeLiving = room.players.filter(p => p.alive && !p.disconnected);
+  const readyCount = activeLiving.filter(p => !!room.readyPlayers?.[p.id]).length;
+  const totalRequired = activeLiving.length;
   io.to(room.code).emit('room:readyUpdate', {
     readyCount,
     totalRequired,
@@ -1678,9 +1727,9 @@ function setPlayerReady(room, socketId, isReady) {
 
 function checkAllReady(room) {
   if (!room || room.phase === PHASES.LOBBY || room.phase === PHASES.ENDED) return;
-  const living = room.players.filter(p => p.alive);
-  if (living.length === 0) return;
-  const allReady = living.every(p => !!room.readyPlayers?.[p.id]);
+  const activeLiving = room.players.filter(p => p.alive && !p.disconnected);
+  if (activeLiving.length === 0) return;
+  const allReady = activeLiving.every(p => !!room.readyPlayers?.[p.id]);
   if (allReady) {
     clearTimer(room);
     handlePhaseEnd(room.code, room.phase);
@@ -2759,6 +2808,28 @@ io.on('connection', (socket) => {
       const kuklaPlayer = getPlayer(room, room.kuklaId);
       if (kuklaPlayer?.isBot && kuklaPlayer.alive) {
         room.nightActions.kukla_kill = targetId; // Bot kukla auto-confirms kill
+        const targetPlayer = getPlayer(room, targetId);
+        const targetName = targetPlayer ? targetPlayer.name : '';
+        const acks = {
+          tr: `Anlaşıldı Efendim. "${targetName}" bu gece şafağı göremeyecek.`,
+          en: `Understood Master. "${targetName}" will not see the dawn.`,
+          ja: `御意。今夜「${targetName}」の命を絶ちます。`,
+          de: `Verstanden, Meister. "${targetName}" wird die Morgendämmerung nicht erleben.`,
+          es: `Entendido, Maestro. "${targetName}" no verá el amanecer.`,
+          fr: `Compris, Maître. "${targetName}" ne verra pas l'aube.`,
+        };
+        const lang = room.language || 'tr';
+        const botMsg = {
+          role: 'kukla',
+          senderTitle: 'Kukla',
+          name: kuklaPlayer.name,
+          message: acks[lang] || acks.tr,
+          time: Date.now(),
+        };
+        if (!room.shadowChat) room.shadowChat = [];
+        room.shadowChat.push(botMsg);
+        io.to(room.sfId).emit('game:shadowChatMessage', botMsg);
+
         setTimeout(() => {
           const r = rooms[code];
           if (r && r.phase === PHASES.NIGHT) setPlayerReady(r, kuklaPlayer.id, true);
@@ -3179,6 +3250,11 @@ io.on('connection', (socket) => {
 
   // Disconnect
   socket.on('disconnect', () => {
+    chatLimits.delete(socket.id);
+    voteLimits.delete(socket.id);
+    cluePublishLimits.delete(socket.id);
+    nightActionLimits.delete(socket.id);
+
     const code = socket.data.roomCode;
     const room = rooms[code];
     if (room) {
