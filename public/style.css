@@ -8,12 +8,18 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, input, select, textarea, .btn, .target-card, .mob-tab-btn, .tab-btn {
+  touch-action: manipulation;
 }
 
 html {
   font-size: 16px;
   scroll-behavior: smooth;
   color-scheme: dark;
+  overflow-x: hidden;
 }
 
 :root {
@@ -4482,11 +4488,44 @@ select option {
 }
 
 @media (max-width: 600px) {
+  .phase-panel-ready-footer {
+    padding-bottom: max(0.55rem, env(safe-area-inset-bottom));
+  }
   .phase-panel-ready-footer .btn-prominent-ready {
     width: 100%;
     max-width: 100%;
     padding: 0.55rem 1rem;
     font-size: 0.88rem;
+  }
+  .mobile-game-nav {
+    padding-bottom: max(0.2rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* ─── Ultra Small Mobile Screens (< 360px) ─── */
+@media (max-width: 360px) {
+  html {
+    font-size: 14px;
+  }
+  .logo-title {
+    font-size: 1.6rem;
+  }
+  .topbar-row-status {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+  .phase-badge-box,
+  .role-velvet-ribbon {
+    max-width: 100% !important;
+  }
+  .target-selection-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+  }
+  .btn-prominent-ready {
+    font-size: 0.82rem;
+    padding: 0.45rem 0.75rem;
   }
 }
 
