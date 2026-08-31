@@ -868,6 +868,7 @@ function assignRoles(room) {
   room.round = 0;
   room.announcements = [];
   room.chat = [];
+  initBotMemory(room);
 }
 
 function shuffleAndAssignAll(room, roleList) {
@@ -878,6 +879,7 @@ function shuffleAndAssignAll(room, roleList) {
     p.deathRound = null;
     p.deathCause = null;
   });
+  initBotMemory(room);
 }
 
 function buildRoleList(count) {
@@ -989,14 +991,146 @@ function addBots(room, count) {
   return toAdd;
 }
 
+// ─────────────────────────────────────────────
+// BOT AI SUBSYSTEM (4-Pillar Deductive Engine)
+// ─────────────────────────────────────────────
+
+function initBotMemory(room) {
+  if (!room) return;
+  if (!room.botMemory) {
+    room.botMemory = {
+      publicSuspects: {}, // { playerId: count } from Mortisyen clues
+      knownInnocents: {}, // { playerId: true } e.g. Knight shield save
+      tarotSightings: {}, // { playerId: round } spotted active at night by Rahibe
+      lynchVotesOnInnocents: {}, // { voterId: count } bad lynch participation
+    };
+  }
+}
+
+function recordMorticianClueForBots(room, clueObj) {
+  if (!room || !clueObj) return;
+  initBotMemory(room);
+  if (Array.isArray(clueObj.suspects)) {
+    clueObj.suspects.forEach(suspectName => {
+      const p = room.players.find(x => x.name === suspectName);
+      if (p) {
+        room.botMemory.publicSuspects[p.id] = (room.botMemory.publicSuspects[p.id] || 0) + 1;
+      }
+    });
+  }
+}
+
+function recordRahibeTarotForBots(room, targetPlayer, targetActed) {
+  if (!room || !targetPlayer) return;
+  initBotMemory(room);
+  if (targetActed) {
+    room.botMemory.tarotSightings[targetPlayer.id] = room.round;
+  }
+}
+
+function recordLynchResultForBots(room, lynchedPlayer, voteMap) {
+  if (!room || !lynchedPlayer) return;
+  initBotMemory(room);
+  const isEvil = lynchedPlayer.role === ROLES.KUKLA || lynchedPlayer.id === room.sfId;
+  if (!isEvil) {
+    // Lynched player was innocent! Voters who targeted this innocent gain suspicion
+    for (const [voterId, targetId] of Object.entries(voteMap || {})) {
+      if (targetId === lynchedPlayer.id && voterId !== lynchedPlayer.id) {
+        room.botMemory.lynchVotesOnInnocents[voterId] = (room.botMemory.lynchVotesOnInnocents[voterId] || 0) + 1;
+      }
+    }
+  } else {
+    // Lynched player was evil! Voters who helped convict gain innocence credit
+    for (const [voterId, targetId] of Object.entries(voteMap || {})) {
+      if (targetId === lynchedPlayer.id) {
+        room.botMemory.knownInnocents[voterId] = true;
+      }
+    }
+  }
+}
+
+function recordKnightShieldSaveForBots(room, targetPlayer) {
+  if (!room || !targetPlayer) return;
+  initBotMemory(room);
+  room.botMemory.knownInnocents[targetPlayer.id] = true;
+}
+
+function getBotSuspicion(room, botPlayer, targetPlayer) {
+  if (!room || !botPlayer || !targetPlayer) return 50;
+  if (botPlayer.id === targetPlayer.id) return 0;
+  
+  const isSecretSF = room.settings?.gameMode === 'secretKiller';
+  const mem = room.botMemory || {};
+  
+  // 1) Kukla Bot
+  if (botPlayer.id === room.kuklaId) {
+    if (targetPlayer.id === room.sfId) return 0; // Allies with SF
+    if (targetPlayer.role === ROLES.MORTISYEN) return 95;
+    if (targetPlayer.role === ROLES.SOVALYE) return 90;
+    if (targetPlayer.role === ROLES.RAHIBE) return 85;
+    return 40;
+  }
+
+  // 2) Mr. Schadenfreude Bot
+  if (botPlayer.id === room.sfId) {
+    if (!isSecretSF && targetPlayer.id === room.kuklaId) return 0;
+    if (targetPlayer.role === ROLES.MORTISYEN) return 95;
+    if (targetPlayer.role === ROLES.SOVALYE) return 90;
+    if (targetPlayer.role === ROLES.RAHIBE) return 85;
+    return 40;
+  }
+
+  // 3) Town Bot (Koylu, Sovalye, Mortisyen, Rahibe, Madman)
+  let score = 30; // Baseline suspicion
+
+  if (!isSecretSF && targetPlayer.id === room.sfId) {
+    return 0; // Cannot lynch SF in classic mode
+  }
+
+  // A) Mortisyen public suspect sightings (+30 per appearance)
+  const mortCount = mem.publicSuspects?.[targetPlayer.id] || 0;
+  score += mortCount * 30;
+
+  // B) Rahibe tarot active sightings (+35 if seen moving at night)
+  if (mem.tarotSightings?.[targetPlayer.id]) {
+    score += 35;
+  }
+
+  // C) Participated in lynching an innocent (+20 per innocent lynch led/voted)
+  const badVotes = mem.lynchVotesOnInnocents?.[targetPlayer.id] || 0;
+  score += badVotes * 20;
+
+  // D) Proven Innocent / Protected (-40)
+  if (mem.knownInnocents?.[targetPlayer.id]) {
+    score -= 40;
+  }
+
+  // E) Retaliation: If this target voted for the bot in the previous round (+15)
+  if (room.voteHistory && room.voteHistory.length > 0) {
+    const lastVotes = room.voteHistory[room.voteHistory.length - 1]?.votes || {};
+    if (lastVotes[targetPlayer.id] === botPlayer.id) {
+      score += 15;
+    }
+  }
+
+  // Jitter (±8) unique to bot/target pair so bots don't all vote identically
+  const jitter = ((botPlayer.name.charCodeAt(0) * 7 + targetPlayer.name.charCodeAt(0) * 13) % 17) - 8;
+  score += jitter;
+
+  return Math.max(0, Math.min(100, score));
+}
+
 function scheduleBotActions(code) {
   const room = rooms[code];
   if (!room) return;
+  initBotMemory(room);
   const phase = room.phase;
+
   if (phase === PHASES.NIGHT0) botNight0Action(code);
   else if (phase === PHASES.NIGHT) botNightAction(code);
   else if (phase === PHASES.VOTE) botVoteAction(code);
   else if (phase === PHASES.DAY) {
+    botDayChat(code);
     // Bots become ready during day discussion after a natural delay
     const livingBots = room.players.filter(p => p.isBot && p.alive);
     livingBots.forEach((bot, idx) => {
@@ -1004,7 +1138,7 @@ function scheduleBotActions(code) {
         const r = rooms[code];
         if (!r || r.phase !== PHASES.DAY) return;
         setPlayerReady(r, bot.id, true);
-      }, 3000 + idx * 1000 + Math.random() * 5000);
+      }, 4000 + idx * 1000 + Math.random() * 5000);
     });
   } else if (phase === PHASES.DAWN || phase === PHASES.RESULT) {
     const livingBots = room.players.filter(p => p.isBot && p.alive);
@@ -1045,27 +1179,30 @@ function botNight0Action(code) {
     }
     clearTimer(r);
     handleNight0End(code);
-  }, 3000 + Math.random() * 5000);
+  }, 3000 + Math.random() * 4000);
 }
 
 function botNightAction(code) {
   const room = rooms[code];
   if (!room) return;
+  initBotMemory(room);
   const isSecretSF = room.settings?.gameMode === 'secretKiller';
   
-  // SF bot: send kill order / direct kill / pick new replacement puppet
+  // 1) SF bot: send kill order / direct kill / pick replacement puppet
   const sfPlayer = room.players.find(p => p.id === room.sfId);
   if (sfPlayer?.isBot) {
     setTimeout(() => {
       const r = rooms[code];
       if (!r || r.phase !== PHASES.NIGHT) return;
 
-      // 1) Check if SF can & needs to pick a replacement Kukla (Chaos Score: 2/2 innocent lynches)
+      // Check if SF can & needs to pick a replacement Kukla (Chaos Score: 2/2 innocent lynches)
       const canPickNewKukla = !isSecretSF && !r.kuklaId && ((r.consecutiveInnocentLynches || 0) >= 2);
       if (canPickNewKukla) {
         const candidates = r.players.filter(p => p.alive && p.id !== r.sfId);
         if (candidates.length > 0) {
-          const newKukla = candidates[Math.floor(Math.random() * candidates.length)];
+          // Camouflage: pick least suspected candidate
+          const scored = candidates.map(c => ({ c, score: getBotSuspicion(r, sfPlayer, c) })).sort((a, b) => a.score - b.score);
+          const newKukla = scored[0]?.c || candidates[0];
           r.kuklaId = newKukla.id;
           newKukla.isKukla = true;
           if (!r.kuklaHistory) r.kuklaHistory = [];
@@ -1086,7 +1223,7 @@ function botNightAction(code) {
         }
       }
 
-      // 2) If SF has a kukla (or in Secret Killer mode), issue nighttime execution order
+      // If SF has a kukla (or in Secret Killer mode), issue nighttime execution order
       if (r.kuklaId || isSecretSF) {
         if (r.nightActions.sf_target) return;
         const targets = r.players.filter(p => p.alive && p.id !== r.sfId && p.id !== r.kuklaId);
@@ -1094,14 +1231,23 @@ function botNightAction(code) {
           setPlayerReady(r, sfPlayer.id, true);
           return;
         }
-        const target = targets[Math.floor(Math.random() * targets.length)];
+
+        // SF prioritizes high-threat investigative/protective roles: Mortisyen > Sovalye > Rahibe > others
+        const threatSorted = [...targets].sort((a, b) => {
+          const rolePriority = { mortisyen: 4, sovalye: 3, rahibe: 2, koylu: 1, madman: 0 };
+          const pA = rolePriority[a.role] || 1;
+          const pB = rolePriority[b.role] || 1;
+          return pB - pA;
+        });
+        const target = threatSorted[0] || targets[0];
         r.nightActions.sf_target = target.id;
 
-        // Bot SF: 60% chance to plant false evidence on a living innocent
+        // Bot SF: 70% chance to plant false evidence on a trusted living innocent
         const frameCandidates = r.players.filter(p => p.alive && p.id !== r.sfId && p.id !== r.kuklaId && p.id !== target.id);
-        if (frameCandidates.length > 0 && Math.random() < 0.6) {
-          const framed = frameCandidates[Math.floor(Math.random() * frameCandidates.length)];
-          r.nightActions.sf_frame = framed.id;
+        if (frameCandidates.length > 0 && Math.random() < 0.7) {
+          const sortedInnocents = [...frameCandidates].sort((a, b) => getBotSuspicion(r, sfPlayer, a) - getBotSuspicion(r, sfPlayer, b));
+          const framed = sortedInnocents[0];
+          r.nightActions.sf_frame = framed ? framed.id : null;
         } else {
           r.nightActions.sf_frame = null;
         }
@@ -1121,12 +1267,12 @@ function botNightAction(code) {
         }
         setPlayerReady(r, sfPlayer.id, true);
       } else {
-        // If SF still has no kukla and cannot pick one yet, become ready
         setPlayerReady(r, sfPlayer.id, true);
       }
-    }, 2000 + Math.random() * 5000);
+    }, 2000 + Math.random() * 4000);
   }
-  // Şövalye bot: protect or challenge
+
+  // 2) Şövalye bot: protect or challenge
   const sovalyePlayer = room.players.find(p => p.role === ROLES.SOVALYE && p.isBot && p.alive);
   if (sovalyePlayer) {
     setTimeout(() => {
@@ -1135,29 +1281,43 @@ function botNightAction(code) {
       if (r.nightActions.sovalye_protect || r.nightActions.sovalye_challenge) return;
       const targets = r.players.filter(p => p.alive && p.id !== sovalyePlayer.id && p.id !== r.sfId);
       if (!targets.length) return;
-      const target = targets[Math.floor(Math.random() * targets.length)];
-      // Bot challenge only if limit not reached — auto-targets SF (blind)
-      if (Math.random() < 0.25 && (r.sovalyeChallengesUsed || 0) < 2) {
+
+      // Challenge logic: round 2+ when chaos >= 1 or few living remain
+      const livingCount = r.players.filter(p => p.alive).length;
+      const canChallenge = (r.sovalyeChallengesUsed || 0) < 2 && r.round >= 2 && ((r.consecutiveInnocentLynches || 0) >= 1 || livingCount <= 4);
+
+      if (canChallenge && Math.random() < 0.4) {
         r.nightActions.sovalye_challenge = r.sfId;
         r.sovalyeChallengesUsed = (r.sovalyeChallengesUsed || 0) + 1;
       } else {
-        r.nightActions.sovalye_protect = target.id;
+        // Protect target: choose candidate with lowest suspicion (highest trust) e.g. Mortisyen, Rahibe, or trusted town
+        const scoredTargets = [...targets].sort((a, b) => {
+          const valA = (a.role === ROLES.MORTISYEN ? -50 : (a.role === ROLES.RAHIBE ? -40 : getBotSuspicion(r, sovalyePlayer, a)));
+          const valB = (b.role === ROLES.MORTISYEN ? -50 : (b.role === ROLES.RAHIBE ? -40 : getBotSuspicion(r, sovalyePlayer, b)));
+          return valA - valB;
+        });
+        const protectTarget = scoredTargets[0] || targets[0];
+        r.nightActions.sovalye_protect = protectTarget.id;
       }
       setPlayerReady(r, sovalyePlayer.id, true);
-    }, 3000 + Math.random() * 10000);
+    }, 2500 + Math.random() * 5000);
   }
-  // Mortisyen bot: choose forensics or surveillance
+
+  // 3) Mortisyen bot: forensics vs surveillance
   const mortisyenPlayer = room.players.find(p => p.role === ROLES.MORTISYEN && p.isBot && p.alive);
   if (mortisyenPlayer) {
     setTimeout(() => {
       const r = rooms[code];
       if (!r || r.phase !== PHASES.NIGHT) return;
       if (r.nightActions.mortisyen_mode) return;
-      const isSurv = Math.random() < 0.5;
-      if (isSurv) {
+
+      const hasBodies = r.players.some(p => !p.alive);
+      if (!hasBodies || r.round === 1) {
+        // Round 1 or no dead: surveillance mode on highest suspicion player
         const candidates = r.players.filter(p => p.alive && p.id !== mortisyenPlayer.id && p.id !== r.sfId);
         if (candidates.length) {
-          const target = candidates[Math.floor(Math.random() * candidates.length)];
+          const sorted = [...candidates].sort((a, b) => getBotSuspicion(r, mortisyenPlayer, b) - getBotSuspicion(r, mortisyenPlayer, a));
+          const target = sorted[0] || candidates[0];
           r.nightActions.mortisyen_mode = 'surveillance';
           r.nightActions.mortisyen_target = target.id;
         } else {
@@ -1167,9 +1327,10 @@ function botNightAction(code) {
         r.nightActions.mortisyen_mode = 'forensics';
       }
       setPlayerReady(r, mortisyenPlayer.id, true);
-    }, 2500 + Math.random() * 8000);
+    }, 2000 + Math.random() * 5000);
   }
-  // Rahibe bot: draws tarot for a random alive player if tarot is available
+
+  // 4) Rahibe bot: draws tarot for candidate with highest suspicion
   const rahibePlayer = room.players.find(p => p.role === ROLES.RAHIBE && p.isBot && p.alive);
   if (rahibePlayer) {
     setTimeout(() => {
@@ -1180,21 +1341,22 @@ function botNightAction(code) {
         return;
       }
       if (r.nightActions.rahibe_target) return;
-      const candidates = r.players.filter(p => p.alive && p.id !== rahibePlayer.id);
+      const candidates = r.players.filter(p => p.alive && p.id !== rahibePlayer.id && (isSecretSF || p.id !== r.sfId));
       if (!candidates.length) return;
-      const target = candidates[Math.floor(Math.random() * candidates.length)];
+
+      const sorted = [...candidates].sort((a, b) => getBotSuspicion(r, rahibePlayer, b) - getBotSuspicion(r, rahibePlayer, a));
+      const target = sorted[0] || candidates[0];
       r.nightActions.rahibe_target = target.id;
       setPlayerReady(r, rahibePlayer.id, true);
-    }, 2500 + Math.random() * 8000);
+    }, 2000 + Math.random() * 5000);
   }
 
-  // Passive & non-action bots (Köylü, Madman, etc.) give ready naturally after a short delay
+  // 5) Passive & non-action bots
   const passiveBots = room.players.filter(p => p.isBot && p.alive && p.id !== room.sfId && p.role !== ROLES.SOVALYE && p.role !== ROLES.MORTISYEN && p.role !== ROLES.RAHIBE);
   passiveBots.forEach((bot, idx) => {
     setTimeout(() => {
       const r = rooms[code];
       if (!r || r.phase !== PHASES.NIGHT) return;
-      // If this bot is Kukla and has a pending SF target, auto-execute it
       if (r.kuklaId === bot.id && r.nightActions.sf_target && !r.nightActions.kukla_kill && !r.nightActions.kukla_refused) {
         r.nightActions.kukla_kill = r.nightActions.sf_target;
       }
@@ -1206,12 +1368,13 @@ function botNightAction(code) {
 function botVoteAction(code) {
   const room = rooms[code];
   if (!room) return;
+  initBotMemory(room);
+
   const isSecretSF = room.settings?.gameMode === 'secretKiller';
   const sfPlayer = room.players.find(p => p.id === room.sfId);
 
   // In Classic Puppet Master mode, SF cannot vote at all in the trial
   if (!isSecretSF && sfPlayer && sfPlayer.isBot) {
-    // Bot SF immediately ready during trial since it has no voting rights
     setTimeout(() => {
       const r = rooms[code];
       if (r && r.phase === PHASES.VOTE) setPlayerReady(r, sfPlayer.id, true);
@@ -1224,14 +1387,174 @@ function botVoteAction(code) {
     setTimeout(() => {
       const r = rooms[code];
       if (!r || r.phase !== PHASES.VOTE || r.votes[bot.id]) return;
-      // In Classic mode, cannot vote for immortal SF; in Secret Killer mode, SF can be voted
-      const targets = r.players.filter(p => p.alive && p.id !== bot.id && (isSecretSF || p.id !== r.sfId));
-      if (!targets.length) return;
-      const target = targets[Math.floor(Math.random() * targets.length)];
-      r.votes[bot.id] = target.id;
+
+      const candidates = r.players.filter(p => p.alive && p.id !== bot.id && (isSecretSF || p.id !== r.sfId));
+      if (!candidates.length) return;
+
+      // Count current votes to support bandwagoning / consensus building
+      const currentVoteCounts = {};
+      Object.values(r.votes || {}).forEach(targetId => {
+        currentVoteCounts[targetId] = (currentVoteCounts[targetId] || 0) + 1;
+      });
+
+      // Calculate tactical vote score for each candidate
+      let bestTarget = null;
+      let highestScore = -9999;
+
+      candidates.forEach(cand => {
+        let score = getBotSuspicion(r, bot, cand);
+        const votesOnCand = currentVoteCounts[cand.id] || 0;
+
+        // Bandwagon weight: If candidate already has votes, town unites
+        if (bot.id !== r.kuklaId) {
+          score += votesOnCand * 15;
+        } else {
+          // Kukla joins the bandwagon on an innocent to ensure mislynch
+          if (cand.id !== r.sfId) {
+            score += votesOnCand * 25 + Math.random() * 15;
+          } else {
+            score = -9999;
+          }
+        }
+
+        if (score > highestScore) {
+          highestScore = score;
+          bestTarget = cand;
+        }
+      });
+
+      if (bestTarget) {
+        r.votes[bot.id] = bestTarget.id;
+      }
       setPlayerReady(r, bot.id, true);
       broadcastState(code);
-    }, 1500 + idx * 1200 + Math.random() * 4000);
+    }, 1500 + idx * 1200 + Math.random() * 3500);
+  });
+}
+
+function botDayChat(code) {
+  const room = rooms[code];
+  if (!room || room.phase !== PHASES.DAY) return;
+  initBotMemory(room);
+
+  const lang = room.language || 'tr';
+  const livingBots = room.players.filter(p => p.isBot && p.alive);
+  if (livingBots.length === 0) return;
+
+  const isSecretSF = room.settings?.gameMode === 'secretKiller';
+
+  // 1) Mortisyen Bot: automatically publishes autopsy clue if available
+  const mortBot = livingBots.find(p => p.role === ROLES.MORTISYEN);
+  if (mortBot && room.mortisyenClues && room.mortisyenClues.length > 0) {
+    setTimeout(() => {
+      const r = rooms[code];
+      if (!r || r.phase !== PHASES.DAY) return;
+      const latestClue = r.mortisyenClues[r.mortisyenClues.length - 1];
+      if (latestClue) {
+        const text = latestClue.translations?.[lang] || latestClue.clue;
+        const msg = {
+          name: lang === 'tr' ? '⚰️ Mortisyen Gizli Raporu' : '⚰️ Undertaker Confidential Report',
+          message: text,
+          isSystem: true,
+          time: Date.now(),
+        };
+        r.chat.push(msg);
+        io.to(code).emit('game:chatMessage', msg);
+        recordMorticianClueForBots(r, latestClue);
+      }
+    }, 2500 + Math.random() * 3000);
+  }
+
+  // 2) Rahibe Bot: mentions tarot sighting if found active
+  const rahibeBot = livingBots.find(p => p.role === ROLES.RAHIBE);
+  if (rahibeBot && room.rahibeTarots && room.rahibeTarots.length > 0) {
+    const latestTarot = room.rahibeTarots[room.rahibeTarots.length - 1];
+    if (latestTarot && latestTarot.targetActed && latestTarot.round === room.round) {
+      setTimeout(() => {
+        const r = rooms[code];
+        if (!r || r.phase !== PHASES.DAY) return;
+        const tarotPhrases = {
+          tr: `Kutsal Tarot kartları dün gece "${latestTarot.targetName}" adlı köylünün karanlıkta hareket ettiğini fısıldadı...`,
+          en: `The Holy Tarot cards whispered that "${latestTarot.targetName}" was moving in the shadows last night...`,
+          ja: `聖なるタロットが、昨夜「${latestTarot.targetName}」が闇で動いていたと告げています...`,
+          de: `Das Heilige Tarot flüsterte, dass "${latestTarot.targetName}" letzte Nacht in den Schatten aktiv war...`,
+          es: `El Santo Tarot susurró que "${latestTarot.targetName}" se movía en las sombras anoche...`,
+          fr: `Le Saint Tarot a murmuré que "${latestTarot.targetName}" s'agitait dans l'ombre la nuit dernière...`,
+        };
+        const phrase = tarotPhrases[lang] || tarotPhrases.tr;
+        const msg = { name: rahibeBot.name, message: phrase, time: Date.now() };
+        r.chat.push(msg);
+        io.to(code).emit('game:chatMessage', msg);
+      }, 4000 + Math.random() * 4000);
+    }
+  }
+
+  // 3) Town / Accused / Kukla contextual chat messages
+  const chatCandidates = livingBots.filter(p => isSecretSF || p.id !== room.sfId);
+  if (chatCandidates.length === 0) return;
+
+  const chatterCount = Math.min(chatCandidates.length, Math.random() < 0.6 ? 2 : 1);
+  const shuffledChatters = shuffle([...chatCandidates]).slice(0, chatterCount);
+
+  shuffledChatters.forEach((chatter, idx) => {
+    setTimeout(() => {
+      const r = rooms[code];
+      if (!r || r.phase !== PHASES.DAY) return;
+
+      let msgText = '';
+      const otherLiving = r.players.filter(p => p.alive && p.id !== chatter.id && (isSecretSF || p.id !== r.sfId));
+      if (!otherLiving.length) return;
+
+      const scored = otherLiving.map(p => ({ p, score: getBotSuspicion(r, chatter, p) })).sort((a, b) => b.score - a.score);
+      const topSuspect = scored[0]?.p;
+
+      // A) If chatter was voted in previous round, defend self
+      const lastVoteHistory = r.voteHistory?.[r.voteHistory.length - 1];
+      const votesOnMe = lastVoteHistory ? Object.values(lastVoteHistory.votes || {}).filter(v => v === chatter.id).length : 0;
+
+      if (votesOnMe >= 2 && Math.random() < 0.7) {
+        const defendPhrases = {
+          tr: ['Ben masumum, köy için faydalı olmaya çalışıyorum!', 'Oylarınızı bende harcamayın, gerçek şüphelilere odaklanalım.', 'Bana iftira atılıyor, dün gece hiçbir şey yapmadım!'],
+          en: ['I am innocent, trying to help the village!', 'Do not waste your votes on me, focus on the real suspects.', 'I am being framed, I did nothing last night!'],
+          ja: ['私は無実です！村のために尽くしています！', '私に票を無駄遣いしないで、真の容疑者に目を向けましょう。', '濡れ衣を着せられています、昨夜は何もしませんでした！'],
+          de: ['Ich bin unschuldig und versuche dem Dorf zu helfen!', 'Verschwendet eure Stimmen nicht an mich, sucht die echten Verdächtigen.', 'Man hängt mir etwas an, ich habe letzte Nacht nichts getan!'],
+          es: ['¡Soy inocente, intento ayudar a la aldea!', 'No desperdicien sus votos en mí, miren a los verdaderos sospechosos.', '¡Me están incriminando, no hice nada anoche!'],
+          fr: ['Je suis innocent, j\'essaie d\'aider le village !', 'Ne gaspillez pas vos votes sur moi, cherchez les vrais coupables.', 'On me tend un piège, je n\'ai rien fait la nuit dernière !'],
+        };
+        const list = defendPhrases[lang] || defendPhrases.tr;
+        msgText = list[Math.floor(Math.random() * list.length)];
+      } else if (topSuspect && topSuspect.score >= 50) {
+        // B) Point out top suspect
+        const accusePhrases = {
+          tr: [`${topSuspect.name} hakkında ciddi şüphelerim var, dikkatle dinlemeliyiz.`, `Bence ${topSuspect.name}'in hareketleri güven vermiyor.`, `${topSuspect.name} dünkü olaylarda çok sessizdi.`],
+          en: [`I have strong suspicions about ${topSuspect.name}, we must watch closely.`, `I think ${topSuspect.name}'s behavior is untrustworthy.`, `${topSuspect.name} was too quiet during yesterday's events.`],
+          ja: [`${topSuspect.name}には強い疑いがあります。警戒が必要です。`, `${topSuspect.name}の行動は怪しいと思います。`, `${topSuspect.name}は昨日の出来事で静かすぎました。`],
+          de: [`Ich habe starken Verdacht gegen ${topSuspect.name}, wir müssen aufpassen.`, `Ich finde das Verhalten von ${topSuspect.name} verdächtig.`, `${topSuspect.name} war gestern viel zu still.`],
+          es: [`Tengo fuertes sospechas sobre ${topSuspect.name}, debemos vigilar.`, `Creo que el comportamiento de ${topSuspect.name} no inspira confianza.`, `${topSuspect.name} estuvo demasiado callado ayer.`],
+          fr: [`J'ai de sérieux doutes sur ${topSuspect.name}, soyons vigilants.`, `Le comportement de ${topSuspect.name} me semble suspect.`, `${topSuspect.name} était bien trop discret hier.`],
+        };
+        const list = accusePhrases[lang] || accusePhrases.tr;
+        msgText = list[Math.floor(Math.random() * list.length)];
+      } else {
+        // C) General village discussion
+        const generalPhrases = {
+          tr: ['İpuçlarını dikkatlice incelemeliyiz, hata yapma şansımız kalmadı.', 'Kuklanın kim olduğunu bulmak için dünkü oylara bakmalıyız.', 'Köydeki herkes sessizliğini bozmalı, kimseye körü körüne güvenemeyiz.'],
+          en: ['We must examine the clues carefully, no room for mistakes.', 'We should analyze yesterday\'s votes to find the puppet.', 'Everyone must speak up, blind trust will ruin us.'],
+          ja: ['手がかりを慎重に調べるべきです。ミスは許されません。', '昨日の投票を見直して黒幕を見つけるべきです。', '全員が発言すべきです。盲目的な信頼は命取りです。'],
+          de: ['Wir müssen die Hinweise genau prüfen, keine Fehler erlaubt.', 'Wir sollten die gestrigen Stimmen analysieren, um die Puppe zu finden.', 'Jeder muss sich äußern, blindes Vertrauen bringt uns um.'],
+          es: ['Debemos revisar las pistas con cuidado, no hay margen de error.', 'Deberíamos analizar los votos de ayer para hallar a la marioneta.', 'Todos deben hablar, la confianza ciega nos destruirá.'],
+          fr: ['Examinons bien les indices, aucune erreur n\'est permise.', 'Analysons les votes d\'hier pour démasquer la marionnette.', 'Chacun doit s\'exprimer, la confiance aveugle nous perdra.'],
+        };
+        const list = generalPhrases[lang] || generalPhrases.tr;
+        msgText = list[Math.floor(Math.random() * list.length)];
+      }
+
+      if (msgText) {
+        const msgObj = { name: chatter.name, message: msgText, time: Date.now() };
+        r.chat.push(msgObj);
+        io.to(code).emit('game:chatMessage', msgObj);
+      }
+    }, 6000 + idx * 4500 + Math.random() * 4000);
   });
 }
 
@@ -1417,6 +1740,7 @@ function handleNightEnd(code) {
     if (target && target.alive) {
       // Protected by Şövalye?
       if (sovalyeProtected && sovalyeProtected === targetToKill) {
+        recordKnightShieldSaveForBots(room, target);
         announcements.push(makeAnnouncement('blocked', {
           tr: 'Bu gece karanlık bir el uzandı — ama biri onu engelledi.',
           en: 'A dark hand reached out tonight — but someone blocked it.',
@@ -1513,6 +1837,7 @@ function handleNightEnd(code) {
       };
       if (!room.mortisyenClues) room.mortisyenClues = [];
       room.mortisyenClues.push(survClueObj);
+      recordMorticianClueForBots(room, survClueObj);
       io.to(room.mortisyen).emit('private:clue', survClueObj);
     }
   }
@@ -1567,6 +1892,7 @@ function handleNightEnd(code) {
 
       if (!room.rahibeTarots) room.rahibeTarots = [];
       room.rahibeTarots.push(tarotObj);
+      recordRahibeTarotForBots(room, rahibeTarget, targetActed);
 
       io.to(rahibePlayer.id).emit('private:tarot', tarotObj);
       io.to(rahibePlayer.id).emit('private:message', {
@@ -1632,6 +1958,7 @@ function killPlayer(room, player, cause, announcements, lang) {
     const clueObj = generateMortisianClue(room, player, isDeep);
     if (!room.mortisyenClues) room.mortisyenClues = [];
     room.mortisyenClues.push(clueObj);
+    recordMorticianClueForBots(room, clueObj);
     io.to(room.mortisyen).emit('private:clue', clueObj);
   }
 
@@ -1794,6 +2121,8 @@ function handleVoteEnd(code) {
   lynched.deathRound = room.round;
   lynched.deathCause = 'lynch';
 
+  recordLynchResultForBots(room, lynched, room.votes);
+
   const announcements = [];
 
   // Rahibe: first lynch reveal
@@ -1836,6 +2165,7 @@ function handleVoteEnd(code) {
     const clueData = generateMortisianClue(room, lynched);
     if (!room.mortisyenClues) room.mortisyenClues = [];
     room.mortisyenClues.push(clueData);
+    recordMorticianClueForBots(room, clueData);
     io.to(room.mortisyen).emit('private:clue', clueData);
   }
 
