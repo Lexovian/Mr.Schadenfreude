@@ -424,6 +424,78 @@ function fillTpl(tpl, vars) {
   return tpl.replace(/\{(\w+)\}/g, (_, k) => vars[k] !== undefined ? vars[k] : '?');
 }
 
+function generateVotingBehaviorTrace(room, focalPlayer) {
+  const voteHistory = room.voteHistory || [];
+  if (!voteHistory.length) {
+    return {
+      tr: 'Henüz mahkeme kurulmadığı için oy davranışı izi saptanamadı.',
+      en: 'No voting behavioral trace found as no court trial has taken place yet.',
+      ja: 'まだ裁判が行われていないため、投票行動の痕跡はありません。',
+      de: 'Keine Stimmverhaltensspur vorhanden, da noch kein Gericht stattfand.',
+      es: 'No hay rastro de votación ya que aún no se ha celebrado ningún juicio.',
+      fr: 'Aucune trace de vote car aucun procès n\'a encore eu lieu.',
+    };
+  }
+
+  // 30% chance that the trace is obscured / inconclusive (not 100% deterministic)
+  if (Math.random() < 0.30) {
+    return {
+      tr: 'Mahkemedeki oy verme davranışına dair net bir iz elde edilemedi.',
+      en: 'No decisive voting behavioral trace could be gathered from the trial.',
+      ja: '前回の裁判における投票行動の明確な痕跡は得られなかった。',
+      de: 'Keine eindeutige Stimmverhaltensspur aus dem Gericht feststellbar.',
+      es: 'No se pudo obtener un rastro concluyente del comportamiento de votación.',
+      fr: 'Aucune trace concluante concernant le vote au tribunal n\'a pu être relevée.',
+    };
+  }
+
+  const lastVote = voteHistory[voteHistory.length - 1];
+  const killerTargetId = focalPlayer ? lastVote?.votes?.[focalPlayer.id] : null;
+
+  if (!killerTargetId || killerTargetId === 'skip') {
+    return {
+      tr: 'Katilin son mahkemede çekimser kaldığı veya oy kullanmaktan kaçındığı belirlendi.',
+      en: 'Traces indicate the killer abstained or avoided casting a decisive vote in the last trial.',
+      ja: '殺人者は前回の裁判で棄権したか、投票を避けていたことが判明した。',
+      de: 'Spuren weisen darauf hin, dass der Mörder sich im letzten Gericht der Stimme enthalten hat.',
+      es: 'Se determinó que el asesino se abstuvo o evitó votar en el último juicio.',
+      fr: 'Il apparaît que le tueur s\'est abstenu ou a évité de voter lors du dernier procès.',
+    };
+  }
+
+  if (lastVote.lynchId && killerTargetId === lastVote.lynchId) {
+    return {
+      tr: 'Katilin son mahkemede idama giden çoğunluk oyuyla aynı yönde oy kullandığı belirlendi.',
+      en: 'Traces reveal the killer voted in favor of the majority execution in the last trial.',
+      ja: '前回の裁判で、殺人者は処刑された多数派に同調して投票した痕跡がある。',
+      de: 'Spuren deuten darauf hin, dass der Mörder im letzten Gericht für die Hinrichtung stimmte.',
+      es: 'Los indicios señalan que el asesino votó a favor del linchamiento en el último juicio.',
+      fr: 'Les indices indiquent que le tueur a voté en faveur de l\'exécution lors du dernier procès.',
+    };
+  }
+
+  const votedTarget = getPlayer(room, killerTargetId);
+  if (votedTarget) {
+    return {
+      tr: `Katilin son mahkemede "${votedTarget.name}" aleyhine oy verdiği tespit edildi.`,
+      en: `Traces indicate the killer cast their vote against "${votedTarget.name}" in the last trial.`,
+      ja: `前回の裁判で、殺人者は「${votedTarget.name}」に投票していた痕跡が検出された。`,
+      de: `Spuren zeigen, dass der Mörder im letzten Gericht gegen "${votedTarget.name}" gestimmt hat.`,
+      es: `Se detectó que el asesino emitió su voto en contra de "${votedTarget.name}" en el último juicio.`,
+      fr: `Il a été relevé que le tueur a voté contre "${votedTarget.name}" lors du dernier procès.`,
+    };
+  }
+
+  return {
+    tr: 'Mahkemedeki oy verme davranışına dair net bir iz elde edilemedi.',
+    en: 'No decisive voting behavioral trace could be gathered from the trial.',
+    ja: '前回の裁判における投票行動の明確な痕跡は得られなかった。',
+    de: 'Keine eindeutige Stimmverhaltensspur aus dem Gericht feststellbar.',
+    es: 'No se pudo obtener un rastro concluyente del comportamiento de votación.',
+    fr: 'Aucune trace concluante concernant le vote au tribunal n\'a pu être relevée.',
+  };
+}
+
 function generateMortisianClue(room, player, isDeep = true) {
   const lang = room.language || 'tr';
   const alive = getAlive(room);
@@ -464,14 +536,8 @@ function generateMortisianClue(room, player, isDeep = true) {
       const itemES = ROLE_ARCHETYPE_ITEMS.es[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.es.koylu[0];
       const itemFR = ROLE_ARCHETYPE_ITEMS.fr[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.fr.koylu[0];
 
-      // Behavioral trace of the killer / suspect at the crime scene
-      const behIdx = Math.floor(Math.random() * (FORENSIC_TRACES.tr.behaviors?.length || 5));
-      const behTR = FORENSIC_TRACES.tr.behaviors?.[behIdx] || FORENSIC_TRACES.tr.behaviors[0];
-      const behEN = FORENSIC_TRACES.en.behaviors?.[behIdx] || FORENSIC_TRACES.en.behaviors[0];
-      const behJA = FORENSIC_TRACES.ja.behaviors?.[behIdx] || FORENSIC_TRACES.ja.behaviors[0];
-      const behDE = FORENSIC_TRACES.de.behaviors?.[behIdx] || FORENSIC_TRACES.de.behaviors[0];
-      const behES = FORENSIC_TRACES.es.behaviors?.[behIdx] || FORENSIC_TRACES.es.behaviors[0];
-      const behFR = FORENSIC_TRACES.fr.behaviors?.[behIdx] || FORENSIC_TRACES.fr.behaviors[0];
+      // Behavioral trace of the killer only based on voting behavior in trial
+      const behTranslations = generateVotingBehaviorTrace(room, focalPlayer);
 
       const suspectsJoined = triad.join(', ');
       const isFramed = !!framedPlayer;
@@ -490,12 +556,12 @@ function generateMortisianClue(room, player, isDeep = true) {
       fabricTranslations.es = `${itemES} (${isFramed ? 'Objeto Plantado' : 'Rastro de Rol'})`;
       fabricTranslations.fr = `${itemFR} (${isFramed ? 'Objet Déposé' : 'Trace de Rôle'})`;
 
-      behaviorTranslations.tr = behTR;
-      behaviorTranslations.en = behEN;
-      behaviorTranslations.ja = behJA;
-      behaviorTranslations.de = behDE;
-      behaviorTranslations.es = behES;
-      behaviorTranslations.fr = behFR;
+      behaviorTranslations.tr = behTranslations.tr;
+      behaviorTranslations.en = behTranslations.en;
+      behaviorTranslations.ja = behTranslations.ja;
+      behaviorTranslations.de = behTranslations.de;
+      behaviorTranslations.es = behTranslations.es;
+      behaviorTranslations.fr = behTranslations.fr;
 
       evidenceType = 'suspects';
       suspects = triad;
@@ -510,13 +576,14 @@ function generateMortisianClue(room, player, isDeep = true) {
     }
 
   } else if (player.deathCause === 'lynch') {
-    if (player.role === ROLES.KUKLA) {
-      translations.tr = `Adalet yerini buldu! ${player.name} Mr. Schadenfreude'nin Kuklası idi!`;
-      translations.en = `Justice served! ${player.name} was indeed the Puppet!`;
-      translations.ja = `正義が執行された！${player.name}は確かに人形（ククラ）だった！`;
-      translations.de = `Gerechtigkeit siegt! ${player.name} war tatsächlich die Puppe!`;
-      translations.es = `¡Justicia cumplida! ¡${player.name} era la Marioneta!`;
-      translations.fr = `Justice est faite ! ${player.name} était bien la Marionnette !`;
+    const isKukla = player.role === ROLES.KUKLA || player.id === room.kuklaId;
+    if (isKukla) {
+      translations.tr = `Adalet yerini buldu! İdam edilen kişi Mr. Schadenfreude'nin Kuklası (${roleLabel(player.role, 'tr')}) idi!`;
+      translations.en = `Justice served! The executed person was indeed Mr. Schadenfreude's Puppet (${roleLabel(player.role, 'en')})!`;
+      translations.ja = `正義が執行された！処刑された者はMr.シャーデンフロイデの人形（${roleLabel(player.role, 'ja')}）だった！`;
+      translations.de = `Gerechtigkeit siegt! Die hingerichtete Person war Mr. Schadenfreudes Puppe (${roleLabel(player.role, 'de')})!`;
+      translations.es = `¡Justicia cumplida! ¡La persona ejecutada era la Marioneta de Mr. Schadenfreude (${roleLabel(player.role, 'es')})!`;
+      translations.fr = `Justice est faite ! La personne exécutée était la Marionnette de Mr. Schadenfreude (${roleLabel(player.role, 'fr')}) !`;
       evidenceType = 'confirm';
       suspects = [player.name];
     } else {
@@ -533,30 +600,30 @@ function generateMortisianClue(room, player, isDeep = true) {
           : null;
         if (distractor) {
           const pair = [kuklaPlayer.name, distractor.name].sort(() => Math.random() - 0.5);
-          translations.tr = `Yargı hatası... ${player.name} masumdu. Gerçek kukla aranızda: ${pair[0]} veya ${pair[1]}?`;
-          translations.en = `Judicial mistake... ${player.name} was innocent. The true puppet lurks: ${pair[0]} or ${pair[1]}?`;
-          translations.ja = `誤審… ${player.name}は無実だった。本物の人形は潜んでいる：${pair[0]} または ${pair[1]}？`;
-          translations.de = `Justizirrtum... ${player.name} war unschuldig. Die wahre Puppe lauert: ${pair[0]} oder ${pair[1]}?`;
-          translations.es = `Error judicial... ${player.name} era inocente. La verdadera marioneta acecha: ¿${pair[0]} o ${pair[1]}?`;
-          translations.fr = `Erreur judiciaire... ${player.name} était innocent. La vraie marionnette rôde : ${pair[0]} ou ${pair[1]} ?`;
+          translations.tr = `Yargı hatası... İdam edilen kişi masum bir ${roleLabel(player.role, 'tr')} idi. Gerçek kukla aranızda: ${pair[0]} veya ${pair[1]}?`;
+          translations.en = `Judicial mistake... The executed person was an innocent ${roleLabel(player.role, 'en')}. The true puppet lurks: ${pair[0]} or ${pair[1]}?`;
+          translations.ja = `誤審… 処刑された者は無実の${roleLabel(player.role, 'ja')}だった。本物の人形は潜んでいる：${pair[0]} または ${pair[1]}？`;
+          translations.de = `Justizirrtum... Die hingerichtete Person war ein unschuldiger ${roleLabel(player.role, 'de')}. Die wahre Puppe lauert: ${pair[0]} oder ${pair[1]}?`;
+          translations.es = `Error judicial... La persona ejecutada era un inocente ${roleLabel(player.role, 'es')}. La verdadera marioneta acecha: ¿${pair[0]} o ${pair[1]}?`;
+          translations.fr = `Erreur judiciaire... La personne exécutée était un innocent ${roleLabel(player.role, 'fr')}. La vraie marionnette rôde : ${pair[0]} ou ${pair[1]} ?`;
           evidenceType = 'warning';
           suspects = pair;
         } else {
-          translations.tr = `${player.name} masumdu. Gerçek kukla hâlâ aramızda.`;
-          translations.en = `${player.name} was innocent. The puppet is still among us.`;
-          translations.ja = `${player.name}は無実だった。人形はまだ村に潜んでいる。`;
-          translations.de = `${player.name} war unschuldig. Die Puppe ist noch unter uns.`;
-          translations.es = `${player.name} era inocente. La marioneta sigue entre nosotros.`;
-          translations.fr = `${player.name} était innocent. La marionnette est toujours parmi nous.`;
+          translations.tr = `Yargı hatası... İdam edilen kişi masum bir ${roleLabel(player.role, 'tr')} idi. Gerçek kukla hâlâ aramızda.`;
+          translations.en = `Judicial mistake... The executed person was an innocent ${roleLabel(player.role, 'en')}. The puppet is still among us.`;
+          translations.ja = `誤審… 処刑された者は無実の${roleLabel(player.role, 'ja')}だった。人形はまだ村に潜んでいる。`;
+          translations.de = `Justizirrtum... Die hingerichtete Person war ein unschuldiger ${roleLabel(player.role, 'de')}. Die Puppe ist noch unter uns.`;
+          translations.es = `Error judicial... La persona ejecutada era un inocente ${roleLabel(player.role, 'es')}. La marioneta sigue entre nosotros.`;
+          translations.fr = `Erreur judiciaire... La personne exécutée était un innocent ${roleLabel(player.role, 'fr')}. La marionnette est toujours parmi nous.`;
           evidenceType = 'warning';
         }
       } else {
-        translations.tr = `${player.name} idam edildi.`;
-        translations.en = `${player.name} was executed.`;
-        translations.ja = `${player.name}は処刑された。`;
-        translations.de = `${player.name} wurde hingerichtet.`;
-        translations.es = `${player.name} fue ejecutado.`;
-        translations.fr = `${player.name} a été exécuté.`;
+        translations.tr = `İdam edilen kişi masum bir ${roleLabel(player.role, 'tr')} idi.`;
+        translations.en = `The executed person was an innocent ${roleLabel(player.role, 'en')}.`;
+        translations.ja = `処刑された者は無実の${roleLabel(player.role, 'ja')}だった。`;
+        translations.de = `Die hingerichtete Person war ein unschuldiger ${roleLabel(player.role, 'de')}.`;
+        translations.es = `La persona ejecutada era un inocente ${roleLabel(player.role, 'es')}.`;
+        translations.fr = `La personne exécutée était un innocent ${roleLabel(player.role, 'fr')}.`;
         evidenceType = 'info';
       }
     }
@@ -1667,6 +1734,13 @@ function handleVoteEnd(code) {
   // Tie → no lynch
   const topCount = Object.values(tally).filter(v => v === maxVotes).length;
   if (topCount > 1) lynchId = null;
+
+  if (!room.voteHistory) room.voteHistory = [];
+  room.voteHistory.push({
+    round: room.round,
+    votes: { ...room.votes },
+    lynchId: lynchId,
+  });
 
   if (!lynchId) {
     room.announcements = [makeAnnouncement('no_lynch', {
