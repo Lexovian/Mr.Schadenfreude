@@ -1844,7 +1844,8 @@ function handleNightEnd(code) {
   // Mortisyen surveillance resolution
   const mortMode = actions.mortisyen_mode;
   const mortTargetId = actions.mortisyen_target;
-  if (mortMode === 'surveillance' && mortTargetId && room.mortisyen) {
+  const mortPlayer = getPlayer(room, room.mortisyen);
+  if (mortMode === 'surveillance' && mortTargetId && mortPlayer && mortPlayer.alive) {
     const mortTarget = getPlayer(room, mortTargetId);
     if (mortTarget) {
       const isTargetKukla = mortTarget.id === room.kuklaId;
@@ -2027,8 +2028,9 @@ function killPlayer(room, player, cause, announcements, lang) {
     }));
   }
 
-  // Mortisyen: private actionable clue
-  if (room.mortisyen && room.mortisyen !== player.id) {
+  // Mortisyen: private actionable clue (only if mortisyen is alive and not the victim)
+  const mortPlayer = getPlayer(room, room.mortisyen);
+  if (mortPlayer && mortPlayer.alive && room.mortisyen !== player.id) {
     const isDeep = room.nightActions.mortisyen_mode !== 'surveillance';
     const clueObj = generateMortisianClue(room, player, isDeep);
     if (!room.mortisyenClues) room.mortisyenClues = [];
@@ -2235,8 +2237,9 @@ function handleVoteEnd(code) {
     }));
   }
 
-  // Mortisyen clue
-  if (room.mortisyen && room.mortisyen !== lynched.id) {
+  // Mortisyen clue (only if mortisyen is alive and not the victim)
+  const mortPlayer = getPlayer(room, room.mortisyen);
+  if (mortPlayer && mortPlayer.alive && room.mortisyen !== lynched.id) {
     const clueData = generateMortisianClue(room, lynched);
     if (!room.mortisyenClues) room.mortisyenClues = [];
     room.mortisyenClues.push(clueData);
