@@ -1862,42 +1862,66 @@ function handleNightEnd(code) {
       const isTargetKilled = targetToKill && mortTarget.id === targetToKill;
       let survType = 'info';
 
+      let nameA = '';
+      let nameB = '';
+      let suspectsList = [];
+
       if (isTargetKilled) {
         survType = 'warning';
+        const framedId = actions.sf_frame;
+        const actualKillerId = framedId || (isSecretSF ? room.sfId : (room.kuklaId || room.sfId));
+        const killerPlayer = getPlayer(room, actualKillerId);
+        const killerName = killerPlayer?.name || 'Biri';
+
+        const decoys = room.players.filter(p => p.alive && p.id !== mortTarget.id && p.id !== room.mortisyen && p.id !== actualKillerId);
+        let decoyName = 'Biri';
+        if (decoys.length > 0) {
+          decoyName = decoys[Math.floor(Math.random() * decoys.length)].name;
+        } else {
+          const anyOther = room.players.filter(p => p.id !== mortTarget.id && p.id !== actualKillerId);
+          decoyName = anyOther.length > 0 ? anyOther[0].name : 'Gölge';
+        }
+
+        const pair = Math.random() < 0.5 ? [killerName, decoyName] : [decoyName, killerName];
+        nameA = pair[0];
+        nameB = pair[1];
+        suspectsList = [nameA, nameB];
       } else if (targetActed) {
         survType = 'warning';
+        suspectsList = [mortTarget.name];
       } else {
         survType = 'confirm';
+        suspectsList = [];
       }
 
       const survTranslations = {
         tr: isTargetKilled
-          ? `⚡ Suçüstü Tanıklığı: ${mortTarget.name} bu gece saldırıya uğradı! Karanlıkta bir siluetin ona doğru yaklaştığına uzaktan tanık oldun.`
+          ? `⚡ Suçüstü Tanıklığı: ${mortTarget.name} bu gece saldırıya uğradı! Kaçan siluet "${nameA}" ya da "${nameB}" gibi görünüyordu.`
           : targetActed
             ? `⚠️ Gece Hareketi: ${mortTarget.name} bu gece karanlıkta hareket halindeydi.`
             : `🛡️ Hareketsiz: ${mortTarget.name} gece boyunca tamamen hareketsizdi ve sessizce uyudu.`,
         en: isTargetKilled
-          ? `⚡ Witnessed: ${mortTarget.name} was attacked tonight! You caught a glimpse of a shadow closing in.`
+          ? `⚡ Witnessed: ${mortTarget.name} was attacked tonight! The fleeing silhouette looked like "${nameA}" or "${nameB}".`
           : targetActed
             ? `⚠️ Night Activity: ${mortTarget.name} was active in the dark tonight.`
             : `🛡️ Inactive: ${mortTarget.name} remained completely quiet and undisturbed through the night.`,
         ja: isTargetKilled
-          ? `⚡ 現場目撃: ${mortTarget.name}が今夜襲撃された！忍び寄る影を目撃した。`
+          ? `⚡ 現場目撃: ${mortTarget.name}が今夜襲撃された！逃げ去る影は「${nameA}」か「${nameB}」のように見えた。`
           : targetActed
             ? `⚠️ 夜の活動: ${mortTarget.name}は今夜闇の中で活動していた。`
             : `🛡️ 静寂確認: ${mortTarget.name}は夜の間静かに眠っていた。`,
         de: isTargetKilled
-          ? `⚡ Auf frischer Tat: ${mortTarget.name} wurde heute Nacht angegriffen!`
+          ? `⚡ Auf frischer Tat: ${mortTarget.name} wurde heute Nacht angegriffen! Die fliehende Gestalt sah aus wie "${nameA}" oder "${nameB}".`
           : targetActed
             ? `⚠️ Nachtaktivität: ${mortTarget.name} war heute Nacht in der Dunkelheit aktiv.`
             : `🛡️ Inaktiv: ${mortTarget.name} schlief die ganze Nacht friedlich und ruhig.`,
         es: isTargetKilled
-          ? `⚡ Testigo directo: ¡${mortTarget.name} fue atacado esta noche!`
+          ? `⚡ Testigo directo: ¡${mortTarget.name} fue atacado esta noche! La silueta que huía se parecía a "${nameA}" o "${nameB}".`
           : targetActed
             ? `⚠️ Actividad nocturna: ${mortTarget.name} estuvo activo en la oscuridad esta noche.`
             : `🛡️ Inactivo: ${mortTarget.name} permaneció en silencio y durmió tranquilamente.`,
         fr: isTargetKilled
-          ? `⚡ Témoignage direct : ${mortTarget.name} a été attaqué cette nuit !`
+          ? `⚡ Témoignage direct : ${mortTarget.name} a été attaqué cette nuit ! La silhouette en fuite ressemblait à "${nameA}" ou "${nameB}".`
           : targetActed
             ? `⚠️ Activité nocturne : ${mortTarget.name} était actif dans l'obscurité cette nuit.`
             : `🛡️ Inactif : ${mortTarget.name} est resté paisible et a dormi tranquillement toute la nuit.`,
@@ -1910,7 +1934,7 @@ function handleNightEnd(code) {
         clue: survTranslations[lang] || survTranslations.tr,
         evidenceType: survType,
         isSurveillance: true,
-        suspects: targetActed ? [mortTarget.name] : [],
+        suspects: suspectsList,
         translations: survTranslations,
         roleTranslations: {
           tr: 'Gözetim Raporu',
