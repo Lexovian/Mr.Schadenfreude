@@ -1962,6 +1962,7 @@ function buildPrivateState(room, playerId) {
     // Rahibe: tarot prophecy state
     isRahibe: player.role === ROLES.RAHIBE,
     rahibeActionDone: player.role === ROLES.RAHIBE ? (!!room.nightActions.rahibe_target || !!room.nightActions.rahibe_passed) : undefined,
+    rahibePassed: player.role === ROLES.RAHIBE ? !!room.nightActions.rahibe_passed : undefined,
     rahibeTarotAvailable: player.role === ROLES.RAHIBE ? !!room.rahibeTarotAvailable : undefined,
     rahibeTarots: player.role === ROLES.RAHIBE ? (room.rahibeTarots || []) : undefined,
   };

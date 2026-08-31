@@ -758,6 +758,7 @@ function renderState(gs) {
     state.mortisyenTargetSelected = null;
     state.mortisyenMode = 'forensics';
     state.rahibeActionConfirmed = false;
+    state.rahibePassed = false;
     state.rahibeTargetSelected = null;
     state.sfTargetSelected = null;
     state.sfFrameSelected = null;
@@ -1517,6 +1518,7 @@ function renderMortisyenNightPanel(gs, area) {
 function renderRahibeNightPanel(gs, area) {
   area.innerHTML = '';
   const isAvailable = state.privateState?.rahibeTarotAvailable !== false;
+  const isPassed = !!state.rahibePassed || !!state.privateState?.rahibePassed;
   const isDone = state.rahibeActionConfirmed || state.privateState?.rahibeActionDone;
 
   if (!isAvailable) {
@@ -1543,11 +1545,19 @@ function renderRahibeNightPanel(gs, area) {
   }
 
   if (isDone) {
-    area.innerHTML = `
-      <div class="waiting-msg">
-        <p style="color:var(--gold);font-size:1rem">${t('rahibe_done')}</p>
-        <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.4rem">🃏 ${t('rahibe_waiting_dawn')}</p>
-      </div>`;
+    if (isPassed) {
+      area.innerHTML = `
+        <div class="waiting-msg">
+          <p style="color:#ce93d8;font-size:1rem;font-weight:600">${t('rahibe_passed_title')}</p>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.4rem">${t('rahibe_passed_desc')}</p>
+        </div>`;
+    } else {
+      area.innerHTML = `
+        <div class="waiting-msg">
+          <p style="color:var(--gold);font-size:1rem">${t('rahibe_done')}</p>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.4rem">🃏 ${t('rahibe_waiting_dawn')}</p>
+        </div>`;
+    }
     return;
   }
 
@@ -1607,6 +1617,7 @@ function renderRahibeNightPanel(gs, area) {
     if (typeof Sound !== 'undefined') Sound.playClick();
     socket.emit('action:rahibe', { targetId: state.rahibeTargetSelected });
     state.rahibeActionConfirmed = true;
+    state.rahibePassed = false;
     renderRahibeNightPanel(gs, area);
   };
   box.appendChild(btnSend);
@@ -1620,6 +1631,7 @@ function renderRahibeNightPanel(gs, area) {
     if (typeof Sound !== 'undefined') Sound.playClick();
     socket.emit('action:rahibePass');
     state.rahibeActionConfirmed = true;
+    state.rahibePassed = true;
     renderRahibeNightPanel(gs, area);
   };
   box.appendChild(btnPass);
