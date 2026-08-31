@@ -1006,6 +1006,15 @@ function scheduleBotActions(code) {
         setPlayerReady(r, bot.id, true);
       }, 3000 + idx * 1000 + Math.random() * 5000);
     });
+  } else if (phase === PHASES.DAWN || phase === PHASES.RESULT) {
+    const livingBots = room.players.filter(p => p.isBot && p.alive);
+    livingBots.forEach((bot, idx) => {
+      setTimeout(() => {
+        const r = rooms[code];
+        if (!r || r.phase !== phase) return;
+        setPlayerReady(r, bot.id, true);
+      }, 1500 + idx * 500 + Math.random() * 2000);
+    });
   }
 }
 
@@ -1197,13 +1206,26 @@ function botNightAction(code) {
 function botVoteAction(code) {
   const room = rooms[code];
   if (!room) return;
-  const bots = room.players.filter(p => p.isBot && p.alive && p.id !== room.sfId);
+  const isSecretSF = room.settings?.gameMode === 'secretKiller';
+  const sfPlayer = room.players.find(p => p.id === room.sfId);
+
+  // In Classic Puppet Master mode, SF cannot vote at all in the trial
+  if (!isSecretSF && sfPlayer && sfPlayer.isBot) {
+    // Bot SF immediately ready during trial since it has no voting rights
+    setTimeout(() => {
+      const r = rooms[code];
+      if (r && r.phase === PHASES.VOTE) setPlayerReady(r, sfPlayer.id, true);
+    }, 1000);
+  }
+
+  // Voting bots
+  const bots = room.players.filter(p => p.isBot && p.alive && (isSecretSF || p.id !== room.sfId));
   bots.forEach((bot, idx) => {
     setTimeout(() => {
       const r = rooms[code];
       if (!r || r.phase !== PHASES.VOTE || r.votes[bot.id]) return;
-      // SF cannot be voted for by bots
-      const targets = r.players.filter(p => p.alive && p.id !== bot.id && p.id !== r.sfId);
+      // In Classic mode, cannot vote for immortal SF; in Secret Killer mode, SF can be voted
+      const targets = r.players.filter(p => p.alive && p.id !== bot.id && (isSecretSF || p.id !== r.sfId));
       if (!targets.length) return;
       const target = targets[Math.floor(Math.random() * targets.length)];
       r.votes[bot.id] = target.id;
