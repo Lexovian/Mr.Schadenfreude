@@ -1442,6 +1442,7 @@ function botDayChat(code) {
   if (livingBots.length === 0) return;
 
   const isSecretSF = room.settings?.gameMode === 'secretKiller';
+  const kuklaBot = livingBots.find(p => p.id === room.kuklaId);
 
   // 1) Mortisyen Bot: automatically publishes autopsy clue if available
   const mortBot = livingBots.find(p => p.role === ROLES.MORTISYEN);
@@ -1462,7 +1463,7 @@ function botDayChat(code) {
         io.to(code).emit('game:chatMessage', msg);
         recordMorticianClueForBots(r, latestClue);
       }
-    }, 2500 + Math.random() * 3000);
+    }, 2500 + Math.random() * 2500);
   }
 
   // 2) Rahibe Bot: mentions tarot sighting if found active
@@ -1485,21 +1486,81 @@ function botDayChat(code) {
         const msg = { name: rahibeBot.name, message: phrase, time: Date.now() };
         r.chat.push(msg);
         io.to(code).emit('game:chatMessage', msg);
-      }, 4000 + Math.random() * 4000);
+      }, 5000 + Math.random() * 3000);
     }
   }
 
-  // 3) Town / Accused / Kukla contextual chat messages
-  const chatCandidates = livingBots.filter(p => isSecretSF || p.id !== room.sfId);
+  // 3) Kukla Bot Chameleon & Deception Routine (Dedicated)
+  if (kuklaBot && Math.random() < 0.85) {
+    setTimeout(() => {
+      const r = rooms[code];
+      if (!r || r.phase !== PHASES.DAY || !kuklaBot.alive) return;
+
+      const otherLiving = r.players.filter(p => p.alive && p.id !== kuklaBot.id && p.id !== r.sfId);
+      if (!otherLiving.length) return;
+
+      // Find top suspicion target among innocents to frame / jump on
+      const scored = otherLiving.map(p => ({ p, score: getBotSuspicion(r, kuklaBot, p) })).sort((a, b) => b.score - a.score);
+      const topTarget = scored[0]?.p || otherLiving[0];
+
+      const kuklaChameleonPhrases = {
+        tr: [
+          `Ben de ${topTarget.name}'in hareketlerini çok şüpheli buluyorum, bence ona odaklanmalıyız.`,
+          `Köydeki haini yakalamak için acele etmeliyiz, benim oyum ${topTarget.name}'e gidebilir.`,
+          `Dünkü olaylara bakılırsa ${topTarget.name} bir şeyler saklıyor gibi görünüyor.`,
+          `Masumları korumak için dikkatli olmalıyız, şüpheleri doğru yönlendirelim.`,
+        ],
+        en: [
+          `I also find ${topTarget.name}'s behavior very suspicious, we should focus on them.`,
+          `We need to catch the traitor quickly, my vote might go to ${topTarget.name}.`,
+          `Looking at yesterday's events, ${topTarget.name} seems to be hiding something.`,
+          `We must be careful to protect innocents, let's direct our suspicions wisely.`,
+        ],
+        ja: [
+          `私も${topTarget.name}の行動は怪しいと思います。そこに注目すべきです。`,
+          `裏切り者を早く捕まえる必要があります。私は${topTarget.name}に入れるかもしれません。`,
+          `昨日の出来事からすると、${topTarget.name}は何かを隠しているように見えます。`,
+          `無実の村人を守るため、慎重に推理を進めましょう。`,
+        ],
+        de: [
+          `Ich finde das Verhalten von ${topTarget.name} ebenfalls verdächtig, wir sollten uns darauf konzentrieren.`,
+          `Wir müssen den Verräter schnell fassen, meine Stimme könnte an ${topTarget.name} gehen.`,
+          `Nach den gestrigen Ereignissen scheint ${topTarget.name} etwas zu verbergen.`,
+          `Wir müssen vorsichtig sein, um die Unschuldigen zu schützen.`,
+        ],
+        es: [
+          `También encuentro muy sospechoso a ${topTarget.name}, deberíamos enfocarnos en él.`,
+          `Debemos atrapar al traidor pronto, mi voto podría ser para ${topTarget.name}.`,
+          `Viendo lo de ayer, parece que ${topTarget.name} oculta algo.`,
+          `Tengamos cuidado para proteger a los inocentes.`,
+        ],
+        fr: [
+          `Je trouve aussi le comportement de ${topTarget.name} très suspect, concentrons-nous sur lui.`,
+          `Il faut vite démasquer le traître, je pourrais voter contre ${topTarget.name}.`,
+          `D'après les événements d'hier, ${topTarget.name} semble cacher quelque chose.`,
+          `Soyons prudents pour protéger les innocents.`,
+        ],
+      };
+
+      const list = kuklaChameleonPhrases[lang] || kuklaChameleonPhrases.tr;
+      const msgText = list[Math.floor(Math.random() * list.length)];
+      const msgObj = { name: kuklaBot.name, message: msgText, time: Date.now() };
+      r.chat.push(msgObj);
+      io.to(code).emit('game:chatMessage', msgObj);
+    }, 7000 + Math.random() * 5000);
+  }
+
+  // 4) Town / General Discussion bots (2 to 4 bots active per day)
+  const chatCandidates = livingBots.filter(p => (isSecretSF || p.id !== room.sfId) && p.id !== room.kuklaId);
   if (chatCandidates.length === 0) return;
 
-  const chatterCount = Math.min(chatCandidates.length, Math.random() < 0.6 ? 2 : 1);
+  const chatterCount = Math.min(chatCandidates.length, Math.floor(2 + Math.random() * 2));
   const shuffledChatters = shuffle([...chatCandidates]).slice(0, chatterCount);
 
   shuffledChatters.forEach((chatter, idx) => {
     setTimeout(() => {
       const r = rooms[code];
-      if (!r || r.phase !== PHASES.DAY) return;
+      if (!r || r.phase !== PHASES.DAY || !chatter.alive) return;
 
       let msgText = '';
       const otherLiving = r.players.filter(p => p.alive && p.id !== chatter.id && (isSecretSF || p.id !== r.sfId));
@@ -1523,7 +1584,7 @@ function botDayChat(code) {
         };
         const list = defendPhrases[lang] || defendPhrases.tr;
         msgText = list[Math.floor(Math.random() * list.length)];
-      } else if (topSuspect && topSuspect.score >= 50) {
+      } else if (topSuspect && topSuspect.score >= 45) {
         // B) Point out top suspect
         const accusePhrases = {
           tr: [`${topSuspect.name} hakkında ciddi şüphelerim var, dikkatle dinlemeliyiz.`, `Bence ${topSuspect.name}'in hareketleri güven vermiyor.`, `${topSuspect.name} dünkü olaylarda çok sessizdi.`],
@@ -1554,7 +1615,7 @@ function botDayChat(code) {
         r.chat.push(msgObj);
         io.to(code).emit('game:chatMessage', msgObj);
       }
-    }, 6000 + idx * 4500 + Math.random() * 4000);
+    }, 11000 + idx * 5000 + Math.random() * 4000);
   });
 }
 
