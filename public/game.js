@@ -467,10 +467,6 @@ function updateRoomSettings() {
   socket.emit('room:updateSettings', { settings });
 }
 
-function skipPhase() {
-  socket.emit('game:skipPhase');
-}
-
 // ─── MOBILE VIEW TABS ───
 state.mobileActiveView = 'main';
 
@@ -753,12 +749,6 @@ function renderState(gs) {
   // Announcements
   renderAnnouncements(gs.announcements);
 
-  // Skip Phase button for host
-  const skipBtn = document.getElementById('btn-skip-phase');
-  if (skipBtn) {
-    skipBtn.classList.toggle('hidden', !state.isHost || gs.phase === 'ended');
-  }
-
   // Prominent Ready Bar visibility
   const readyBar = document.getElementById('phase-ready-bar');
   if (readyBar) {
@@ -988,11 +978,6 @@ function renderGamePlayers(players) {
   }).join('');
 
   ul.innerHTML = html;
-}
-
-function skipPhase() {
-  if (typeof Sound !== 'undefined') Sound.playClick();
-  socket.emit('game:skipPhase');
 }
 
 // ─── ANNOUNCEMENTS ───

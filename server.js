@@ -3001,18 +3001,6 @@ io.on('connection', (socket) => {
     broadcastState(code);
   });
 
-  // Skip current phase (Host debug tool)
-  socket.on('game:skipPhase', () => {
-    const code = socket.data.roomCode;
-    const room = rooms[code];
-    if (!room || room.host !== socket.id) return;
-    if (room.phase === PHASES.LOBBY || room.phase === PHASES.ENDED) return;
-
-    clearTimer(room);
-    const currentPhase = room.phase;
-    handlePhaseEnd(code, currentPhase);
-  });
-
   // Şövalye action
   socket.on('action:sovalye', ({ type, targetId }) => {
     const code = socket.data.roomCode;

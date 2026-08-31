@@ -3742,14 +3742,6 @@ select option {
   .topbar-tool-btn .tool-btn-txt {
     display: none !important;
   }
-  .host-skip-btn {
-    padding: 0.22rem 0.5rem !important;
-    font-size: 0.72rem !important;
-    white-space: nowrap !important;
-  }
-  .host-skip-btn .skip-btn-txt {
-    font-size: 0.7rem !important;
-  }
 
   /* Mobile In-Game Tab Switcher */
   .mobile-game-nav {
