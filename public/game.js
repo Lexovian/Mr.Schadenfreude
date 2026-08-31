@@ -669,8 +669,17 @@ socket.on('game:ended', ({ winner, reason, players }) => {
 });
 
 socket.on('room:readyUpdate', ({ readyCount, totalRequired, readyPlayers }) => {
+  state.lastReadyCount = readyCount;
+  state.lastTotalRequired = totalRequired;
   const isMeReady = !!(readyPlayers && socket.id && readyPlayers[socket.id]);
   state.isReady = isMeReady;
+  syncReadyUI();
+});
+
+function syncReadyUI() {
+  const isMeReady = !!state.isReady;
+  const readyCount = state.lastReadyCount || 0;
+  const totalRequired = state.lastTotalRequired || 0;
 
   // Topbar Ready Button
   const counterEl = document.getElementById('ready-counter');
@@ -682,15 +691,16 @@ socket.on('room:readyUpdate', ({ readyCount, totalRequired, readyPlayers }) => {
   if (txtEl) txtEl.textContent = isMeReady ? t('btn_ready_active') : t('btn_ready');
   if (iconEl) iconEl.textContent = isMeReady ? '✅' : '⚡';
 
-  // Prominent Main Phase Ready Bar
-  const mainBtn = document.getElementById('btn-main-ready');
-  const mainTxt = document.getElementById('main-ready-text');
-  const mainIcon = document.getElementById('main-ready-icon');
-  const mainCounter = document.getElementById('main-ready-counter');
-  if (mainCounter) mainCounter.textContent = `${readyCount}/${totalRequired}`;
-  if (mainBtn) mainBtn.classList.toggle('is-ready', isMeReady);
-  if (mainTxt) mainTxt.textContent = isMeReady ? t('btn_ready_active') : t('btn_ready');
-  if (mainIcon) mainIcon.textContent = isMeReady ? '✅' : '⚡';
+  // Prominent Ready Triggers inside all Active Phase Cards
+  document.querySelectorAll('.phase-ready-trigger').forEach(btn => {
+    btn.classList.toggle('is-ready', isMeReady);
+    const txt = btn.querySelector('.main-ready-text');
+    const icon = btn.querySelector('.main-ready-icon');
+    const count = btn.querySelector('.main-ready-counter');
+    if (txt) txt.textContent = isMeReady ? t('btn_ready_active') : t('btn_ready');
+    if (icon) icon.textContent = isMeReady ? '✅' : '⚡';
+    if (count) count.textContent = `${readyCount}/${totalRequired}`;
+  });
 
   // Also sync in-panel Rahibe ready button if present
   const rahibeBtn = document.getElementById('rahibe-ready-btn');
@@ -701,11 +711,12 @@ socket.on('room:readyUpdate', ({ readyCount, totalRequired, readyPlayers }) => {
       txtSpan.textContent = isMeReady ? '✅ ' + t('btn_ready_active') : '⚡ ' + t('btn_ready');
     }
   }
-});
+}
 
 function setReady(val) {
   state.isReady = val !== undefined ? !!val : !state.isReady;
   if (typeof Sound !== 'undefined') Sound.playClick();
+  syncReadyUI();
   socket.emit('action:setReady', { ready: state.isReady });
   if (state.isReady) {
     showToast(t('ready_toast_on'), 'confirm');
@@ -804,6 +815,7 @@ function renderState(gs) {
 
   // Phase panels
   showPhasePanel(gs.phase, gs);
+  syncReadyUI();
 }
 
 // ─── LOBBY PLAYERS ───
