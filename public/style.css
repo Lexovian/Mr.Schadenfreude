@@ -4369,20 +4369,20 @@ select option {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.65rem;
-  padding: 0.75rem 1.6rem;
-  min-height: 48px;
+  gap: 0.45rem;
+  padding: 0.45rem 1.15rem;
+  min-height: 38px;
   background: linear-gradient(135deg, #800f2f, #a4161a, #ba181b);
   border: 1.5px solid rgba(255, 215, 0, 0.6);
   border-radius: var(--radius-pill, 9999px);
   color: #fff;
   font-family: var(--font-title, 'Cinzel', serif);
-  font-size: 1.05rem;
+  font-size: 0.90rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(186, 24, 27, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow: 0 3px 14px rgba(186, 24, 27, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35);
   transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -4391,8 +4391,8 @@ select option {
 }
 
 .btn-prominent-ready:hover {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 6px 26px rgba(229, 56, 59, 0.8), 0 0 16px rgba(255, 215, 0, 0.5);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 5px 18px rgba(229, 56, 59, 0.75), 0 0 12px rgba(255, 215, 0, 0.4);
   border-color: #ffd700;
 }
 
@@ -4401,23 +4401,23 @@ select option {
 }
 
 .btn-prominent-ready .ready-icon-anim {
-  font-size: 1.25rem;
-  filter: drop-shadow(0 0 6px #ffd700);
+  font-size: 1.05rem;
+  filter: drop-shadow(0 0 5px #ffd700);
   display: inline-block;
   animation: readyPulse 2s infinite ease-in-out;
 }
 
 @keyframes readyPulse {
   0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px #ffd700); }
-  50% { transform: scale(1.25); filter: drop-shadow(0 0 10px #ffea00); }
+  50% { transform: scale(1.2); filter: drop-shadow(0 0 8px #ffea00); }
 }
 
 .ready-badge-pill {
   background: rgba(0, 0, 0, 0.55);
   border: 1px solid rgba(255, 215, 0, 0.4);
-  padding: 0.18rem 0.6rem;
+  padding: 0.12rem 0.45rem;
   border-radius: var(--radius-pill, 9999px);
-  font-size: 0.82rem;
+  font-size: 0.74rem;
   font-weight: 700;
   color: var(--gold-light, #f4e8c1);
   font-family: var(--font-body, sans-serif);
@@ -4428,14 +4428,14 @@ select option {
 .btn-prominent-ready.is-ready {
   background: linear-gradient(135deg, #1b4332, #2d6a4f, #40916c);
   border-color: #74c69d;
-  box-shadow: 0 4px 22px rgba(45, 106, 79, 0.8), 0 0 16px rgba(116, 198, 157, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 3px 16px rgba(45, 106, 79, 0.75), 0 0 12px rgba(116, 198, 157, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   color: #d8f3dc;
   animation: readyBreath 2.5s infinite ease-in-out;
 }
 
 @keyframes readyBreath {
-  0%, 100% { box-shadow: 0 4px 20px rgba(45, 106, 79, 0.7), 0 0 12px rgba(116, 198, 157, 0.4); }
-  50% { box-shadow: 0 6px 28px rgba(45, 106, 79, 0.95), 0 0 22px rgba(116, 198, 157, 0.75); }
+  0%, 100% { box-shadow: 0 3px 14px rgba(45, 106, 79, 0.65), 0 0 10px rgba(116, 198, 157, 0.35); }
+  50% { box-shadow: 0 5px 20px rgba(45, 106, 79, 0.9), 0 0 18px rgba(116, 198, 157, 0.65); }
 }
 
 .btn-prominent-ready.is-ready .ready-badge-pill {
@@ -4464,8 +4464,8 @@ select option {
 
 /* Phase Panel Inner Ready Footer */
 .phase-panel-ready-footer {
-  margin-top: 1.1rem;
-  padding-top: 0.9rem;
+  margin-top: 0.75rem;
+  padding-top: 0.55rem;
   border-top: 1px dashed rgba(212, 175, 55, 0.25);
   display: flex;
   justify-content: center;
@@ -4474,17 +4474,19 @@ select option {
 }
 
 .phase-panel-ready-footer .btn-prominent-ready {
-  width: 100%;
-  max-width: 380px;
-  padding: 0.85rem 1.8rem;
-  font-size: 1.1rem;
+  width: auto;
+  min-width: 200px;
+  max-width: 260px;
+  padding: 0.45rem 1.25rem;
+  font-size: 0.90rem;
 }
 
 @media (max-width: 600px) {
   .phase-panel-ready-footer .btn-prominent-ready {
+    width: 100%;
     max-width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
+    padding: 0.55rem 1rem;
+    font-size: 0.88rem;
   }
 }
 
