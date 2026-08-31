@@ -701,16 +701,6 @@ function syncReadyUI() {
     if (icon) icon.textContent = isMeReady ? '✅' : '⚡';
     if (count) count.textContent = `${readyCount}/${totalRequired}`;
   });
-
-  // Also sync in-panel Rahibe ready button if present
-  const rahibeBtn = document.getElementById('rahibe-ready-btn');
-  if (rahibeBtn) {
-    rahibeBtn.className = `btn ${isMeReady ? 'btn-primary is-ready' : 'btn-ghost'}`;
-    const txtSpan = rahibeBtn.querySelector('.rahibe-ready-txt') || rahibeBtn.querySelector('span:last-child');
-    if (txtSpan) {
-      txtSpan.textContent = isMeReady ? '✅ ' + t('btn_ready_active') : '⚡ ' + t('btn_ready');
-    }
-  }
 }
 
 function setReady(val) {
@@ -1551,19 +1541,11 @@ function renderRahibeNightPanel(gs, area) {
   const isDone = state.rahibeActionConfirmed || state.privateState?.rahibeActionDone;
 
   if (!isAvailable) {
-    const isMeReady = state.isReady;
-
     area.innerHTML = `
       <div class="night-action-box" style="text-align:center;padding:1.5rem 1rem">
         <div style="font-size:2.4rem;margin-bottom:0.6rem">⏳ 🃏</div>
         <div class="sf-section-title" style="margin-bottom:0.4rem;color:#ce93d8">🃏 ${t('rahibe_cooldown_title')}</div>
         <p class="sf-section-subtitle" style="color:var(--text-muted);font-size:0.9rem;line-height:1.5;max-width:380px;margin:0 auto">${t('rahibe_cooldown_desc')}</p>
-        <div style="margin-top:1.2rem">
-          <button id="rahibe-ready-btn" class="btn ${isMeReady ? 'btn-primary is-ready' : 'btn-ghost'}" onclick="setReady(!state.isReady)">
-            <span class="btn-shine"></span>
-            <span class="rahibe-ready-txt">${isMeReady ? '✅ ' + t('btn_ready_active') : '⚡ ' + t('btn_ready')}</span>
-          </button>
-        </div>
       </div>`;
     return;
   }
