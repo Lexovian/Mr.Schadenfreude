@@ -1359,7 +1359,7 @@ function renderSovalyeNightPanel(gs, area) {
     btn.style.marginTop = '0.8rem';
     btn.innerHTML = `<span class="btn-shine"></span><span>${t('sovalye_challenge')}</span>`;
     btn.onclick = () => {
-      if (typeof Sound !== 'undefined') Sound.playShield();
+      if (typeof Sound !== 'undefined') Sound.playSword();
       socket.emit('action:sovalye', { type: 'challenge' });
       state.sovalyeActionConfirmed = true;
       renderSovalyeNightPanel(gs, area);
@@ -1661,6 +1661,10 @@ function renderDawn(gs) {
       const type = typeof a === 'object' ? (a.type || 'info') : 'info';
       return `<div class="event-item ${type}">${escHtml(text)}</div>`;
     }).join('');
+    // Trigger kill / death audio if someone was slain overnight
+    if (typeof Sound !== 'undefined' && list.some(a => (typeof a === 'object' && (a.type === 'death' || a.type === 'danger')))) {
+      setTimeout(() => { if (typeof Sound !== 'undefined') Sound.playKill(); }, 450);
+    }
   }
 
   // If player is Rahibe and has a Tarot reading specifically for this round
@@ -1857,6 +1861,11 @@ function renderResult(gs) {
     const type = typeof a === 'object' ? (a.type || 'info') : 'info';
     return `<div class="event-item ${type}" style="text-align:center">${escHtml(text)}</div>`;
   }).join('');
+
+  // Trigger kill audio if an execution took place
+  if (typeof Sound !== 'undefined' && anns.some(a => (typeof a === 'object' && (a.type === 'death' || a.type === 'danger' || a.id === 'lynch_executed')))) {
+    setTimeout(() => { if (typeof Sound !== 'undefined') Sound.playKill(); }, 350);
+  }
 }
 
 // Ended

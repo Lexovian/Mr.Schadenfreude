@@ -422,8 +422,10 @@ const Sound = (function() {
   }
 
   /**
-   * 4. İnfaz / Ölüm Darbesi (Warm Visceral Thud & Dark Blade Sweep)
-   * No high noise screech (lowered from 3.6kHz to soft 800Hz)
+   * 4. İnfaz / Ölüm Darbesi (Cinematic Lethal Slash & Visceral Death Impact)
+   * Layer 1: Fast Razor-Sharp Blade Slice (swept bandpass noise)
+   * Layer 2: Heavy Visceral Body Impact Punch (punchy pitch drop)
+   * Layer 3: Ominous Low Death Stinger Chord (Dark minor chord bloom)
    */
   function playKill() {
     if (muted) return;
@@ -432,44 +434,70 @@ const Sound = (function() {
 
     const t = c.currentTime;
 
-    // Layer 1: Soft steel sweep (warm bandpass, gentle Q)
-    const bufferSize = Math.floor(c.sampleRate * 0.15);
+    // Layer 1: Razor-Sharp Steel Blade Slice (Fast whoosh)
+    const bufferSize = Math.floor(c.sampleRate * 0.14);
     const noiseBuffer = c.createBuffer(1, bufferSize, c.sampleRate);
     const data = noiseBuffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
 
     const noise = c.createBufferSource();
     noise.buffer = noiseBuffer;
-    const filter = c.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(850, t);
-    filter.frequency.exponentialRampToValueAtTime(220, t + 0.14);
-    filter.Q.setValueAtTime(1.2, t); // Gentle, smooth Q
+    const sliceFilter = c.createBiquadFilter();
+    sliceFilter.type = 'bandpass';
+    sliceFilter.frequency.setValueAtTime(2200, t);
+    sliceFilter.frequency.exponentialRampToValueAtTime(450, t + 0.12);
+    sliceFilter.Q.setValueAtTime(2.5, t);
 
-    const noiseGain = c.createGain();
-    noiseGain.gain.setValueAtTime(0.25, t);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    const sliceGain = c.createGain();
+    sliceGain.gain.setValueAtTime(0.55, t);
+    sliceGain.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
 
-    noise.connect(filter);
-    filter.connect(noiseGain);
-    connectToBus(noiseGain, 0.35);
+    noise.connect(sliceFilter);
+    sliceFilter.connect(sliceGain);
+    connectToBus(sliceGain, 0.4);
     noise.start(t);
 
-    // Layer 2: Deep visceral gut thud (warm sine)
-    const subOsc = c.createOscillator();
-    const subGain = c.createGain();
-    subOsc.type = 'sine';
-    subOsc.frequency.setValueAtTime(180, t);
-    subOsc.frequency.exponentialRampToValueAtTime(36, t + 0.38);
+    // Layer 2: Brutal Punchy Visceral Impact (flesh/bone hit)
+    const punchOsc = c.createOscillator();
+    const punchGain = c.createGain();
+    punchOsc.type = 'triangle';
+    punchOsc.frequency.setValueAtTime(260, t);
+    punchOsc.frequency.exponentialRampToValueAtTime(40, t + 0.25);
 
-    subGain.gain.setValueAtTime(0.48, t);
-    subGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+    punchGain.gain.setValueAtTime(0.75, t);
+    punchGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
 
-    subOsc.connect(subGain);
-    connectToBus(subGain, 0.5);
+    punchOsc.connect(punchGain);
+    connectToBus(punchGain, 0.5);
 
-    subOsc.start(t);
-    subOsc.stop(t + 0.48);
+    punchOsc.start(t);
+    punchOsc.stop(t + 0.35);
+
+    // Layer 3: Ominous Low Death Stinger (Low dark minor chord)
+    const stingerNotes = [73.42, 110.00, 146.83]; // D2, A2, D3
+    stingerNotes.forEach((freq, idx) => {
+      const stingerOsc = c.createOscillator();
+      const stingerGain = c.createGain();
+      const stingerFilter = c.createBiquadFilter();
+
+      stingerOsc.type = 'sawtooth';
+      stingerOsc.frequency.setValueAtTime(freq, t + 0.05);
+      stingerOsc.frequency.exponentialRampToValueAtTime(freq * 0.94, t + 1.2);
+
+      stingerFilter.type = 'lowpass';
+      stingerFilter.frequency.setValueAtTime(380, t + 0.05);
+
+      stingerGain.gain.setValueAtTime(0.0001, t);
+      stingerGain.gain.linearRampToValueAtTime(0.32 / (idx + 1), t + 0.12);
+      stingerGain.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+
+      stingerOsc.connect(stingerFilter);
+      stingerFilter.connect(stingerGain);
+      connectToBus(stingerGain, 0.7);
+
+      stingerOsc.start(t + 0.05);
+      stingerOsc.stop(t + 1.45);
+    });
   }
 
   /**
@@ -572,8 +600,10 @@ const Sound = (function() {
   }
 
   /**
-   * 8. Şövalye Kılıç Meydan Okuması (Warm Steel Clink)
-   * Smooth metallic ring (removed 2.4kHz screeching sawtooth)
+   * 8. Şövalye Kılıç Çarpışması / Kılıç Çekme (Authentic Steel Sword Clash & Schwing)
+   * Layer 1: High-friction metallic scrape (bandpass noise sweep)
+   * Layer 2: Harmonic singing steel ring (dual ringing harmonics at 987Hz & 1974Hz)
+   * Layer 3: Solid steel mass impact
    */
   function playSword() {
     if (muted) return;
@@ -581,30 +611,66 @@ const Sound = (function() {
     if (!c) return;
 
     const t = c.currentTime;
-    const freqs = [580, 840];
 
-    freqs.forEach((freq, idx) => {
+    // 1. Blade Scrape / Schwing Transient (Noise through resonant bandpass)
+    const bufLen = Math.floor(c.sampleRate * 0.12);
+    const noiseBuf = c.createBuffer(1, bufLen, c.sampleRate);
+    const data = noiseBuf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+
+    const scrape = c.createBufferSource();
+    scrape.buffer = noiseBuf;
+
+    const scrapeFilter = c.createBiquadFilter();
+    scrapeFilter.type = 'bandpass';
+    scrapeFilter.frequency.setValueAtTime(1400, t);
+    scrapeFilter.frequency.exponentialRampToValueAtTime(2600, t + 0.06);
+    scrapeFilter.frequency.exponentialRampToValueAtTime(1600, t + 0.12);
+    scrapeFilter.Q.setValueAtTime(4.0, t);
+
+    const scrapeGain = c.createGain();
+    scrapeGain.gain.setValueAtTime(0.35, t);
+    scrapeGain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+
+    scrape.connect(scrapeFilter);
+    scrapeFilter.connect(scrapeGain);
+    connectToBus(scrapeGain, 0.4);
+    scrape.start(t);
+
+    // 2. Harmonic Singing Steel Ringdown (B5 = 987.77Hz, B6 = 1975.5Hz)
+    const ringNotes = [987.77, 1975.53, 2963.3];
+    ringNotes.forEach((freq, idx) => {
       const osc = c.createOscillator();
       const gain = c.createGain();
-      const filter = c.createBiquadFilter();
 
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, t);
-      osc.frequency.exponentialRampToValueAtTime(freq * 0.4, t + 0.22);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq + (idx === 1 ? 4 : 0), t);
 
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1400, t);
+      gain.gain.setValueAtTime((0.28 / (idx + 1)), t);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.65);
 
-      gain.gain.setValueAtTime(0.14 / (idx + 1), t);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
-
-      osc.connect(filter);
-      filter.connect(gain);
-      connectToBus(gain, 0.35);
+      osc.connect(gain);
+      connectToBus(gain, 0.5);
 
       osc.start(t);
-      osc.stop(t + 0.3);
+      osc.stop(t + 0.7);
     });
+
+    // 3. Steel Body Mass Impact (Heavy Clang Thump)
+    const impactOsc = c.createOscillator();
+    const impactGain = c.createGain();
+    impactOsc.type = 'triangle';
+    impactOsc.frequency.setValueAtTime(320, t);
+    impactOsc.frequency.exponentialRampToValueAtTime(90, t + 0.15);
+
+    impactGain.gain.setValueAtTime(0.4, t);
+    impactGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+
+    impactOsc.connect(impactGain);
+    connectToBus(impactGain, 0.3);
+
+    impactOsc.start(t);
+    impactOsc.stop(t + 0.2);
   }
 
   /**
