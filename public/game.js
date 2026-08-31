@@ -442,6 +442,12 @@ function updateGameModeUI(gameMode, playerCount) {
       recBadge.textContent = t('mode_recommend_classic');
     }
   }
+  const minNoteEl = document.getElementById('lobby-min-note');
+  if (minNoteEl) {
+    minNoteEl.textContent = currentMode === 'secretKiller'
+      ? t('min_players_note_secret')
+      : t('min_players_note_normal');
+  }
 }
 
 function updateRoomSettings() {

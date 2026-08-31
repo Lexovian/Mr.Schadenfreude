@@ -2103,7 +2103,15 @@ io.on('connection', (socket) => {
     const code = socket.data.roomCode;
     const room = rooms[code];
     if (!room || room.host !== socket.id) return;
-    if (room.players.length < 5) return socket.emit('error', { message: room.language === 'tr' ? 'En az 5 oyuncu gerekli.' : 'At least 5 players required.' });
+    const isSecretSF = room.settings?.gameMode === 'secretKiller';
+    const minRequired = isSecretSF ? 4 : 5;
+    if (room.players.length < minRequired) {
+      return socket.emit('error', {
+        message: room.language === 'tr'
+          ? (isSecretSF ? 'Gizli Katil modu için en az 4 oyuncu gerekli.' : 'Kukla Ustası modu için en az 5 oyuncu gerekli.')
+          : (isSecretSF ? 'At least 4 players required for Secret Killer mode.' : 'At least 5 players required for Puppet Master mode.')
+      });
+    }
     assignRoles(room);
     // Send each player their private role
     room.players.forEach(p => {
