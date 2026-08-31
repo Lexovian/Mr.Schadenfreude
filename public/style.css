@@ -1809,15 +1809,16 @@ select option {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.65rem;
   width: 100%;
 }
 
 .candidate-info-left {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.65rem;
   min-width: 0;
+  flex: 1;
 }
 
 .candidate-avatar {
@@ -1841,28 +1842,44 @@ select option {
 }
 
 .candidate-name-box {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.35rem;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .candidate-name {
   font-family: var(--font-body);
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
 .candidate-you-tag {
-  font-size: 0.8rem;
-  color: var(--gold-dim);
-  font-style: italic;
+  font-size: 0.72rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--radius-pill);
+  background: rgba(212, 175, 55, 0.18);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  color: var(--gold-light);
+  font-style: normal;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
 }
 
 .candidate-action-right {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.55rem;
   flex-shrink: 0;
 }
 
@@ -1877,6 +1894,7 @@ select option {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  white-space: nowrap;
 }
 .vote-badge.has-votes {
   border-color: var(--gold);
@@ -1892,12 +1910,13 @@ select option {
   font-family: var(--font-title);
   font-size: 0.78rem;
   letter-spacing: 0.05em;
-  padding: 0.3rem 0.8rem;
+  padding: 0.3rem 0.75rem;
   border-radius: var(--radius-pill);
   background: rgba(212, 175, 55, 0.1);
   border: 1px solid var(--gold-border);
   color: var(--gold-light);
   transition: all var(--transition);
+  white-space: nowrap;
 }
 .vote-candidate-card:hover .candidate-select-indicator {
   background: var(--gold);
@@ -3820,6 +3839,43 @@ select option {
   }
   .night-action-btns .btn {
     width: 100%;
+  }
+
+  /* Vote Candidate Card on Mobile */
+  .vote-candidate-card {
+    padding: 0.65rem 0.75rem;
+    gap: 0.4rem;
+  }
+  .candidate-main-row {
+    gap: 0.45rem;
+  }
+  .candidate-info-left {
+    gap: 0.45rem;
+  }
+  .candidate-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+  .candidate-name {
+    font-size: 1rem;
+    max-width: 110px;
+  }
+  .candidate-you-tag {
+    font-size: 0.65rem;
+    padding: 0.08rem 0.35rem;
+  }
+  .candidate-action-right {
+    gap: 0.35rem;
+  }
+  .vote-badge {
+    padding: 0.18rem 0.45rem;
+    font-size: 0.72rem;
+    gap: 0.2rem;
+  }
+  .candidate-select-indicator {
+    padding: 0.22rem 0.55rem;
+    font-size: 0.72rem;
   }
 
   /* Chat Box on Mobile */
