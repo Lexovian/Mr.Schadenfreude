@@ -3380,24 +3380,43 @@ select option {
   letter-spacing: 0.05em;
 }
 
-/* ─── Actions Bar (Play Again) ─── */
+/* ─── Actions Bar (Play Again & Leave) ─── */
 .ended-actions-bar {
   display: flex;
   justify-content: center;
-  margin-top: 1.25rem;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
 }
 
 .btn-play-again {
-  min-width: 240px;
-  padding: 0.85rem 2rem;
+  min-width: 220px;
+  padding: 0.85rem 1.8rem;
   font-size: 1rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   box-shadow: 0 4px 20px rgba(201, 162, 39, 0.3);
 }
 
 .btn-play-again:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 28px rgba(201, 162, 39, 0.5);
+}
+
+.btn-leave-game {
+  min-width: 160px;
+  padding: 0.85rem 1.4rem;
+  font-size: 0.95rem;
+  background: rgba(30, 15, 25, 0.85);
+  border: 1px solid rgba(183, 28, 28, 0.4);
+  color: var(--text-muted);
+}
+
+.btn-leave-game:hover {
+  background: rgba(60, 20, 30, 0.95);
+  border-color: rgba(183, 28, 28, 0.8);
+  color: #ff8a80;
+  transform: translateY(-2px);
 }
 
 /* Kukla Overlay Role Styles */

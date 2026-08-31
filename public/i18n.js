@@ -238,7 +238,8 @@ const I18N = (function () {
       // Results
       winner_sf: 'Mr. Schadenfreude Kazandı',
       winner_villagers: 'Köylüler Kazandı',
-      play_again: 'Tekrar Oyna',
+      play_again: 'Lobiye Dön & Tekrar Oyna',
+      leave_to_menu: 'Odadan Ayrıl',
 
       // Grimoire & Rules
       grimoire_btn: 'Grimoire & Roller',
@@ -505,7 +506,8 @@ const I18N = (function () {
       // Results
       winner_sf: 'Mr. Schadenfreude Wins',
       winner_villagers: 'Villagers Win',
-      play_again: 'Play Again',
+      play_again: 'Return to Lobby & Play Again',
+      leave_to_menu: 'Leave Room',
 
       // Grimoire & Rules
       grimoire_btn: 'Grimoire & Roles',
@@ -759,7 +761,8 @@ const I18N = (function () {
 
       winner_sf: 'Mr.シャーデンフロイデの勝利',
       winner_villagers: '村人陣営の勝利',
-      play_again: 'もう一度遊ぶ',
+      play_again: 'ロビーに戻って再戦',
+      leave_to_menu: '部屋を退出',
 
       grimoire_btn: '魔導書 ＆ 役職',
       grimoire_title: 'Mr.シャーデンフロイデ 魔導書',
@@ -1012,7 +1015,8 @@ const I18N = (function () {
 
       winner_sf: 'Mr. Schadenfreude Gewinnt',
       winner_villagers: 'Dorfbewohner Gewinnen',
-      play_again: 'Nochmal Spielen',
+      play_again: 'Zurück zur Lobby & Nochmal spielen',
+      leave_to_menu: 'Raum verlassen',
 
       grimoire_btn: 'Grimoire & Rollen',
       grimoire_title: 'Mr. Schadenfreude Grimoire',
@@ -1265,7 +1269,8 @@ const I18N = (function () {
 
       winner_sf: 'Gana Mr. Schadenfreude',
       winner_villagers: 'Ganan los Aldeanos',
-      play_again: 'Jugar de Nuevo',
+      play_again: 'Volver a la Sala y Jugar',
+      leave_to_menu: 'Salir de la Sala',
 
       grimoire_btn: 'Grimorio y Roles',
       grimoire_title: 'Mr. Schadenfreude Grimorio',
@@ -1518,7 +1523,8 @@ const I18N = (function () {
 
       winner_sf: 'Victoire de Mr. Schadenfreude',
       winner_villagers: 'Victoire des Villageois',
-      play_again: 'Rejouer',
+      play_again: 'Retourner au Salon et Rejouer',
+      leave_to_menu: 'Quitter la Salle',
 
       grimoire_btn: 'Grimoire & Rôles',
       grimoire_title: 'Mr. Schadenfreude Grimoire',

@@ -556,10 +556,14 @@
         <div id="panel-ended" class="phase-panel card hidden">
           <div id="ended-content" class="ended-content"></div>
           <div class="ended-actions-bar">
-            <button class="btn btn-primary btn-play-again" onclick="location.reload()">
+            <button class="btn btn-primary btn-play-again" onclick="playAgain()">
               <span class="btn-shine"></span>
               <span class="btn-icon">🎭</span>
-              <span data-i18n="play_again">Tekrar Oyna</span>
+              <span data-i18n="play_again">Lobiye Dön &amp; Tekrar Oyna</span>
+            </button>
+            <button class="btn btn-secondary btn-leave-game" onclick="leaveToLanding()">
+              <span class="btn-icon">🚪</span>
+              <span data-i18n="leave_to_menu">Odadan Ayrıl</span>
             </button>
           </div>
         </div>

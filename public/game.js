@@ -267,6 +267,15 @@ function leaveToLanding() {
   showScreen('landing', false);
 }
 
+function playAgain() {
+  if (typeof Sound !== 'undefined') Sound.playClick();
+  if (state.roomCode) {
+    socket.emit('game:playAgain');
+  } else {
+    showScreen('landing', false);
+  }
+}
+
 function openLeaveModal(type = 'game') {
   pendingLeaveAction = type;
   const modal = document.getElementById('leave-modal');
@@ -732,6 +741,29 @@ socket.on('room:botsAdded', ({ count }) => {
 function renderState(gs) {
   // Lobby
   if (gs.phase === 'lobby') {
+    state.myRole = null;
+    state.privateState = null;
+    state.roleShown = false;
+    state.lastWinner = null;
+    state.lastEndReason = null;
+    state.endedPlayers = null;
+    state.clueHistory = [];
+    state.isReady = false;
+    state.lastRenderedPhase = null;
+
+    // Close any open in-game modals
+    document.getElementById('leave-modal')?.classList.add('hidden');
+    document.getElementById('role-modal')?.classList.add('hidden');
+    document.getElementById('kill-modal')?.classList.add('hidden');
+    document.getElementById('pending-order-badge')?.classList.add('hidden');
+
+    if (state.roomCode) {
+      const codeEl = document.getElementById('lobby-code');
+      if (codeEl) codeEl.textContent = state.roomCode;
+    }
+
+    showScreen('lobby');
+    document.body.className = 'phase-lobby';
     renderLobbyPlayers(gs.players);
     return;
   }

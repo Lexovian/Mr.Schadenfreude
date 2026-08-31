@@ -2358,6 +2358,63 @@ function endGame(code, winner, reason) {
   io.to(code).emit('game:ended', { winner, reason, players: endedPlayers });
 }
 
+function resetRoomToLobby(room) {
+  if (!room) return;
+  const code = room.code;
+  clearTimer(room);
+  room.phase = PHASES.LOBBY;
+  room.round = 0;
+  room.timer = null;
+  room.timerEndsAt = null;
+  room.winner = null;
+  room.endReason = null;
+  room.sfId = null;
+  room.kuklaId = null;
+  room.previousKuklaId = null;
+  room.kuklaHistory = [];
+  room.consecutiveInnocentLynches = 0;
+  room.newKuklaJustSet = false;
+  room.firstDeathAnnounced = false;
+  room.firstLynchAnnounced = false;
+  room.rahibe = null;
+  room.mortisyen = null;
+  room.sovalye = null;
+  room.nightActions = {};
+  room.votes = {};
+  room.pendingDeaths = [];
+  room.announcements = [];
+  room.chat = [];
+  room.voteHistory = [];
+  room.mortisyenClueHistory = [];
+  room.sovalyeChallengesUsed = 0;
+  room.readyPlayers = {};
+
+  // Reset all players to alive and unassigned
+  room.players.forEach(p => {
+    p.alive = true;
+    p.role = null;
+    p.isKukla = false;
+    p.deathCause = null;
+    p.deathRound = null;
+  });
+
+  // Re-initialize bot memory
+  initBotMemory(room);
+
+  // Send empty private state to all players so their client roles reset
+  room.players.forEach(p => {
+    if (!p.isBot) {
+      io.to(p.id).emit('game:role', {});
+    }
+  });
+
+  addAnnouncement(room, room.language === 'tr'
+    ? '🏰 Oyun tamamlandı. Tüm oyuncular yeni tur için lobiye döndü.'
+    : '🏰 Game completed. All players returned to the lobby for a new match.');
+
+  broadcastState(code);
+}
+
 // ─────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────
@@ -2600,6 +2657,15 @@ io.on('connection', (socket) => {
     } else {
       startPhase(code, PHASES.NIGHT0);
     }
+  });
+
+  // Play again / Return to lobby from ENDED phase
+  socket.on('game:playAgain', () => {
+    const code = socket.data.roomCode;
+    const room = rooms[code];
+    if (!room) return;
+    if (room.phase !== PHASES.ENDED && room.phase !== PHASES.LOBBY) return;
+    resetRoomToLobby(room);
   });
 
   // Host sets role for any player in lobby
