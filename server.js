@@ -2321,7 +2321,6 @@ io.on('connection', (socket) => {
         type: 'info',
         message: room.language === 'tr' ? '🚫 Bu gece infaz emri verilmedi (Pas geçildi).' : '🚫 No kill order sent tonight (Passed).',
       });
-      setPlayerReady(room, socket.id, true);
       return;
     }
 
@@ -2371,7 +2370,6 @@ io.on('connection', (socket) => {
         message: (room.language === 'tr' ? 'Emir gönderildi.' : 'Order sent.') + frameNote,
       });
     }
-    setPlayerReady(room, socket.id, true);
   });
 
   // Night: SF explicitly passes / no order
@@ -2403,7 +2401,6 @@ io.on('connection', (socket) => {
       type: 'info',
       message: room.language === 'tr' ? '🚫 Bu gece infaz emri verilmedi (Pas geçildi).' : '🚫 No kill order sent tonight.',
     });
-    setPlayerReady(room, socket.id, true);
   });
 
   // Kukla confirms kill
@@ -2420,7 +2417,6 @@ io.on('connection', (socket) => {
       type: 'confirm',
       message: room.language === 'tr' ? 'Emir yerine getirildi.' : 'Order carried out.',
     });
-    setPlayerReady(room, socket.id, true);
   });
 
   // Kukla refuses / skips kill
@@ -2441,7 +2437,6 @@ io.on('connection', (socket) => {
         message: room.language === 'tr' ? 'Kuklan bu gece emrini yerine getirmedi!' : 'Your puppet did not carry out your command!',
       });
     }
-    setPlayerReady(room, socket.id, true);
   });
 
   // Mortisyen publishes clue to village (Rate-limited)
@@ -2498,7 +2493,6 @@ io.on('connection', (socket) => {
         : `🃏 Tarot card drawn for "${target.name}". Spiritual state will be sensed at dawn.`
     });
     socket.emit('game:role', buildPrivateState(room, socket.id));
-    setPlayerReady(room, socket.id, true);
   });
 
   // Rahibe night action: pass/save tarot charge for next round
@@ -2518,7 +2512,6 @@ io.on('connection', (socket) => {
         : 'Tarot charge saved for next night.'
     });
     socket.emit('game:role', buildPrivateState(room, socket.id));
-    setPlayerReady(room, socket.id, true);
   });
 
   // Host updates room settings
@@ -2595,7 +2588,6 @@ io.on('connection', (socket) => {
     });
     // Push updated private state so client can lock UI
     socket.emit('game:role', buildPrivateState(room, socket.id));
-    setPlayerReady(room, socket.id, true);
   });
 
   // Mortisyen action (forensics vs surveillance)
@@ -2617,7 +2609,6 @@ io.on('connection', (socket) => {
       message: room.language === 'tr' ? 'Adli araştırma odağın kaydedildi.' : 'Investigation focus recorded.',
     });
     socket.emit('game:role', buildPrivateState(room, socket.id));
-    setPlayerReady(room, socket.id, true);
   });
 
   // Vote (Rate-limited)
@@ -2638,14 +2629,12 @@ io.on('connection', (socket) => {
     if (!targetId) {
       delete room.votes[socket.id];
       broadcastState(code);
-      setPlayerReady(room, socket.id, true);
       return;
     }
     // In puppetMaster mode, cannot vote for immortal SF
     if (!isSecretSF && targetId === room.sfId) return;
     room.votes[socket.id] = targetId;
     broadcastState(code);
-    setPlayerReady(room, socket.id, true);
   });
 
   // Chat (Rate-limited & sanitized)

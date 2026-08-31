@@ -669,25 +669,28 @@ socket.on('game:ended', ({ winner, reason, players }) => {
 });
 
 socket.on('room:readyUpdate', ({ readyCount, totalRequired, readyPlayers }) => {
-  const counterEl = document.getElementById('ready-counter');
-  if (counterEl) {
-    counterEl.textContent = `${readyCount}/${totalRequired}`;
-  }
-  const btnEl = document.getElementById('btn-phase-ready');
-  const txtEl = document.getElementById('ready-btn-text');
-  const iconEl = document.getElementById('ready-status-icon');
   const isMeReady = !!(readyPlayers && socket.id && readyPlayers[socket.id]);
   state.isReady = isMeReady;
 
-  if (btnEl) {
-    btnEl.classList.toggle('is-ready', isMeReady);
-  }
-  if (txtEl) {
-    txtEl.textContent = isMeReady ? t('btn_ready_active') : t('btn_ready');
-  }
-  if (iconEl) {
-    iconEl.textContent = isMeReady ? '✅' : '⚡';
-  }
+  // Topbar Ready Button
+  const counterEl = document.getElementById('ready-counter');
+  if (counterEl) counterEl.textContent = `${readyCount}/${totalRequired}`;
+  const btnEl = document.getElementById('btn-phase-ready');
+  const txtEl = document.getElementById('ready-btn-text');
+  const iconEl = document.getElementById('ready-status-icon');
+  if (btnEl) btnEl.classList.toggle('is-ready', isMeReady);
+  if (txtEl) txtEl.textContent = isMeReady ? t('btn_ready_active') : t('btn_ready');
+  if (iconEl) iconEl.textContent = isMeReady ? '✅' : '⚡';
+
+  // Prominent Main Phase Ready Bar
+  const mainBtn = document.getElementById('btn-main-ready');
+  const mainTxt = document.getElementById('main-ready-text');
+  const mainIcon = document.getElementById('main-ready-icon');
+  const mainCounter = document.getElementById('main-ready-counter');
+  if (mainCounter) mainCounter.textContent = `${readyCount}/${totalRequired}`;
+  if (mainBtn) mainBtn.classList.toggle('is-ready', isMeReady);
+  if (mainTxt) mainTxt.textContent = isMeReady ? t('btn_ready_active') : t('btn_ready');
+  if (mainIcon) mainIcon.textContent = isMeReady ? '✅' : '⚡';
 
   // Also sync in-panel Rahibe ready button if present
   const rahibeBtn = document.getElementById('rahibe-ready-btn');
@@ -753,6 +756,12 @@ function renderState(gs) {
   const skipBtn = document.getElementById('btn-skip-phase');
   if (skipBtn) {
     skipBtn.classList.toggle('hidden', !state.isHost || gs.phase === 'ended');
+  }
+
+  // Prominent Ready Bar visibility
+  const readyBar = document.getElementById('phase-ready-bar');
+  if (readyBar) {
+    readyBar.classList.toggle('hidden', gs.phase === 'ended');
   }
 
   // Reset per-night UI state when entering a new night phase
@@ -1530,11 +1539,6 @@ function renderRahibeNightPanel(gs, area) {
   const isDone = state.rahibeActionConfirmed || state.privateState?.rahibeActionDone;
 
   if (!isAvailable) {
-    // Automatically give ready if not already ready so Rahibe doesn't block the phase
-    if (!state.isReady) {
-      state.isReady = true;
-      socket.emit('action:setReady', { ready: true });
-    }
     const isMeReady = state.isReady;
 
     area.innerHTML = `
