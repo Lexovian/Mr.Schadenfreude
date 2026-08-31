@@ -583,49 +583,18 @@ function generateMortisianClue(room, player, isDeep = true) {
       translations.ja = `正義が執行された！処刑された者はMr.シャーデンフロイデの人形（${roleLabel(player.role, 'ja')}）だった！`;
       translations.de = `Gerechtigkeit siegt! Die hingerichtete Person war Mr. Schadenfreudes Puppe (${roleLabel(player.role, 'de')})!`;
       translations.es = `¡Justicia cumplida! ¡La persona ejecutada era la Marioneta de Mr. Schadenfreude (${roleLabel(player.role, 'es')})!`;
-      translations.fr = `Justice est faite ! La personne exécutée était la Marionnette de Mr. Schadenfreude (${roleLabel(player.role, 'fr')}) !`;
+      translations.fr = `Justice est faite ! La persona ejecutada était la Marionnette de Mr. Schadenfreude (${roleLabel(player.role, 'fr')}) !`;
       evidenceType = 'confirm';
-      suspects = [player.name];
+      suspects = [];
     } else {
-      const kuklaPlayer = room.kuklaId ? getPlayer(room, room.kuklaId) : null;
-      if (kuklaPlayer) {
-        const distractors = alive.filter(p =>
-          p.id !== room.kuklaId &&
-          p.id !== room.sfId &&
-          p.id !== player.id &&
-          p.id !== room.mortisyen
-        );
-        const distractor = distractors.length > 0
-          ? distractors[Math.floor(Math.random() * distractors.length)]
-          : null;
-        if (distractor) {
-          const pair = [kuklaPlayer.name, distractor.name].sort(() => Math.random() - 0.5);
-          translations.tr = `Yargı hatası... İdam edilen kişi masum bir ${roleLabel(player.role, 'tr')} idi. Gerçek kukla aranızda: ${pair[0]} veya ${pair[1]}?`;
-          translations.en = `Judicial mistake... The executed person was an innocent ${roleLabel(player.role, 'en')}. The true puppet lurks: ${pair[0]} or ${pair[1]}?`;
-          translations.ja = `誤審… 処刑された者は無実の${roleLabel(player.role, 'ja')}だった。本物の人形は潜んでいる：${pair[0]} または ${pair[1]}？`;
-          translations.de = `Justizirrtum... Die hingerichtete Person war ein unschuldiger ${roleLabel(player.role, 'de')}. Die wahre Puppe lauert: ${pair[0]} oder ${pair[1]}?`;
-          translations.es = `Error judicial... La persona ejecutada era un inocente ${roleLabel(player.role, 'es')}. La verdadera marioneta acecha: ¿${pair[0]} o ${pair[1]}?`;
-          translations.fr = `Erreur judiciaire... La personne exécutée était un innocent ${roleLabel(player.role, 'fr')}. La vraie marionnette rôde : ${pair[0]} ou ${pair[1]} ?`;
-          evidenceType = 'warning';
-          suspects = pair;
-        } else {
-          translations.tr = `Yargı hatası... İdam edilen kişi masum bir ${roleLabel(player.role, 'tr')} idi. Gerçek kukla hâlâ aramızda.`;
-          translations.en = `Judicial mistake... The executed person was an innocent ${roleLabel(player.role, 'en')}. The puppet is still among us.`;
-          translations.ja = `誤審… 処刑された者は無実の${roleLabel(player.role, 'ja')}だった。人形はまだ村に潜んでいる。`;
-          translations.de = `Justizirrtum... Die hingerichtete Person war ein unschuldiger ${roleLabel(player.role, 'de')}. Die Puppe ist noch unter uns.`;
-          translations.es = `Error judicial... La persona ejecutada era un inocente ${roleLabel(player.role, 'es')}. La marioneta sigue entre nosotros.`;
-          translations.fr = `Erreur judiciaire... La personne exécutée était un innocent ${roleLabel(player.role, 'fr')}. La marionnette est toujours parmi nous.`;
-          evidenceType = 'warning';
-        }
-      } else {
-        translations.tr = `İdam edilen kişi masum bir ${roleLabel(player.role, 'tr')} idi.`;
-        translations.en = `The executed person was an innocent ${roleLabel(player.role, 'en')}.`;
-        translations.ja = `処刑された者は無実の${roleLabel(player.role, 'ja')}だった。`;
-        translations.de = `Die hingerichtete Person war ein unschuldiger ${roleLabel(player.role, 'de')}.`;
-        translations.es = `La persona ejecutada era un inocente ${roleLabel(player.role, 'es')}.`;
-        translations.fr = `La personne exécutée était un innocent ${roleLabel(player.role, 'fr')}.`;
-        evidenceType = 'info';
-      }
+      translations.tr = `Yargı hatası... İdam edilen kişi masum bir ${roleLabel(player.role, 'tr')} idi.`;
+      translations.en = `Judicial mistake... The executed person was an innocent ${roleLabel(player.role, 'en')}.`;
+      translations.ja = `誤審… 処刑された者は無実の${roleLabel(player.role, 'ja')}だった。`;
+      translations.de = `Justizirrtum... Die hingerichtete Person war ein unschuldiger ${roleLabel(player.role, 'de')}.`;
+      translations.es = `Error judicial... La persona ejecutada era un inocente ${roleLabel(player.role, 'es')}.`;
+      translations.fr = `Erreur judiciaire... La personne exécutée était un innocent ${roleLabel(player.role, 'fr')}.`;
+      evidenceType = 'warning';
+      suspects = [];
     }
 
   } else if (player.deathCause === 'madman_curse') {
