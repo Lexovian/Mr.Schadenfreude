@@ -1142,6 +1142,20 @@ function botNightAction(code) {
       setPlayerReady(r, rahibePlayer.id, true);
     }, 2500 + Math.random() * 8000);
   }
+
+  // Passive & non-action bots (Köylü, Madman, etc.) give ready naturally after a short delay
+  const passiveBots = room.players.filter(p => p.isBot && p.alive && p.id !== room.sfId && p.role !== ROLES.SOVALYE && p.role !== ROLES.MORTISYEN && p.role !== ROLES.RAHIBE);
+  passiveBots.forEach((bot, idx) => {
+    setTimeout(() => {
+      const r = rooms[code];
+      if (!r || r.phase !== PHASES.NIGHT) return;
+      // If this bot is Kukla and has a pending SF target, auto-execute it
+      if (r.kuklaId === bot.id && r.nightActions.sf_target && !r.nightActions.kukla_kill && !r.nightActions.kukla_refused) {
+        r.nightActions.kukla_kill = r.nightActions.sf_target;
+      }
+      setPlayerReady(r, bot.id, true);
+    }, 1500 + idx * 800 + Math.random() * 2500);
+  });
 }
 
 function botVoteAction(code) {
@@ -2280,9 +2294,13 @@ io.on('connection', (socket) => {
     } else {
       // Send to kukla (skip if bot — bot auto-confirms)
       const kuklaPlayer = getPlayer(room, room.kuklaId);
-      if (kuklaPlayer?.isBot) {
+      if (kuklaPlayer?.isBot && kuklaPlayer.alive) {
         room.nightActions.kukla_kill = targetId; // Bot kukla auto-confirms kill
-      } else {
+        setTimeout(() => {
+          const r = rooms[code];
+          if (r && r.phase === PHASES.NIGHT) setPlayerReady(r, kuklaPlayer.id, true);
+        }, 1000 + Math.random() * 2000);
+      } else if (kuklaPlayer && !kuklaPlayer.isBot) {
         io.to(room.kuklaId).emit('game:killOrder', {
           targetId,
           targetName: target.name,
@@ -2316,7 +2334,12 @@ io.on('connection', (socket) => {
     room.nightActions.sf_target = 'none';
     room.nightActions.sf_frame = null;
     const kuklaPlayer = room.kuklaId ? getPlayer(room, room.kuklaId) : null;
-    if (kuklaPlayer && !kuklaPlayer.isBot) {
+    if (kuklaPlayer && kuklaPlayer.isBot && kuklaPlayer.alive) {
+      setTimeout(() => {
+        const r = rooms[code];
+        if (r && r.phase === PHASES.NIGHT) setPlayerReady(r, kuklaPlayer.id, true);
+      }, 1000 + Math.random() * 1500);
+    } else if (kuklaPlayer && !kuklaPlayer.isBot) {
       io.to(room.kuklaId).emit('game:killOrder', {
         targetId: 'none',
         targetName: 'Yok',
