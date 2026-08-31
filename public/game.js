@@ -74,6 +74,9 @@ let state = {
   clueHistory: [],               // all received clues for Venn intersection analysis
   lastRenderedPhase: null,       // tracks phase changes for resets
   pendingKillTarget: null,       // kukla kill order
+  lastWinner: null,              // cached winner for endgame screen
+  lastEndReason: null,           // cached reason for endgame screen
+  endedPlayers: null,            // cached revealed cast for endgame screen
 };
 
 // ─── TRANSLATIONS & ROLES ───
@@ -250,6 +253,9 @@ function leaveToLanding() {
   state.gameState = null;
   state.privateState = null;
   state.roleShown = false;
+  state.lastWinner = null;
+  state.lastEndReason = null;
+  state.endedPlayers = null;
   
   // Close any open modals
   document.getElementById('leave-modal')?.classList.add('hidden');
@@ -657,6 +663,9 @@ socket.on('game:voteUpdate', ({ count, total }) => {
 });
 
 socket.on('game:ended', ({ winner, reason, players }) => {
+  state.lastWinner = winner;
+  state.lastEndReason = reason;
+  state.endedPlayers = players;
   if (typeof Sound !== 'undefined') {
     if (winner === 'sf') Sound.playSFWin();
     else Sound.playVillagersWin();
@@ -1017,7 +1026,7 @@ function showPhasePanel(phase, gs) {
     case 'day':    renderDay(gs, myRole); break;
     case 'vote':   renderVote(gs, myRole); break;
     case 'result': renderResult(gs); break;
-    case 'ended':  /* handled by game:ended */ break;
+    case 'ended':  renderEnded(gs.winner || state.lastWinner || 'villagers', gs.endReason || state.lastEndReason || '', gs.players); break;
   }
 }
 
@@ -1853,9 +1862,20 @@ function renderResult(gs) {
 
 // Ended
 function renderEnded(winner, reason, players) {
+  const finalWinner = winner || state.lastWinner || state.gameState?.winner || 'villagers';
+  const finalReason = reason || state.lastEndReason || state.gameState?.endReason || '';
+  const finalPlayers = (players && players.length) ? players : (state.endedPlayers || state.gameState?.players || []);
+
+  showScreen('game');
   show('panel-ended');
+  if (typeof switchMobileView === 'function') {
+    switchMobileView('main');
+  }
+
   const el = document.getElementById('ended-content');
-  const isSF = winner === 'sf';
+  if (!el) return;
+
+  const isSF = finalWinner === 'sf';
   el.className = 'ended-content ' + (isSF ? 'winner-sf' : 'winner-villagers');
 
   const winnerTitle = t(isSF ? 'winner_sf' : 'winner_villagers');
@@ -1873,7 +1893,7 @@ function renderEnded(winner, reason, players) {
     neutral: { tr: 'Nötr / Kaos', en: 'Neutral / Chaos', color: '#ab47bc' }
   };
 
-  const castCardsHtml = (players || []).map(p => {
+  const castCardsHtml = finalPlayers.map(p => {
     const roleKey = p.role || 'koylu';
     const rData = ROLE_DATA[roleKey] || { symbol: '❓', color: 'var(--gold)' };
     const isMe = p.name === state.myName;
@@ -1924,6 +1944,8 @@ function renderEnded(winner, reason, players) {
     `;
   }).join('');
 
+  const reasonText = typeof finalReason === 'object' ? (finalReason[state.lang] || finalReason.tr || finalReason.en || '') : finalReason;
+
   el.innerHTML = `
     <div class="endgame-hero-banner">
       <div class="endgame-seal-pulse"></div>
@@ -1932,7 +1954,7 @@ function renderEnded(winner, reason, players) {
       <p class="endgame-hero-subtitle">"${winnerSubtitle}"</p>
       <div class="endgame-reason-box">
         <span class="reason-icon">📜</span>
-        <span class="reason-text">${escHtml(reason)}</span>
+        <span class="reason-text">${escHtml(reasonText)}</span>
       </div>
     </div>
 
@@ -1950,7 +1972,7 @@ function renderEnded(winner, reason, players) {
       <div class="endgame-stat-card">
         <span class="stat-icon">👥</span>
         <span class="stat-label">${state.lang === 'tr' ? 'Oyuncular' : 'Cast'}</span>
-        <strong class="stat-value">${(players || []).length}</strong>
+        <strong class="stat-value">${finalPlayers.length}</strong>
       </div>
     </div>
 
