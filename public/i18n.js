@@ -1893,12 +1893,88 @@ const I18N = (function () {
   };
 })();
 
+// ─── BOT DYNAMIC TRANSLATION MODULE ───
+const BotTranslator = (function () {
+  function translateMessage(msg, targetLang) {
+    if (!msg) return '';
+    // Only translate bot and system messages; human player messages remain unchanged
+    if (!msg.isBot && !msg.isSystem) {
+      return msg.message || '';
+    }
+
+    const lang = targetLang || (typeof I18N !== 'undefined' ? I18N.getLanguage() : 'tr');
+
+    // 1. Check direct translations dictionary attached to the message object
+    if (msg.translations && typeof msg.translations === 'object') {
+      if (msg.translations[lang]) return msg.translations[lang];
+      if (msg.translations.tr) return msg.translations.tr;
+      if (msg.translations.en) return msg.translations.en;
+    }
+
+    return msg.message || '';
+  }
+
+  function translateSender(msg, targetLang) {
+    if (!msg) return '';
+    const lang = targetLang || (typeof I18N !== 'undefined' ? I18N.getLanguage() : 'tr');
+    if (msg.nameTranslations && typeof msg.nameTranslations === 'object') {
+      if (msg.nameTranslations[lang]) return msg.nameTranslations[lang];
+      if (msg.nameTranslations.tr) return msg.nameTranslations.tr;
+    }
+    if (msg.isSystem && msg.name) {
+      const titles = {
+        tr: '⚰️ Mortisyen Gizli Raporu',
+        en: '⚰️ Undertaker Confidential Report',
+        ja: '⚰️ 葬儀屋の極秘報告',
+        de: '⚰️ Vertraulicher Bericht des Leichenbeschauers',
+        es: '⚰️ Informe Confidencial del Sepulturero',
+        fr: '⚰️ Rapport Confidentiel du Croque-mort',
+      };
+      if (msg.name.includes('Mortisyen') || msg.name.includes('Undertaker') || msg.name.includes('葬儀屋') || msg.name.includes('Leichenbeschauer') || msg.name.includes('Sepulturero') || msg.name.includes('Croque-mort')) {
+        return titles[lang] || titles.tr;
+      }
+    }
+    return msg.name || '';
+  }
+
+  function translateShadowSenderTitle(msg, targetLang) {
+    if (!msg) return '';
+    const lang = targetLang || (typeof I18N !== 'undefined' ? I18N.getLanguage() : 'tr');
+    if (msg.senderTitleTranslations && typeof msg.senderTitleTranslations === 'object') {
+      if (msg.senderTitleTranslations[lang]) return msg.senderTitleTranslations[lang];
+      if (msg.senderTitleTranslations.tr) return msg.senderTitleTranslations.tr;
+    }
+    if (msg.role === 'sf') {
+      return lang === 'ja' ? 'Mr.シャーデンフロイデ' : 'Mr. Schadenfreude';
+    }
+    if (msg.role === 'kukla') {
+      const titles = {
+        tr: 'Kukla',
+        en: 'Puppet',
+        ja: '人形',
+        de: 'Puppe',
+        es: 'Marioneta',
+        fr: 'Marionnette',
+      };
+      return titles[lang] || titles.tr;
+    }
+    return msg.senderTitle || '';
+  }
+
+  return {
+    translateMessage,
+    translateSender,
+    translateShadowSenderTitle,
+  };
+})();
+
 // Global shortcuts & exports
 if (typeof window !== 'undefined') {
   window.t = I18N.t;
   window.roleLabel = I18N.roleLabel;
   window.getRoleDossier = I18N.getRoleDossier;
+  window.BotTranslator = BotTranslator;
 }
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = I18N;
+  module.exports = { I18N, BotTranslator };
 }

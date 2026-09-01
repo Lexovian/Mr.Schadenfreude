@@ -1466,11 +1466,22 @@ function botDayChat(code) {
       if (!r || r.phase !== PHASES.DAY) return;
       const latestClue = r.mortisyenClues[r.mortisyenClues.length - 1];
       if (latestClue) {
+        const mortTitles = {
+          tr: '⚰️ Mortisyen Gizli Raporu',
+          en: '⚰️ Undertaker Confidential Report',
+          ja: '⚰️ 葬儀屋の極秘報告',
+          de: '⚰️ Vertraulicher Bericht des Leichenbeschauers',
+          es: '⚰️ Informe Confidencial del Sepulturero',
+          fr: '⚰️ Rapport Confidentiel du Croque-mort',
+        };
         const text = latestClue.translations?.[lang] || latestClue.clue;
         const msg = {
-          name: lang === 'tr' ? '⚰️ Mortisyen Gizli Raporu' : '⚰️ Undertaker Confidential Report',
+          name: mortTitles[lang] || mortTitles.tr,
+          nameTranslations: mortTitles,
           message: text,
+          translations: latestClue.translations || { tr: text, en: text },
           isSystem: true,
+          isBot: true,
           time: Date.now(),
         };
         r.chat.push(msg);
@@ -1497,7 +1508,13 @@ function botDayChat(code) {
           fr: `Le Saint Tarot a murmuré que "${latestTarot.targetName}" s'agitait dans l'ombre la nuit dernière...`,
         };
         const phrase = tarotPhrases[lang] || tarotPhrases.tr;
-        const msg = { name: rahibeBot.name, message: phrase, time: Date.now() };
+        const msg = {
+          name: rahibeBot.name,
+          message: phrase,
+          translations: tarotPhrases,
+          isBot: true,
+          time: Date.now(),
+        };
         r.chat.push(msg);
         io.to(code).emit('game:chatMessage', msg);
       }, 5000 + Math.random() * 3000);
@@ -1556,9 +1573,22 @@ function botDayChat(code) {
         ],
       };
 
-      const list = kuklaChameleonPhrases[lang] || kuklaChameleonPhrases.tr;
-      const msgText = list[Math.floor(Math.random() * list.length)];
-      const msgObj = { name: kuklaBot.name, message: msgText, time: Date.now() };
+      const phraseIdx = Math.floor(Math.random() * kuklaChameleonPhrases.tr.length);
+      const translations = {
+        tr: kuklaChameleonPhrases.tr[phraseIdx],
+        en: kuklaChameleonPhrases.en[phraseIdx],
+        ja: kuklaChameleonPhrases.ja[phraseIdx],
+        de: kuklaChameleonPhrases.de[phraseIdx],
+        es: kuklaChameleonPhrases.es[phraseIdx],
+        fr: kuklaChameleonPhrases.fr[phraseIdx],
+      };
+      const msgObj = {
+        name: kuklaBot.name,
+        message: translations[lang] || translations.tr,
+        translations,
+        isBot: true,
+        time: Date.now(),
+      };
       r.chat.push(msgObj);
       io.to(code).emit('game:chatMessage', msgObj);
     }, 7000 + Math.random() * 5000);
@@ -1576,19 +1606,21 @@ function botDayChat(code) {
       const r = rooms[code];
       if (!r || r.phase !== PHASES.DAY || !chatter.alive) return;
 
-      let msgText = '';
       const otherLiving = r.players.filter(p => p.alive && p.id !== chatter.id && (isSecretSF || p.id !== r.sfId));
       if (!otherLiving.length) return;
 
       const scored = otherLiving.map(p => ({ p, score: getBotSuspicion(r, chatter, p) })).sort((a, b) => b.score - a.score);
       const topSuspect = scored[0]?.p;
 
+      let phraseDict = null;
+      let phraseIdx = 0;
+
       // A) If chatter was voted in previous round, defend self
       const lastVoteHistory = r.voteHistory?.[r.voteHistory.length - 1];
       const votesOnMe = lastVoteHistory ? Object.values(lastVoteHistory.votes || {}).filter(v => v === chatter.id).length : 0;
 
       if (votesOnMe >= 2 && Math.random() < 0.7) {
-        const defendPhrases = {
+        phraseDict = {
           tr: ['Ben masumum, köy için faydalı olmaya çalışıyorum!', 'Oylarınızı bende harcamayın, gerçek şüphelilere odaklanalım.', 'Bana iftira atılıyor, dün gece hiçbir şey yapmadım!'],
           en: ['I am innocent, trying to help the village!', 'Do not waste your votes on me, focus on the real suspects.', 'I am being framed, I did nothing last night!'],
           ja: ['私は無実です！村のために尽くしています！', '私に票を無駄遣いしないで、真の容疑者に目を向けましょう。', '濡れ衣を着せられています、昨夜は何もしませんでした！'],
@@ -1596,11 +1628,10 @@ function botDayChat(code) {
           es: ['¡Soy inocente, intento ayudar a la aldea!', 'No desperdicien sus votos en mí, miren a los verdaderos sospechosos.', '¡Me están incriminando, no hice nada anoche!'],
           fr: ['Je suis innocent, j\'essaie d\'aider le village !', 'Ne gaspillez pas vos votes sur moi, cherchez les vrais coupables.', 'On me tend un piège, je n\'ai rien fait la nuit dernière !'],
         };
-        const list = defendPhrases[lang] || defendPhrases.tr;
-        msgText = list[Math.floor(Math.random() * list.length)];
+        phraseIdx = Math.floor(Math.random() * phraseDict.tr.length);
       } else if (topSuspect && topSuspect.score >= 45) {
         // B) Point out top suspect
-        const accusePhrases = {
+        phraseDict = {
           tr: [`${topSuspect.name} hakkında ciddi şüphelerim var, dikkatle dinlemeliyiz.`, `Bence ${topSuspect.name}'in hareketleri güven vermiyor.`, `${topSuspect.name} dünkü olaylarda çok sessizdi.`],
           en: [`I have strong suspicions about ${topSuspect.name}, we must watch closely.`, `I think ${topSuspect.name}'s behavior is untrustworthy.`, `${topSuspect.name} was too quiet during yesterday's events.`],
           ja: [`${topSuspect.name}には強い疑いがあります。警戒が必要です。`, `${topSuspect.name}の行動は怪しいと思います。`, `${topSuspect.name}は昨日の出来事で静かすぎました。`],
@@ -3229,17 +3260,62 @@ io.on('connection', (socket) => {
     if (isSF && room.kuklaId) {
       const kuklaPlayer = getPlayer(room, room.kuklaId);
       if (kuklaPlayer?.isBot && kuklaPlayer.alive) {
-        const botReplies = [
-          'Emriniz başım üstüne, Efendim...',
-          'Sessizce halledeceğim.',
-          'Kimse bizden şüphelenmiyor...',
-          'Kimi yok etmemi istersiniz?',
+        const kuklaReplies = [
+          {
+            tr: 'Emriniz başım üstüne, Efendim...',
+            en: 'Your wish is my command, Master...',
+            ja: '仰せの通りに、ご主人様...',
+            de: 'Zu Eurem Befehl, Meister...',
+            es: 'A sus órdenes, mi Señor...',
+            fr: 'À vos ordres, Maître...',
+          },
+          {
+            tr: 'Sessizce halledeceğim.',
+            en: 'I will handle it quietly.',
+            ja: '静かに始末します。',
+            de: 'Ich werde es leise erledigen.',
+            es: 'Me encargaré de ello en silencio.',
+            fr: 'Je m\'en occupe en silence.',
+          },
+          {
+            tr: 'Kimse bizden şüphelenmiyor...',
+            en: 'Nobody suspects us...',
+            ja: '誰も私たちを疑っていません...',
+            de: 'Niemand verdächtigt uns...',
+            es: 'Nadie sospecha de nosotros...',
+            fr: 'Personne ne nous soupçonne...',
+          },
+          {
+            tr: 'Kimi yok etmemi istersiniz?',
+            en: 'Whom do you wish me to eliminate?',
+            ja: '誰を始末すればよいですか？',
+            de: 'Wen soll ich für Euch beseitigen?',
+            es: '¿A quién desea que elimine?',
+            fr: 'Qui voulez-vous que j\'élimine ?',
+          },
         ];
-        const reply = botReplies[Math.floor(Math.random() * botReplies.length)];
+        const replyObj = kuklaReplies[Math.floor(Math.random() * kuklaReplies.length)];
         setTimeout(() => {
           const r = rooms[code];
           if (!r) return;
-          const botMsg = { role: 'kukla', senderTitle: 'Kukla', name: kuklaPlayer.name, message: reply, time: Date.now() };
+          const senderTitles = {
+            tr: 'Kukla',
+            en: 'Puppet',
+            ja: '人形',
+            de: 'Puppe',
+            es: 'Marioneta',
+            fr: 'Marionnette',
+          };
+          const botMsg = {
+            role: 'kukla',
+            senderTitle: senderTitles[r.language || 'tr'] || 'Kukla',
+            senderTitleTranslations: senderTitles,
+            name: kuklaPlayer.name,
+            message: replyObj[r.language || 'tr'] || replyObj.tr,
+            translations: replyObj,
+            isBot: true,
+            time: Date.now(),
+          };
           r.shadowChat.push(botMsg);
           if (r.sfId) io.to(r.sfId).emit('game:shadowChatMessage', botMsg);
         }, 1200 + Math.random() * 2000);
@@ -3247,16 +3323,54 @@ io.on('connection', (socket) => {
     } else if (isKukla && room.sfId) {
       const sfPlayer = getPlayer(room, room.sfId);
       if (sfPlayer?.isBot && sfPlayer.alive) {
-        const botReplies = [
-          'Aferin kuklam... Gölgelerin ritmine uy.',
-          'Sessiz ol ve geceyi bekle.',
-          'Kaos büyüyecek...',
+        const sfReplies = [
+          {
+            tr: 'Aferin kuklam... Gölgelerin ritmine uy.',
+            en: 'Well done, my puppet... Follow the rhythm of shadows.',
+            ja: 'よくやった、我が人形よ... 影の調べに身を任せよ。',
+            de: 'Gut gemacht, meine Puppe... Folge dem Rhythmus der Schatten.',
+            es: 'Bien hecho, mi marioneta... Sigue el ritmo de las sombras.',
+            fr: 'Bien joué, ma marionnette... Suis le rythme des ombres.',
+          },
+          {
+            tr: 'Sessiz ol ve geceyi bekle.',
+            en: 'Stay quiet and await the night.',
+            ja: '静かにして夜を待て。',
+            de: 'Sei still und warte auf die Nacht.',
+            es: 'Guarda silencio y espera la noche.',
+            fr: 'Reste discret et attends la nuit.',
+          },
+          {
+            tr: 'Kaos büyüyecek...',
+            en: 'Chaos shall grow...',
+            ja: '混沌は深まるのみ...',
+            de: 'Das Chaos wird wachsen...',
+            es: 'El caos crecerá...',
+            fr: 'Le chaos va grandir...',
+          },
         ];
-        const reply = botReplies[Math.floor(Math.random() * botReplies.length)];
+        const replyObj = sfReplies[Math.floor(Math.random() * sfReplies.length)];
         setTimeout(() => {
           const r = rooms[code];
           if (!r) return;
-          const botMsg = { role: 'sf', senderTitle: 'Mr. Schadenfreude', name: sfPlayer.name, message: reply, time: Date.now() };
+          const senderTitles = {
+            tr: 'Mr. Schadenfreude',
+            en: 'Mr. Schadenfreude',
+            ja: 'Mr.シャーデンフロイデ',
+            de: 'Mr. Schadenfreude',
+            es: 'Mr. Schadenfreude',
+            fr: 'Mr. Schadenfreude',
+          };
+          const botMsg = {
+            role: 'sf',
+            senderTitle: senderTitles[r.language || 'tr'] || 'Mr. Schadenfreude',
+            senderTitleTranslations: senderTitles,
+            name: sfPlayer.name,
+            message: replyObj[r.language || 'tr'] || replyObj.tr,
+            translations: replyObj,
+            isBot: true,
+            time: Date.now(),
+          };
           r.shadowChat.push(botMsg);
           if (r.kuklaId) io.to(r.kuklaId).emit('game:shadowChatMessage', botMsg);
         }, 1200 + Math.random() * 2000);

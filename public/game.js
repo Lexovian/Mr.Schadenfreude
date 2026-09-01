@@ -72,6 +72,8 @@ let state = {
   mortisyenTargetSelected: null,
   mortisyenActionConfirmed: false,
   clueHistory: [],               // all received clues for Venn intersection analysis
+  chatMessages: [],              // all received chat messages for dynamic re-rendering
+  shadowChatMessages: [],        // all received shadow chat messages
   lastRenderedPhase: null,       // tracks phase changes for resets
   pendingKillTarget: null,       // kukla kill order
   lastWinner: null,              // cached winner for endgame screen
@@ -124,7 +126,11 @@ function changeLanguage(lang) {
     renderPrivateInfo(state.privateState);
   }
 
-  // 4. Re-render Active Phase Panel & Main Game State
+  // 4. Re-render Chat & Shadow Chat Messages in New Language
+  renderChatMessages();
+  renderShadowChatMessages();
+
+  // 5. Re-render Active Phase Panel & Main Game State
   if (state.gameState) {
     renderState(state.gameState);
     if (state.gameState.phase && state.gameState.phase !== 'lobby') {
@@ -654,11 +660,17 @@ socket.on('private:tarot', (tarotData) => {
 });
 
 socket.on('game:chatMessage', (msg) => {
+  if (!state.chatMessages) state.chatMessages = [];
+  state.chatMessages.push(msg);
+  if (state.chatMessages.length > 100) state.chatMessages.shift();
   appendChatMsg(msg);
 });
 
 socket.on('game:shadowChatMessage', (msg) => {
   if (typeof Sound !== 'undefined') Sound.playWhisper();
+  if (!state.shadowChatMessages) state.shadowChatMessages = [];
+  state.shadowChatMessages.push(msg);
+  if (state.shadowChatMessages.length > 50) state.shadowChatMessages.shift();
   appendShadowChatMsg(msg);
 
   if (state.mobileActiveView !== 'secret') {
@@ -748,8 +760,15 @@ function renderState(gs) {
     state.lastEndReason = null;
     state.endedPlayers = null;
     state.clueHistory = [];
+    state.chatMessages = [];
+    state.shadowChatMessages = [];
     state.isReady = false;
     state.lastRenderedPhase = null;
+
+    const cm = document.getElementById('chat-messages');
+    if (cm) cm.innerHTML = '';
+    const scm = document.getElementById('shadow-chat-messages');
+    if (scm) scm.innerHTML = '';
 
     // Close any open in-game modals
     document.getElementById('leave-modal')?.classList.add('hidden');
@@ -771,6 +790,14 @@ function renderState(gs) {
   // Switch to game screen
   showScreen('game');
   document.body.className = 'phase-' + gs.phase;
+
+  // Sync chat messages if provided and local is empty
+  if (gs.chat && Array.isArray(gs.chat)) {
+    if (!state.chatMessages || state.chatMessages.length === 0) {
+      state.chatMessages = [...gs.chat];
+      renderChatMessages();
+    }
+  }
 
   // Top bar
   document.getElementById('phase-label').textContent = t('phase_' + gs.phase) || gs.phase;
@@ -1745,12 +1772,30 @@ function sendChat() {
   inp.value = '';
 }
 
+function renderChatMessages() {
+  const el = document.getElementById('chat-messages');
+  if (!el) return;
+  const currentL = state.lang || 'tr';
+  const msgs = state.chatMessages || [];
+  el.innerHTML = msgs.map(msg => {
+    const senderName = typeof BotTranslator !== 'undefined' ? BotTranslator.translateSender(msg, currentL) : (msg.nameTranslations?.[currentL] || msg.name);
+    const text = typeof BotTranslator !== 'undefined' ? BotTranslator.translateMessage(msg, currentL) : (msg.translations?.[currentL] || msg.message);
+    const isSys = msg.isSystem ? ' is-system' : '';
+    return `<div class="chat-msg${isSys}"><span class="chat-name">${escHtml(senderName)}:</span><span class="chat-text">${escHtml(text)}</span></div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
 function appendChatMsg(msg) {
   const el = document.getElementById('chat-messages');
   if (!el) return;
+  const currentL = state.lang || 'tr';
+  const senderName = typeof BotTranslator !== 'undefined' ? BotTranslator.translateSender(msg, currentL) : (msg.nameTranslations?.[currentL] || msg.name);
+  const text = typeof BotTranslator !== 'undefined' ? BotTranslator.translateMessage(msg, currentL) : (msg.translations?.[currentL] || msg.message);
+  const isSys = msg.isSystem ? ' is-system' : '';
   const div = document.createElement('div');
-  div.className = 'chat-msg';
-  div.innerHTML = `<span class="chat-name">${escHtml(msg.name)}:</span><span class="chat-text">${escHtml(msg.message)}</span>`;
+  div.className = `chat-msg${isSys}`;
+  div.innerHTML = `<span class="chat-name">${escHtml(senderName)}:</span><span class="chat-text">${escHtml(text)}</span>`;
   el.appendChild(div);
   el.scrollTop = el.scrollHeight;
 }
@@ -2065,10 +2110,8 @@ function renderPrivateInfo(priv) {
     if (role === 'sf' || isKukla) {
       shadowBox.classList.remove('hidden');
       if (priv.shadowChat && Array.isArray(priv.shadowChat)) {
-        const msgsEl = document.getElementById('shadow-chat-messages');
-        if (msgsEl && msgsEl.children.length === 0) {
-          priv.shadowChat.forEach(m => appendShadowChatMsg(m));
-        }
+        state.shadowChatMessages = [...priv.shadowChat];
+        renderShadowChatMessages();
       }
     } else {
       shadowBox.classList.add('hidden');
@@ -2086,13 +2129,30 @@ function sendShadowChat() {
   inp.value = '';
 }
 
+function renderShadowChatMessages() {
+  const el = document.getElementById('shadow-chat-messages');
+  if (!el) return;
+  const currentL = state.lang || 'tr';
+  const msgs = state.shadowChatMessages || [];
+  el.innerHTML = msgs.map(msg => {
+    const roleClass = msg.role === 'sf' ? 'sf' : 'kukla';
+    const senderTitle = typeof BotTranslator !== 'undefined' ? BotTranslator.translateShadowSenderTitle(msg, currentL) : (msg.senderTitleTranslations?.[currentL] || msg.senderTitle);
+    const text = typeof BotTranslator !== 'undefined' ? BotTranslator.translateMessage(msg, currentL) : (msg.translations?.[currentL] || msg.message);
+    return `<div class="shadow-msg ${roleClass}"><span class="shadow-msg-sender">[${escHtml(senderTitle)}]:</span><span>${escHtml(text)}</span></div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
 function appendShadowChatMsg(msg) {
   const el = document.getElementById('shadow-chat-messages');
   if (!el) return;
-  const div = document.createElement('div');
+  const currentL = state.lang || 'tr';
   const roleClass = msg.role === 'sf' ? 'sf' : 'kukla';
+  const senderTitle = typeof BotTranslator !== 'undefined' ? BotTranslator.translateShadowSenderTitle(msg, currentL) : (msg.senderTitleTranslations?.[currentL] || msg.senderTitle);
+  const text = typeof BotTranslator !== 'undefined' ? BotTranslator.translateMessage(msg, currentL) : (msg.translations?.[currentL] || msg.message);
+  const div = document.createElement('div');
   div.className = `shadow-msg ${roleClass}`;
-  div.innerHTML = `<span class="shadow-msg-sender">[${escHtml(msg.senderTitle)}]:</span><span>${escHtml(msg.message)}</span>`;
+  div.innerHTML = `<span class="shadow-msg-sender">[${escHtml(senderTitle)}]:</span><span>${escHtml(text)}</span>`;
   el.appendChild(div);
   el.scrollTop = el.scrollHeight;
 }
