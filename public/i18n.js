@@ -220,6 +220,21 @@ const I18N = (function () {
       sf_voting_locked: 'Köy mahkemesi senin alanın değil. Gölgede hüküm sürersin.',
       dead_cannot_vote: 'Ölüler oy kullanamaz.',
 
+      // Action Pills & Buttons
+      pill_kill: '💀 İnfaz Et',
+      pill_natural: 'Doğal Delil',
+      pill_frame: '🪶 Eşyasını Bırak',
+      pill_protect: '🛡️ Koru',
+      pill_surveil: '🕯️ Gözetle',
+      pill_tarot: '🃏 Tarot Çek',
+      vote_selected: '⚖️ İdam Seçildi',
+      btn_vote: '⚖️ Oy Ver',
+      votes_label: 'Oy',
+      voters_label: 'Oy Verenler:',
+      hover_view_details: 'Detaylı Rehber & İpuçları',
+      grimoire_btn_title: 'Grimoire — Rehber & Roller',
+      sound_toggle_title: 'Sesi Aç / Kapat',
+
       // Chaos Indicator
       chaos_score: 'Kaos Puanı',
       chaos_safe: '🎭 0/2 — Kukla aktif',
@@ -488,6 +503,21 @@ const I18N = (function () {
       sf_voting_locked: 'The village gallows are not your stage. Rule from the shadows.',
       dead_cannot_vote: 'The dead have no voice.',
 
+      // Action Pills & Buttons
+      pill_kill: '💀 Execute',
+      pill_natural: 'Natural Evidence',
+      pill_frame: '🪶 Plant Item',
+      pill_protect: '🛡️ Protect',
+      pill_surveil: '🕯️ Surveil',
+      pill_tarot: '🃏 Draw Tarot',
+      vote_selected: '⚖️ Execution Selected',
+      btn_vote: '⚖️ Cast Vote',
+      votes_label: 'Votes',
+      voters_label: 'Voters:',
+      hover_view_details: 'View Detailed Guide & Tips',
+      grimoire_btn_title: 'Grimoire — Guide & Roles',
+      sound_toggle_title: 'Toggle Sound',
+
       // Chaos Indicator
       chaos_score: 'Chaos Score',
       chaos_safe: '🎭 0/2 — Puppet is active',
@@ -751,6 +781,21 @@ const I18N = (function () {
       sf_voting_locked: '村の裁判はあなたの管轄ではありません。闇に潜んでください。',
       dead_cannot_vote: '死者は投票できません。',
 
+      // Action Pills & Buttons
+      pill_kill: '💀 処刑する',
+      pill_natural: '自然な証拠',
+      pill_frame: '🪶 所持品を偽装',
+      pill_protect: '🛡️ 守る',
+      pill_surveil: '🕯️ 監視する',
+      pill_tarot: '🃏 タロットを引く',
+      vote_selected: '⚖️ 処刑選択中',
+      btn_vote: '⚖️ 投票する',
+      votes_label: '票',
+      voters_label: '投票者:',
+      hover_view_details: '詳細ガイドとヒント',
+      grimoire_btn_title: 'グリモワール — ガイドと役職',
+      sound_toggle_title: 'サウンド切替',
+
       chaos_score: 'カオススコア',
       chaos_safe: '🎭 0/2 — 人形が稼働中',
       chaos_empty_safe: '🛡️ 0/2 — まだ無実の血は流れていません',
@@ -1004,6 +1049,21 @@ const I18N = (function () {
       village_chat_locked_sf: 'Du kannst nicht am Dorfchat teilnehmen. Nutze das Schattenflüstern.',
       sf_voting_locked: 'Das Dorfgericht ist nicht dein Reich. Herrsche im Schatten.',
       dead_cannot_vote: 'Tote haben keine Stimme.',
+
+      // Action Pills & Buttons
+      pill_kill: '💀 Hinrichten',
+      pill_natural: 'Natürliche Spuren',
+      pill_frame: '🪶 Gegenstand platzieren',
+      pill_protect: '🛡️ Beschützen',
+      pill_surveil: '🕯️ Überwachen',
+      pill_tarot: '🃏 Tarot ziehen',
+      vote_selected: '⚖️ Hinrichtung gewählt',
+      btn_vote: '⚖️ Abstimmen',
+      votes_label: 'Stimmen',
+      voters_label: 'Wähler:',
+      hover_view_details: 'Detaillierte Anleitung & Tipps',
+      grimoire_btn_title: 'Grimoire — Leitfaden & Rollen',
+      sound_toggle_title: 'Ton umschalten',
 
       chaos_score: 'Chaos-Punkte',
       chaos_safe: '🎭 0/2 — Puppe aktiv',
@@ -1259,6 +1319,21 @@ const I18N = (function () {
       sf_voting_locked: 'El juicio de la aldea no es tu dominio. Reina desde las sombras.',
       dead_cannot_vote: 'Los muertos no tienen voz.',
 
+      // Action Pills & Buttons
+      pill_kill: '💀 Ejecutar',
+      pill_natural: 'Evidencia Natural',
+      pill_frame: '🪶 Dejar objeto',
+      pill_protect: '🛡️ Proteger',
+      pill_surveil: '🕯️ Vigilar',
+      pill_tarot: '🃏 Tirar Tarot',
+      vote_selected: '⚖️ Ejecución seleccionada',
+      btn_vote: '⚖️ Votar',
+      votes_label: 'Votos',
+      voters_label: 'Votantes:',
+      hover_view_details: 'Ver guía detallada y consejos',
+      grimoire_btn_title: 'Grimorio — Guía y Roles',
+      sound_toggle_title: 'Alternar sonido',
+
       chaos_score: 'Puntos de Caos',
       chaos_safe: '🎭 0/2 — Marioneta activa',
       chaos_empty_safe: '🛡️ 0/2 — Aún no se derrama sangre inocente',
@@ -1512,6 +1587,21 @@ const I18N = (function () {
       village_chat_locked_sf: 'Vous ne pouvez pas parler sur la place publique. Utilisez uniquement les Murmures.',
       sf_voting_locked: 'Le tribunal du village n\'est pas votre domaine. Régnez depuis l\'ombre.',
       dead_cannot_vote: 'Les morts ne votent pas.',
+
+      // Action Pills & Buttons
+      pill_kill: '💀 Exécuter',
+      pill_natural: 'Preuve naturelle',
+      pill_frame: '🪶 Déposer un objet',
+      pill_protect: '🛡️ Protéger',
+      pill_surveil: '🕯️ Surveiller',
+      pill_tarot: '🃏 Tirer Tarot',
+      vote_selected: '⚖️ Exécution sélectionnée',
+      btn_vote: '⚖️ Voter',
+      votes_label: 'Votes',
+      voters_label: 'Votants :',
+      hover_view_details: 'Voir guide détaillé et conseils',
+      grimoire_btn_title: 'Grimoire — Guide & Rôles',
+      sound_toggle_title: 'Activer / couper le son',
 
       chaos_score: 'Score de Chaos',
       chaos_safe: '🎭 0/2 — Marionnette active',

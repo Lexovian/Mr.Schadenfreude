@@ -1273,7 +1273,7 @@ function renderSFNightPanel(gs, priv, area) {
     li.innerHTML = `
       <div class="target-avatar">${initial}</div>
       <div class="target-name">${escHtml(p.name)}</div>
-      <div class="target-pill">💀 İnfaz Et</div>
+      <div class="target-pill">${t('pill_kill')}</div>
     `;
     li.onclick = () => {
       if (typeof Sound !== 'undefined') Sound.playClick();
@@ -1304,7 +1304,7 @@ function renderSFNightPanel(gs, priv, area) {
   liNone.innerHTML = `
     <div class="target-avatar">🚫</div>
     <div class="target-name">${t('sf_no_frame')}</div>
-    <div class="target-pill">Doğal Delil</div>
+    <div class="target-pill">${t('pill_natural')}</div>
   `;
   liNone.onclick = () => {
     if (typeof Sound !== 'undefined') Sound.playClick();
@@ -1324,7 +1324,7 @@ function renderSFNightPanel(gs, priv, area) {
     li.innerHTML = `
       <div class="target-avatar" style="border-color:#ff8a65">${initial}</div>
       <div class="target-name">${escHtml(p.name)}</div>
-      <div class="target-pill" style="background:#ff8a6522;color:#ff8a65;border-color:#ff8a6566">🪶 Eşyasını Bırak</div>
+      <div class="target-pill" style="background:#ff8a6522;color:#ff8a65;border-color:#ff8a6566">${t('pill_frame')}</div>
     `;
     li.onclick = () => {
       if (typeof Sound !== 'undefined') Sound.playClick();
@@ -1343,7 +1343,7 @@ function renderSFNightPanel(gs, priv, area) {
 
   const btn = document.createElement('button');
   btn.className = 'btn btn-danger btn-send-order';
-  btn.innerHTML = `<span class="btn-shine"></span><span>${isSecretSF ? '🗡️ ' + t('confirm_kill') : '🎭 ' + t('send_order') + ' (İnfaz + Şüphe İzi)'}</span>`;
+  btn.innerHTML = `<span class="btn-shine"></span><span>${isSecretSF ? '🗡️ ' + t('confirm_kill') : '🎭 ' + t('send_order')}</span>`;
   btn.onclick = () => {
     if (!state.sfTargetSelected) return showToast(t('pick_target'), 'error');
     if (typeof Sound !== 'undefined') Sound.playKill();
@@ -1444,7 +1444,7 @@ function renderSovalyeNightPanel(gs, area) {
       li.innerHTML = `
         <div class="target-avatar">${initial}</div>
         <div class="target-name">${escHtml(p.name)}</div>
-        <div class="target-pill">🛡️ Koru</div>
+        <div class="target-pill">${t('pill_protect')}</div>
       `;
       li.onclick = () => {
         if (typeof Sound !== 'undefined') Sound.playClick();
@@ -1558,7 +1558,7 @@ function renderMortisyenNightPanel(gs, area) {
       li.innerHTML = `
         <div class="target-avatar">${initial}</div>
         <div class="target-name">${escHtml(p.name)}</div>
-        <div class="target-pill">🕯️ Gözetle</div>
+        <div class="target-pill">${t('pill_surveil')}</div>
       `;
       li.onclick = () => {
         if (typeof Sound !== 'undefined') Sound.playClick();
@@ -1650,7 +1650,7 @@ function renderRahibeNightPanel(gs, area) {
     li.innerHTML = `
       <div class="target-avatar" style="border-color:#ba68c8;background:#4a148c33;color:#e1bee7">${initial}</div>
       <div class="target-name">${escHtml(p.name)}</div>
-      <div class="target-pill" style="border-color:#ba68c8;color:#f3e5f5">🃏 Tarot Çek</div>
+      <div class="target-pill" style="border-color:#ba68c8;color:#f3e5f5">${t('pill_tarot')}</div>
     `;
     li.onclick = () => {
       if (typeof Sound !== 'undefined') Sound.playClick();
@@ -1852,7 +1852,7 @@ function renderVote(gs, myRole) {
     const voteBadgeHtml = gs.settings?.showVotes
       ? `<div class="vote-badge ${voteCount > 0 ? 'has-votes' : ''}">
            <span class="vote-badge-count">${voteCount}</span>
-           <span class="vote-badge-label">${state.lang === 'tr' ? 'Oy' : 'Votes'}</span>
+           <span class="vote-badge-label">${t('votes_label')}</span>
          </div>`
       : '';
 
@@ -1860,7 +1860,7 @@ function renderVote(gs, myRole) {
     if (gs.settings?.showVotes && voteCount > 0) {
       votersHtml = `
         <div class="voted-by-row">
-          <span class="voted-by-tag-label">${state.lang === 'tr' ? 'Oy Verenler:' : 'Voters:'}</span>
+          <span class="voted-by-tag-label">${t('voters_label')}</span>
           <div class="voted-by-chips">
             ${votersForTarget[p.id].map(name => `<span class="voted-by-badge">🗳️ ${escHtml(name)}</span>`).join('')}
           </div>
@@ -1878,7 +1878,7 @@ function renderVote(gs, myRole) {
         </div>
         <div class="candidate-action-right">
           ${voteBadgeHtml}
-          <div class="candidate-select-indicator">${isSelected ? '⚖️ İdam Seçildi' : '⚖️ Oy Ver'}</div>
+          <div class="candidate-select-indicator">${isSelected ? t('vote_selected') : t('btn_vote')}</div>
         </div>
       </div>
       ${votersHtml}

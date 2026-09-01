@@ -30,12 +30,12 @@
 
   <!-- Üst Bar: Ses ve Grimoire / Kılavuz Butonları -->
   <header class="global-floating-bar">
-    <button id="btn-grimoire-open" class="floating-btn grimoire-btn" onclick="openGrimoire()" title="Grimoire — Guide & Roles">
+    <button id="btn-grimoire-open" class="floating-btn grimoire-btn" onclick="openGrimoire()" title="Grimoire — Guide & Roles" data-i18n-title="grimoire_btn_title">
       <span class="btn-icon">📜</span>
       <span class="btn-txt" data-i18n="grimoire_btn">Grimoire &amp; Roles</span>
     </button>
 
-    <button id="btn-sound-toggle" class="floating-btn sound-toggle-btn" onclick="Sound.toggleMute()" title="Toggle Sound">
+    <button id="btn-sound-toggle" class="floating-btn sound-toggle-btn" onclick="Sound.toggleMute()" title="Toggle Sound" data-i18n-title="sound_toggle_title">
       <span id="sound-icon" class="btn-icon">🔊</span>
       <span id="sound-label" class="btn-txt" data-i18n="sound_label">Sound On</span>
     </button>
@@ -145,33 +145,33 @@
 
       <!-- Role Showcase Teaser Bar -->
       <div class="roles-teaser-strip">
-        <div class="teaser-item" title="Mr. Schadenfreude" onclick="openGrimoire('roles')">
+        <div class="teaser-item" title="Mr. Schadenfreude" data-i18n-title="role_sf" onclick="openGrimoire('roles')">
           <span class="teaser-icon">🎩</span>
-          <span class="teaser-name">Mr. Schadenfreude</span>
+          <span class="teaser-name" data-i18n="role_sf">Mr. Schadenfreude</span>
         </div>
-        <div class="teaser-item" title="Kukla" onclick="openGrimoire('roles')">
+        <div class="teaser-item" title="Puppet" data-i18n-title="role_kukla" onclick="openGrimoire('roles')">
           <span class="teaser-icon">🪆</span>
-          <span class="teaser-name">Kukla</span>
+          <span class="teaser-name" data-i18n="role_kukla">Puppet</span>
         </div>
-        <div class="teaser-item" title="Mortisyen" onclick="openGrimoire('roles')">
+        <div class="teaser-item" title="Undertaker" data-i18n-title="role_mortisyen" onclick="openGrimoire('roles')">
           <span class="teaser-icon">⚰️</span>
-          <span class="teaser-name">Mortisyen</span>
+          <span class="teaser-name" data-i18n="role_mortisyen">Undertaker</span>
         </div>
-        <div class="teaser-item" title="Rahibe" onclick="openGrimoire('roles')">
+        <div class="teaser-item" title="Priest" data-i18n-title="role_rahibe" onclick="openGrimoire('roles')">
           <span class="teaser-icon">🕯️</span>
-          <span class="teaser-name">Rahibe</span>
+          <span class="teaser-name" data-i18n="role_rahibe">Priest</span>
         </div>
-        <div class="teaser-item" title="Şövalye" onclick="openGrimoire('roles')">
+        <div class="teaser-item" title="Knight" data-i18n-title="role_sovalye" onclick="openGrimoire('roles')">
           <span class="teaser-icon">⚔️</span>
-          <span class="teaser-name">Şövalye</span>
+          <span class="teaser-name" data-i18n="role_sovalye">Knight</span>
         </div>
-        <div class="teaser-item" title="Madman" onclick="openGrimoire('roles')">
+        <div class="teaser-item" title="Madman" data-i18n-title="role_madman" onclick="openGrimoire('roles')">
           <span class="teaser-icon">🌀</span>
-          <span class="teaser-name">Madman</span>
+          <span class="teaser-name" data-i18n="role_madman">Madman</span>
         </div>
-        <div class="teaser-item" title="Köylü" onclick="openGrimoire('roles')">
+        <div class="teaser-item" title="Villager" data-i18n-title="role_koylu" onclick="openGrimoire('roles')">
           <span class="teaser-icon">🌾</span>
-          <span class="teaser-name">Köylü</span>
+          <span class="teaser-name" data-i18n="role_koylu">Villager</span>
         </div>
       </div>
 
@@ -726,66 +726,66 @@
         <!-- Tab 2: Roles -->
         <div id="gcontent-roles" class="grimoire-content">
           <div class="grimoire-role-grid">
-            <div class="g-role-card sf-card" onclick="openRoleDetail('sf')" title="Detayları Görüntüle">
+            <div class="g-role-card sf-card" onclick="openRoleDetail('sf')" title="View Details & Tips" data-i18n-title="hover_view_details">
               <div class="g-role-icon">🎩</div>
               <div class="g-role-info">
-                <h4><span data-i18n="role_sf">Mr. Schadenfreude</span> <span class="g-badge evil" data-i18n="badge_evil">Efendi</span></h4>
-                <p data-i18n="desc_sf">Dokunulmaz ve ölümsüzdür. Gece 0'da kuklasını seçer ve her gece infaz emirleri verir. Cinayet mahalline masumların eşyalarını bırakarak Mortisyen'i yanıltabilir.</p>
-                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detaylı Rehber & İpuçları</span></div>
+                <h4><span data-i18n="role_sf">Mr. Schadenfreude</span> <span class="g-badge evil" data-i18n="badge_evil">Master</span></h4>
+                <p data-i18n="desc_sf">Invulnerable and immortal. Chooses a puppet on Night 0 and issues execution orders each night. Can mislead the Undertaker by planting innocent items at crime scenes.</p>
+                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detailed Guide &amp; Tips</span></div>
               </div>
             </div>
 
-            <div class="g-role-card kukla-card" onclick="openRoleDetail('kukla')" title="Detayları Görüntüle">
+            <div class="g-role-card kukla-card" onclick="openRoleDetail('kukla')" title="View Details & Tips" data-i18n-title="hover_view_details">
               <div class="g-role-icon">🪆</div>
               <div class="g-role-info">
-                <h4><span data-i18n="role_kukla">Kukla</span> <span class="g-badge evil" data-i18n="badge_shadow">Gölge Elçisi</span></h4>
-                <p data-i18n="desc_kukla">Kukla ek bir gölge unvanıdır. Kendi orijinal rolünü ve yeteneklerini korurken, efendisinin infaz emirlerini gizlice yerine getirir.</p>
-                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detaylı Rehber & İpuçları</span></div>
+                <h4><span data-i18n="role_kukla">Puppet</span> <span class="g-badge evil" data-i18n="badge_shadow">Shadow Envoy</span></h4>
+                <p data-i18n="desc_kukla">Puppet is an additional shadow title. Retains their original role and abilities while secretly carrying out the master's execution orders.</p>
+                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detailed Guide &amp; Tips</span></div>
               </div>
             </div>
 
-            <div class="g-role-card mortisyen-card" onclick="openRoleDetail('mortisyen')" title="Detayları Görüntüle">
+            <div class="g-role-card mortisyen-card" onclick="openRoleDetail('mortisyen')" title="View Details & Tips" data-i18n-title="hover_view_details">
               <div class="g-role-icon">⚰️</div>
               <div class="g-role-info">
-                <h4><span data-i18n="role_mortisyen">Mortisyen</span> <span class="g-badge town" data-i18n="badge_town">Köylü</span></h4>
-                <p data-i18n="desc_mortisyen">Her ölümden sonra cesetleri inceler. Olay yerindeki adli kanıtlardan (Eşya &amp; Rol İzi ve Davranış İzi) 3 kişilik şüpheli havuzu tespit eder; geceleri yaşayanları gözetleyebilir ve defterini köyle paylaşabilir.</p>
-                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detaylı Rehber & İpuçları</span></div>
+                <h4><span data-i18n="role_mortisyen">Undertaker</span> <span class="g-badge town" data-i18n="badge_town">Town</span></h4>
+                <p data-i18n="desc_mortisyen">Examines corpses after each death. Discovers 3-person suspect pools from forensic evidence (Item &amp; Role Trace, Behavioral Trace); can surveil living players at night.</p>
+                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detailed Guide &amp; Tips</span></div>
               </div>
             </div>
 
-            <div class="g-role-card rahibe-card" onclick="openRoleDetail('rahibe')" title="Detayları Görüntüle">
+            <div class="g-role-card rahibe-card" onclick="openRoleDetail('rahibe')" title="View Details & Tips" data-i18n-title="hover_view_details">
               <div class="g-role-icon">🕯️</div>
               <div class="g-role-info">
-                <h4><span data-i18n="role_rahibe">Rahibe</span> <span class="g-badge town" data-i18n="badge_town">Köylü</span></h4>
-                <p data-i18n="desc_rahibe">Kutsal sezgileriyle ilk gece öldürülen kurbanın ve ilk asılan kişinin gerçek kimliğini şafakta tüm köye açıklar.</p>
-                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detaylı Rehber & İpuçları</span></div>
+                <h4><span data-i18n="role_rahibe">Priest</span> <span class="g-badge town" data-i18n="badge_town">Town</span></h4>
+                <p data-i18n="desc_rahibe">Uses holy intuition and tarot readings to reveal the true identity of the first victim and first executed player at dawn.</p>
+                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detailed Guide &amp; Tips</span></div>
               </div>
             </div>
 
-            <div class="g-role-card sovalye-card" onclick="openRoleDetail('sovalye')" title="Detayları Görüntüle">
+            <div class="g-role-card sovalye-card" onclick="openRoleDetail('sovalye')" title="View Details & Tips" data-i18n-title="hover_view_details">
               <div class="g-role-icon">⚔️</div>
               <div class="g-role-info">
-                <h4><span data-i18n="role_sovalye">Şövalye</span> <span class="g-badge town" data-i18n="badge_town">Köylü</span></h4>
-                <p data-i18n="desc_sovalye">Geceleri masumları koruyabilir (🛡️ Koru) veya karanlığa meydan okuyarak o geceki infaz emrini doğrudan durdurabilir (⚔️ Meydan Oku - max 2).</p>
-                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detaylı Rehber & İpuçları</span></div>
+                <h4><span data-i18n="role_sovalye">Knight</span> <span class="g-badge town" data-i18n="badge_town">Town</span></h4>
+                <p data-i18n="desc_sovalye">Can protect innocents at night (🛡️ Protect) or challenge the darkness to block that night's execution order (⚔️ Challenge - max 2).</p>
+                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detailed Guide &amp; Tips</span></div>
               </div>
             </div>
 
-            <div class="g-role-card madman-card" onclick="openRoleDetail('madman')" title="Detayları Görüntüle">
+            <div class="g-role-card madman-card" onclick="openRoleDetail('madman')" title="View Details & Tips" data-i18n-title="hover_view_details">
               <div class="g-role-icon">🌀</div>
               <div class="g-role-info">
-                <h4><span data-i18n="role_madman">Madman</span> <span class="g-badge town" data-i18n="badge_town">Köylü</span></h4>
-                <p data-i18n="desc_madman">Karanlık lanetle mühürlüdür. Eğer Kukla onu gece öldürürse, ölürken Kuklayı da lanetiyle birlikte mezara sürükler!</p>
-                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detaylı Rehber & İpuçları</span></div>
+                <h4><span data-i18n="role_madman">Madman</span> <span class="g-badge town" data-i18n="badge_town">Town</span></h4>
+                <p data-i18n="desc_madman">Sealed with a dark curse. If the Puppet kills the Madman at night, the Madman drags the Puppet into the grave with them!</p>
+                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detailed Guide &amp; Tips</span></div>
               </div>
             </div>
 
-            <div class="g-role-card koylu-card" onclick="openRoleDetail('koylu')" title="Detayları Görüntüle">
+            <div class="g-role-card koylu-card" onclick="openRoleDetail('koylu')" title="View Details & Tips" data-i18n-title="hover_view_details">
               <div class="g-role-icon">🌾</div>
               <div class="g-role-info">
-                <h4><span data-i18n="role_koylu">Köylü</span> <span class="g-badge town" data-i18n="badge_town">Köylü</span></h4>
-                <p data-i18n="desc_koylu">Gözlem yeteneği ve zekasıyla ipuçlarını birleştirir, oylamalarda kuklayı ortaya çıkarıp asarak köyü kurtarır.</p>
-                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detaylı Rehber & İpuçları</span></div>
+                <h4><span data-i18n="role_koylu">Villager</span> <span class="g-badge town" data-i18n="badge_town">Town</span></h4>
+                <p data-i18n="desc_koylu">Uses sharp observation and logic to piece clues together, exposing and lynching the puppet to save the village.</p>
+                <div class="g-role-detail-hint">🔍 <span data-i18n="rd_view_details">Detailed Guide &amp; Tips</span></div>
               </div>
             </div>
           </div>
