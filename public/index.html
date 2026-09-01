@@ -357,16 +357,16 @@
       <!-- Tools & Astrological Timer Row -->
       <div class="topbar-row topbar-row-tools">
         <div class="topbar-left-tools">
-          <button id="btn-topbar-grimoire" class="topbar-tool-btn" onclick="openGrimoire()" title="Grimoire — Rehber & Roller">
+          <button id="btn-topbar-grimoire" class="topbar-tool-btn" onclick="openGrimoire()" title="Grimoire — Guide & Roles" data-i18n-title="grimoire_btn_title">
             <span>📜</span>
-            <span class="tool-btn-txt" data-i18n="grimoire_btn">Grimoire</span>
+            <span class="tool-btn-txt" data-i18n="grimoire_btn">Grimoire &amp; Roles</span>
           </button>
-          <button id="btn-topbar-sound" class="topbar-tool-btn" onclick="Sound.toggleMute()" title="Sesi Aç / Kapat">
+          <button id="btn-topbar-sound" class="topbar-tool-btn" onclick="Sound.toggleMute()" title="Toggle Sound" data-i18n-title="sound_toggle_title">
             <span id="topbar-sound-icon">🔊</span>
           </button>
           <div class="lang-selector-wrap lang-selector-topbar">
             <span class="lang-icon">🌐</span>
-            <select class="lang-select lang-select-topbar" onchange="changeLanguage(this.value)" title="Language">
+            <select class="lang-select lang-select-topbar" onchange="changeLanguage(this.value)" title="Language" data-i18n-title="lang_select_title">
               <option value="en" selected>EN</option>
               <option value="tr">🇹🇷 TR</option>
               <option value="ja">🇯🇵 JA</option>
@@ -390,9 +390,9 @@
         </div>
 
         <div class="topbar-right-tools">
-          <button id="btn-phase-ready" class="topbar-tool-btn topbar-ready-btn" onclick="toggleReady()" title="Hazırım / Fazı Geç">
+          <button id="btn-phase-ready" class="topbar-tool-btn topbar-ready-btn" onclick="toggleReady()" title="Ready / Advance Phase" data-i18n-title="btn_ready_title">
             <span id="ready-status-icon">⚡</span>
-            <span id="ready-btn-text" class="ready-txt" data-i18n="btn_ready">Hazırım</span>
+            <span id="ready-btn-text" class="ready-txt" data-i18n="btn_ready">Ready</span>
             <span id="ready-counter" class="ready-pill-counter">0/0</span>
           </button>
         </div>

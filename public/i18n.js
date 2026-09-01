@@ -234,6 +234,10 @@ const I18N = (function () {
       hover_view_details: 'Detaylı Rehber & İpuçları',
       grimoire_btn_title: 'Grimoire — Rehber & Roller',
       sound_toggle_title: 'Sesi Aç / Kapat',
+      btn_ready_title: 'Hazırım / Fazı İlerlet',
+      lang_select_title: 'Dili Değiştir',
+      pill_pick_kukla: '🪆 Kukla Seç',
+      pill_new_kukla: '🪆 Yeni Kukla',
 
       // Chaos Indicator
       chaos_score: 'Kaos Puanı',
@@ -517,6 +521,10 @@ const I18N = (function () {
       hover_view_details: 'View Detailed Guide & Tips',
       grimoire_btn_title: 'Grimoire — Guide & Roles',
       sound_toggle_title: 'Toggle Sound',
+      btn_ready_title: 'Ready / Advance Phase',
+      lang_select_title: 'Change Language',
+      pill_pick_kukla: '🪆 Choose Puppet',
+      pill_new_kukla: '🪆 New Puppet',
 
       // Chaos Indicator
       chaos_score: 'Chaos Score',
@@ -795,6 +803,10 @@ const I18N = (function () {
       hover_view_details: '詳細ガイドとヒント',
       grimoire_btn_title: 'グリモワール — ガイドと役職',
       sound_toggle_title: 'サウンド切替',
+      btn_ready_title: '準備完了 / フェーズ進行',
+      lang_select_title: '言語変更',
+      pill_pick_kukla: '🪆 人形を選択',
+      pill_new_kukla: '🪆 新しい人形',
 
       chaos_score: 'カオススコア',
       chaos_safe: '🎭 0/2 — 人形が稼働中',
@@ -1064,6 +1076,10 @@ const I18N = (function () {
       hover_view_details: 'Detaillierte Anleitung & Tipps',
       grimoire_btn_title: 'Grimoire — Leitfaden & Rollen',
       sound_toggle_title: 'Ton umschalten',
+      btn_ready_title: 'Bereit / Phase vorantreiben',
+      lang_select_title: 'Sprache ändern',
+      pill_pick_kukla: '🪆 Puppe wählen',
+      pill_new_kukla: '🪆 Neue Puppe',
 
       chaos_score: 'Chaos-Punkte',
       chaos_safe: '🎭 0/2 — Puppe aktiv',
@@ -1333,6 +1349,10 @@ const I18N = (function () {
       hover_view_details: 'Ver guía detallada y consejos',
       grimoire_btn_title: 'Grimorio — Guía y Roles',
       sound_toggle_title: 'Alternar sonido',
+      btn_ready_title: 'Listo / Avanzar fase',
+      lang_select_title: 'Cambiar idioma',
+      pill_pick_kukla: '🪆 Elegir Marioneta',
+      pill_new_kukla: '🪆 Nueva Marioneta',
 
       chaos_score: 'Puntos de Caos',
       chaos_safe: '🎭 0/2 — Marioneta activa',
@@ -1602,6 +1622,10 @@ const I18N = (function () {
       hover_view_details: 'Voir guide détaillé et conseils',
       grimoire_btn_title: 'Grimoire — Guide & Rôles',
       sound_toggle_title: 'Activer / couper le son',
+      btn_ready_title: 'Prêt / Avancer la phase',
+      lang_select_title: 'Changer de langue',
+      pill_pick_kukla: '🪆 Choisir Marionnette',
+      pill_new_kukla: '🪆 Nouvelle Marionnette',
 
       chaos_score: 'Score de Chaos',
       chaos_safe: '🎭 0/2 — Marionnette active',

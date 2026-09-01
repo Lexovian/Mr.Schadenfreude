@@ -143,7 +143,12 @@ function changeLanguage(lang) {
 function openGrimoire(tab = 'lore') {
   if (typeof Sound !== 'undefined') Sound.playClick();
   const modal = document.getElementById('grimoire-modal');
-  if (modal) modal.classList.remove('hidden');
+  if (modal) {
+    if (typeof I18N !== 'undefined' && I18N.applyDOM) {
+      I18N.applyDOM(modal);
+    }
+    modal.classList.remove('hidden');
+  }
   switchGrimoireTab(tab);
 }
 
@@ -1110,7 +1115,7 @@ function renderNight0(gs, myRole, priv) {
           <li class="target-card" onclick="sfPickKukla('${p.id}', this)">
             <div class="target-avatar">${initial}</div>
             <div class="target-name">${escHtml(p.name)}</div>
-            <div class="target-pill">🪆 Kukla Seç</div>
+            <div class="target-pill">${t('pill_pick_kukla')}</div>
           </li>
         `;
       })
@@ -1208,7 +1213,7 @@ function renderSFNightPanel(gs, priv, area) {
         li.innerHTML = `
           <div class="target-avatar">${initial}</div>
           <div class="target-name">${escHtml(p.name)}</div>
-          <div class="target-pill">🪆 Yeni Kukla</div>
+          <div class="target-pill">${t('pill_new_kukla')}</div>
         `;
         li.onclick = () => {
           if (typeof Sound !== 'undefined') Sound.playClick();
