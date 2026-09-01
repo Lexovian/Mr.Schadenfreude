@@ -1570,13 +1570,17 @@ const I18N = (function () {
   // State (Default language: English)
   let currentLang = 'en';
 
-  // Load saved preference
+  // Load saved preference (Defaults strictly to English if not explicitly chosen in v2)
   try {
-    const saved = localStorage.getItem('sf_language');
+    const saved = localStorage.getItem('sf_language_v2');
     if (saved && DICTIONARIES[saved]) {
       currentLang = saved;
+    } else {
+      currentLang = 'en';
     }
-  } catch (e) {}
+  } catch (e) {
+    currentLang = 'en';
+  }
 
   function getLanguage() {
     return currentLang;
@@ -1585,7 +1589,10 @@ const I18N = (function () {
   function setLanguage(lang) {
     if (DICTIONARIES[lang]) {
       currentLang = lang;
-      try { localStorage.setItem('sf_language', lang); } catch (e) {}
+      try {
+        localStorage.setItem('sf_language_v2', lang);
+        localStorage.setItem('sf_language', lang);
+      } catch (e) {}
       document.documentElement.lang = lang;
       applyDOM();
     }
