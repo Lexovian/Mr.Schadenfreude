@@ -66,7 +66,6 @@ As dawn breaks, the villagers must analyze **Forensic Autopsy Reports**, listen 
 - **Sacred Tarot Prophecies:** The Priest senses soul movements in the dark with a 1-night cooldown. Passing on a night preserves and carries over the charge to the next round.
 - **Knight's Aegis & Challenge:** Protect an innocent villager each night or stake your blade to challenge the shadow directly.
 - **Smart Bot System:** Autonomous AI bots that vote, use night abilities, and mimic real player behavior to fill empty seats.
-- **Synthesized Gothic Audio:** Dynamic web-synthesizer engine providing church bells, Tarot chimes, whisper alerts, and tension soundscapes.
 - **Fully Responsive UI:** Atmospheric gothic dark mode optimized for desktop, tablets, and mobile devices.
 
 ---
