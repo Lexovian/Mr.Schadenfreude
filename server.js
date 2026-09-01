@@ -1639,11 +1639,10 @@ function botDayChat(code) {
           es: [`Tengo fuertes sospechas sobre ${topSuspect.name}, debemos vigilar.`, `Creo que el comportamiento de ${topSuspect.name} no inspira confianza.`, `${topSuspect.name} estuvo demasiado callado ayer.`],
           fr: [`J'ai de sérieux doutes sur ${topSuspect.name}, soyons vigilants.`, `Le comportement de ${topSuspect.name} me semble suspect.`, `${topSuspect.name} était bien trop discret hier.`],
         };
-        const list = accusePhrases[lang] || accusePhrases.tr;
-        msgText = list[Math.floor(Math.random() * list.length)];
+        phraseIdx = Math.floor(Math.random() * phraseDict.tr.length);
       } else {
         // C) General village discussion
-        const generalPhrases = {
+        phraseDict = {
           tr: ['İpuçlarını dikkatlice incelemeliyiz, hata yapma şansımız kalmadı.', 'Kuklanın kim olduğunu bulmak için dünkü oylara bakmalıyız.', 'Köydeki herkes sessizliğini bozmalı, kimseye körü körüne güvenemeyiz.'],
           en: ['We must examine the clues carefully, no room for mistakes.', 'We should analyze yesterday\'s votes to find the puppet.', 'Everyone must speak up, blind trust will ruin us.'],
           ja: ['手がかりを慎重に調べるべきです。ミスは許されません。', '昨日の投票を見直して黒幕を見つけるべきです。', '全員が発言すべきです。盲目的な信頼は命取りです。'],
@@ -1651,12 +1650,25 @@ function botDayChat(code) {
           es: ['Debemos revisar las pistas con cuidado, no hay margen de error.', 'Deberíamos analizar los votos de ayer para hallar a la marioneta.', 'Todos deben hablar, la confianza ciega nos destruirá.'],
           fr: ['Examinons bien les indices, aucune erreur n\'est permise.', 'Analysons les votes d\'hier pour démasquer la marionnette.', 'Chacun doit s\'exprimer, la confiance aveugle nous perdra.'],
         };
-        const list = generalPhrases[lang] || generalPhrases.tr;
-        msgText = list[Math.floor(Math.random() * list.length)];
+        phraseIdx = Math.floor(Math.random() * phraseDict.tr.length);
       }
 
-      if (msgText) {
-        const msgObj = { name: chatter.name, message: msgText, time: Date.now() };
+      if (phraseDict) {
+        const translations = {
+          tr: phraseDict.tr[phraseIdx],
+          en: phraseDict.en[phraseIdx],
+          ja: phraseDict.ja[phraseIdx],
+          de: phraseDict.de[phraseIdx],
+          es: phraseDict.es[phraseIdx],
+          fr: phraseDict.fr[phraseIdx],
+        };
+        const msgObj = {
+          name: chatter.name,
+          message: translations[lang] || translations.tr,
+          translations,
+          isBot: true,
+          time: Date.now(),
+        };
         r.chat.push(msgObj);
         io.to(code).emit('game:chatMessage', msgObj);
       }
