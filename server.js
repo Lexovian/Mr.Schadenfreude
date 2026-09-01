@@ -2485,7 +2485,7 @@ function roleLabel(role, lang = 'en') {
   const labels = {
     tr: { sf: 'Mr. Schadenfreude', kukla: 'Kukla', mortisyen: 'Mortisyen', rahibe: 'Rahibe', sovalye: 'Şövalye', madman: 'Madman', koylu: 'Köylü' },
     en: { sf: 'Mr. Schadenfreude', kukla: 'Puppet', mortisyen: 'Undertaker', rahibe: 'Priest', sovalye: 'Knight', madman: 'Madman', koylu: 'Villager' },
-    ja: { sf: 'Mr.シャーデンフロイデ', kukla: '人形 (Kukla)', mortisyen: '葬儀屋 (Undertaker)', rahibe: '司祭 (Priest)', sovalye: '騎士 (Knight)', madman: '狂人 (Madman)', koylu: '村人 (Villager)' },
+    ja: { sf: 'Mr.シャーデンフロイデ', kukla: '人形', mortisyen: '葬儀屋', rahibe: '司祭', sovalye: '騎士', madman: '狂人', koylu: '村人' },
     de: { sf: 'Mr. Schadenfreude', kukla: 'Puppe', mortisyen: 'Leichenbeschauer', rahibe: 'Nonne', sovalye: 'Ritter', madman: 'Verrückter', koylu: 'Dorfbewohner' },
     es: { sf: 'Mr. Schadenfreude', kukla: 'Marioneta', mortisyen: 'Sepulturero', rahibe: 'Monja', sovalye: 'Caballero', madman: 'Demente', koylu: 'Aldeano' },
     fr: { sf: 'Mr. Schadenfreude', kukla: 'Marionnette', mortisyen: 'Croque-mort', rahibe: 'Nonne', sovalye: 'Chevalier', madman: 'Fou', koylu: 'Villageois' },

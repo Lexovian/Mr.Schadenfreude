@@ -679,12 +679,12 @@ const I18N = (function () {
       skip_phase_host: 'フェーズをスキップ',
 
       role_sf: 'Mr.シャーデンフロイデ',
-      role_kukla: '人形 (Kukla)',
-      role_mortisyen: '葬儀屋 (Undertaker)',
-      role_rahibe: '司祭 (Priest)',
-      role_sovalye: '騎士 (Knight)',
-      role_madman: '狂人 (Madman)',
-      role_koylu: '村人 (Villager)',
+      role_kukla: '人形',
+      role_mortisyen: '葬儀屋',
+      role_rahibe: '司祭',
+      role_sovalye: '騎士',
+      role_madman: '狂人',
+      role_koylu: '村人',
 
       badge_evil: '主 (マスター)',
       badge_shadow: '影の使者',
