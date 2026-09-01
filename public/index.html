@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Mr. Schadenfreude — Vampir Köylü</title>
-  <meta name="description" content="Mr. Schadenfreude temalı tarayıcı tabanlı Vampir Köylü oyunu. Arkadaşlarınla oyna!" />
+  <title>Mr. Schadenfreude — Gothic Social Deduction</title>
+  <meta name="description" content="Mr. Schadenfreude — Gothic social deduction multiplayer game. Play with friends and bots!" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,19 +25,19 @@
   <!-- Sunucu Bağlantı / Uyanma Bildirimi (Render Cold-Start Banner) -->
   <div id="server-status-banner" class="server-status-banner hidden">
     <span class="banner-pulse"></span>
-    <span id="server-status-text" data-i18n="server_waking_up">🕯️ Sunucu uyanıyor, lütfen birkaç saniye bekleyin...</span>
+    <span id="server-status-text" data-i18n="server_waking_up">🕯️ Server is waking up, please wait a few seconds...</span>
   </div>
 
   <!-- Üst Bar: Ses ve Grimoire / Kılavuz Butonları -->
   <header class="global-floating-bar">
-    <button id="btn-grimoire-open" class="floating-btn grimoire-btn" onclick="openGrimoire()" title="Grimoire — Rehber & Roller">
+    <button id="btn-grimoire-open" class="floating-btn grimoire-btn" onclick="openGrimoire()" title="Grimoire — Guide & Roles">
       <span class="btn-icon">📜</span>
-      <span class="btn-txt" data-i18n="grimoire_btn">Grimoire &amp; Roller</span>
+      <span class="btn-txt" data-i18n="grimoire_btn">Grimoire &amp; Roles</span>
     </button>
 
-    <button id="btn-sound-toggle" class="floating-btn sound-toggle-btn" onclick="Sound.toggleMute()" title="Sesi Aç / Kapat">
+    <button id="btn-sound-toggle" class="floating-btn sound-toggle-btn" onclick="Sound.toggleMute()" title="Toggle Sound">
       <span id="sound-icon" class="btn-icon">🔊</span>
-      <span id="sound-label" class="btn-txt" data-i18n="sound_label">Ses Açık</span>
+      <span id="sound-label" class="btn-txt" data-i18n="sound_label">Sound On</span>
     </button>
   </header>
 
@@ -58,15 +58,15 @@
           <div class="logo-symbol">𝕸</div>
         </div>
         <h1 class="logo-title">Mr. Schadenfreude</h1>
-        <p class="logo-subtitle" data-i18n="lore_quote">"İpler gerildi. Perde açılıyor."</p>
+        <p class="logo-subtitle" data-i18n="lore_quote">"Strings tightened. The curtain rises."</p>
       </div>
 
       <div class="landing-actions-bar">
         <div class="lang-selector-wrap">
           <span class="lang-icon">🌐</span>
           <select id="lang-select" class="lang-select" onchange="changeLanguage(this.value)">
+            <option value="en" selected>🇬🇧 English</option>
             <option value="tr">🇹🇷 Türkçe</option>
-            <option value="en">EN English</option>
             <option value="ja">🇯🇵 日本語</option>
             <option value="de">🇩🇪 Deutsch</option>
             <option value="es">🇪🇸 Español</option>
@@ -228,8 +228,8 @@
             <div class="lang-selector-wrap lang-selector-lobby">
               <span class="lang-icon">🌐</span>
               <select class="lang-select" onchange="changeLanguage(this.value)">
+                <option value="en" selected>🇬🇧 English</option>
                 <option value="tr">🇹🇷 Türkçe</option>
-                <option value="en">EN English</option>
                 <option value="ja">🇯🇵 日本語</option>
                 <option value="de">🇩🇪 Deutsch</option>
                 <option value="es">🇪🇸 Español</option>

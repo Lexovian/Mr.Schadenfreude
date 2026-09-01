@@ -54,7 +54,7 @@ socket.on('disconnect', (reason) => {
 
 // ─── STATE ───
 let state = {
-  lang: 'tr',
+  lang: 'en',
   roomCode: null,
   myName: null,
   myRole: null,
@@ -2635,7 +2635,7 @@ function initApp() {
   document.getElementById('shadow-chat-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') sendShadowChat(); });
   document.getElementById('chat-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
 
-  const initialLang = typeof I18N !== 'undefined' ? I18N.getLanguage() : 'tr';
+  const initialLang = typeof I18N !== 'undefined' ? I18N.getLanguage() : 'en';
   changeLanguage(initialLang);
 
   // Set initial landing state in history and ensure active screen class

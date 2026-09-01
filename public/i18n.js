@@ -1567,8 +1567,8 @@ const I18N = (function () {
     },
   };
 
-  // State
-  let currentLang = 'tr';
+  // State (Default language: English)
+  let currentLang = 'en';
 
   // Load saved preference
   try {
@@ -1593,7 +1593,7 @@ const I18N = (function () {
 
   function t(key, params = {}) {
     const dict = DICTIONARIES[currentLang] || DICTIONARIES.en || DICTIONARIES.tr;
-    let str = dict[key] || DICTIONARIES.tr[key] || DICTIONARIES.en[key] || key;
+    let str = dict[key] || DICTIONARIES.en[key] || DICTIONARIES.tr[key] || key;
 
     // Interpolate {param}
     if (typeof str === 'string' && params && typeof params === 'object') {
@@ -1605,8 +1605,8 @@ const I18N = (function () {
   }
 
   function roleLabel(role, lang = currentLang) {
-    const dict = DICTIONARIES[lang] || DICTIONARIES[currentLang] || DICTIONARIES.tr;
-    return dict['role_' + role] || DICTIONARIES.tr['role_' + role] || role;
+    const dict = DICTIONARIES[lang] || DICTIONARIES[currentLang] || DICTIONARIES.en;
+    return dict['role_' + role] || DICTIONARIES.en['role_' + role] || DICTIONARIES.tr['role_' + role] || role;
   }
 
   // ─────────────────────────────────────────────
@@ -1844,13 +1844,13 @@ const I18N = (function () {
   };
 
   function getRoleDossier(role, lang = currentLang) {
-    const dossiers = ROLE_DOSSIERS[lang] || ROLE_DOSSIERS.tr;
-    return dossiers[role] || ROLE_DOSSIERS.tr[role] || null;
+    const dossiers = ROLE_DOSSIERS[lang] || ROLE_DOSSIERS.en || ROLE_DOSSIERS.tr;
+    return dossiers[role] || ROLE_DOSSIERS.en?.[role] || ROLE_DOSSIERS.tr?.[role] || null;
   }
 
   function roleDesc(role, lang = currentLang) {
-    const dict = DICTIONARIES[lang] || DICTIONARIES[currentLang] || DICTIONARIES.tr;
-    return dict['desc_' + role] || DICTIONARIES.tr['desc_' + role] || '';
+    const dict = DICTIONARIES[lang] || DICTIONARIES[currentLang] || DICTIONARIES.en;
+    return dict['desc_' + role] || DICTIONARIES.en['desc_' + role] || DICTIONARIES.tr['desc_' + role] || '';
   }
 
   function applyDOM(root = document) {
@@ -1902,13 +1902,13 @@ const BotTranslator = (function () {
       return msg.message || '';
     }
 
-    const lang = targetLang || (typeof I18N !== 'undefined' ? I18N.getLanguage() : 'tr');
+    const lang = targetLang || (typeof I18N !== 'undefined' ? I18N.getLanguage() : 'en');
 
     // 1. Check direct translations dictionary attached to the message object
     if (msg.translations && typeof msg.translations === 'object') {
       if (msg.translations[lang]) return msg.translations[lang];
-      if (msg.translations.tr) return msg.translations.tr;
       if (msg.translations.en) return msg.translations.en;
+      if (msg.translations.tr) return msg.translations.tr;
     }
 
     return msg.message || '';
@@ -1916,22 +1916,23 @@ const BotTranslator = (function () {
 
   function translateSender(msg, targetLang) {
     if (!msg) return '';
-    const lang = targetLang || (typeof I18N !== 'undefined' ? I18N.getLanguage() : 'tr');
+    const lang = targetLang || (typeof I18N !== 'undefined' ? I18N.getLanguage() : 'en');
     if (msg.nameTranslations && typeof msg.nameTranslations === 'object') {
       if (msg.nameTranslations[lang]) return msg.nameTranslations[lang];
+      if (msg.nameTranslations.en) return msg.nameTranslations.en;
       if (msg.nameTranslations.tr) return msg.nameTranslations.tr;
     }
     if (msg.isSystem && msg.name) {
       const titles = {
-        tr: '⚰️ Mortisyen Gizli Raporu',
         en: '⚰️ Undertaker Confidential Report',
+        tr: '⚰️ Mortisyen Gizli Raporu',
         ja: '⚰️ 葬儀屋の極秘報告',
         de: '⚰️ Vertraulicher Bericht des Leichenbeschauers',
         es: '⚰️ Informe Confidencial del Sepulturero',
         fr: '⚰️ Rapport Confidentiel du Croque-mort',
       };
       if (msg.name.includes('Mortisyen') || msg.name.includes('Undertaker') || msg.name.includes('葬儀屋') || msg.name.includes('Leichenbeschauer') || msg.name.includes('Sepulturero') || msg.name.includes('Croque-mort')) {
-        return titles[lang] || titles.tr;
+        return titles[lang] || titles.en || titles.tr;
       }
     }
     return msg.name || '';
@@ -1939,9 +1940,10 @@ const BotTranslator = (function () {
 
   function translateShadowSenderTitle(msg, targetLang) {
     if (!msg) return '';
-    const lang = targetLang || (typeof I18N !== 'undefined' ? I18N.getLanguage() : 'tr');
+    const lang = targetLang || (typeof I18N !== 'undefined' ? I18N.getLanguage() : 'en');
     if (msg.senderTitleTranslations && typeof msg.senderTitleTranslations === 'object') {
       if (msg.senderTitleTranslations[lang]) return msg.senderTitleTranslations[lang];
+      if (msg.senderTitleTranslations.en) return msg.senderTitleTranslations.en;
       if (msg.senderTitleTranslations.tr) return msg.senderTitleTranslations.tr;
     }
     if (msg.role === 'sf') {
@@ -1949,14 +1951,14 @@ const BotTranslator = (function () {
     }
     if (msg.role === 'kukla') {
       const titles = {
-        tr: 'Kukla',
         en: 'Puppet',
+        tr: 'Kukla',
         ja: '人形',
         de: 'Puppe',
         es: 'Marioneta',
         fr: 'Marionnette',
       };
-      return titles[lang] || titles.tr;
+      return titles[lang] || titles.en || titles.tr;
     }
     return msg.senderTitle || '';
   }

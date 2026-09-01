@@ -511,7 +511,7 @@ function generateVotingBehaviorTrace(room, focalPlayer) {
 }
 
 function generateMortisianClue(room, player, isDeep = true) {
-  const lang = room.language || 'tr';
+  const lang = room.language || 'en';
   const alive = getAlive(room);
   let evidenceType = 'info';
   let suspects = [];
@@ -664,7 +664,7 @@ function createRoom(hostId, hostName, language) {
   rooms[code] = {
     code,
     host: hostId,
-    language: language || 'tr',
+    language: language || 'en',
     phase: PHASES.LOBBY,
     round: 0,
     players: [],
@@ -1451,7 +1451,7 @@ function botDayChat(code) {
   if (!room || room.phase !== PHASES.DAY) return;
   initBotMemory(room);
 
-  const lang = room.language || 'tr';
+  const lang = room.language || 'en';
   const livingBots = room.players.filter(p => p.isBot && p.alive);
   if (livingBots.length === 0) return;
 
@@ -2481,7 +2481,7 @@ function addAnnouncement(room, text) {
   room.announcements.push(typeof text === 'object' ? text : { type: 'info', text });
 }
 
-function roleLabel(role, lang = 'tr') {
+function roleLabel(role, lang = 'en') {
   const labels = {
     tr: { sf: 'Mr. Schadenfreude', kukla: 'Kukla', mortisyen: 'Mortisyen', rahibe: 'Rahibe', sovalye: 'Şövalye', madman: 'Madman', koylu: 'Köylü' },
     en: { sf: 'Mr. Schadenfreude', kukla: 'Puppet', mortisyen: 'Undertaker', rahibe: 'Priest', sovalye: 'Knight', madman: 'Madman', koylu: 'Villager' },
@@ -2490,7 +2490,7 @@ function roleLabel(role, lang = 'tr') {
     es: { sf: 'Mr. Schadenfreude', kukla: 'Marioneta', mortisyen: 'Sepulturero', rahibe: 'Monja', sovalye: 'Caballero', madman: 'Demente', koylu: 'Aldeano' },
     fr: { sf: 'Mr. Schadenfreude', kukla: 'Marionnette', mortisyen: 'Croque-mort', rahibe: 'Nonne', sovalye: 'Chevalier', madman: 'Fou', koylu: 'Villageois' },
   };
-  return (labels[lang] || labels.tr || labels.en)[role] || role;
+  return (labels[lang] || labels.en || labels.tr)[role] || role;
 }
 
 function clearTimer(room) {
