@@ -524,16 +524,15 @@ function generateMortisianClue(room, player, isDeep = true) {
   if (!room.mortisyenClueHistory) room.mortisyenClueHistory = [];
 
   if (player.deathCause === 'night') {
-    const isSecretSF = room.settings?.gameMode === 'secretKiller';
     const kuklaPlayer = room.kuklaId ? getPlayer(room, room.kuklaId) : null;
-    const killerPlayer = isSecretSF ? getPlayer(room, room.sfId) : kuklaPlayer;
-    const framedPlayer = room.nightActions?.sf_frame ? getPlayer(room, room.nightActions.sf_frame) : null;
-    const focalPlayer = (framedPlayer && framedPlayer.alive) ? framedPlayer : killerPlayer;
+    const framedPlayer = (room.nightActions?.sf_frame && room.nightActions.sf_frame !== room.sfId) ? getPlayer(room, room.nightActions.sf_frame) : null;
+    // Focal suspect must always be the Kukla (or framed innocent, NEVER Mr. Schadenfreude)
+    const focalPlayer = (framedPlayer && framedPlayer.alive) ? framedPlayer : (kuklaPlayer && kuklaPlayer.alive && kuklaPlayer.id !== room.sfId ? kuklaPlayer : null);
 
     if (focalPlayer) {
       const distractors = alive.filter(p =>
         p.id !== focalPlayer.id &&
-        (!isSecretSF ? p.id !== room.sfId : true) &&
+        p.id !== room.sfId &&
         p.id !== player.id &&
         p.id !== room.mortisyen
       );
@@ -1929,16 +1928,18 @@ function handleNightEnd(code) {
       if (isTargetKilled) {
         survType = 'warning';
         const framedId = actions.sf_frame;
-        const actualKillerId = framedId || (isSecretSF ? room.sfId : (room.kuklaId || room.sfId));
-        const killerPlayer = getPlayer(room, actualKillerId);
-        const killerName = killerPlayer?.name || 'Biri';
+        // Killer must be the Kukla (or framed innocent), NEVER Mr. Schadenfreude!
+        const kuklaPlayer = room.kuklaId ? getPlayer(room, room.kuklaId) : null;
+        const framedPlayer = (framedId && framedId !== room.sfId) ? getPlayer(room, framedId) : null;
+        const actualKiller = (framedPlayer && framedPlayer.alive) ? framedPlayer : (kuklaPlayer && kuklaPlayer.alive && kuklaPlayer.id !== room.sfId ? kuklaPlayer : null);
+        const killerName = actualKiller?.name || (kuklaPlayer?.name || 'Kukla');
 
-        const decoys = room.players.filter(p => p.alive && p.id !== mortTarget.id && p.id !== room.mortisyen && p.id !== actualKillerId);
+        const decoys = room.players.filter(p => p.alive && p.id !== mortTarget.id && p.id !== room.mortisyen && p.id !== actualKiller?.id && p.id !== room.sfId);
         let decoyName = 'Biri';
         if (decoys.length > 0) {
           decoyName = decoys[Math.floor(Math.random() * decoys.length)].name;
         } else {
-          const anyOther = room.players.filter(p => p.id !== mortTarget.id && p.id !== actualKillerId);
+          const anyOther = room.players.filter(p => p.id !== mortTarget.id && p.id !== actualKiller?.id && p.id !== room.sfId);
           decoyName = anyOther.length > 0 ? anyOther[0].name : 'Gölge';
         }
 
@@ -3216,7 +3217,7 @@ io.on('connection', (socket) => {
     if (!room || room.phase !== PHASES.NIGHT || player?.role !== ROLES.MORTISYEN || !player.alive) return;
 
     room.nightActions.mortisyen_mode = mode || 'forensics';
-    if (mode === 'surveillance' && targetId) {
+    if (mode === 'surveillance' && targetId && targetId !== socket.id && targetId !== room.sfId) {
       room.nightActions.mortisyen_target = targetId;
     } else {
       delete room.nightActions.mortisyen_target;
