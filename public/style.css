@@ -255,6 +255,12 @@ body.phase-ended .global-floating-bar {
   transform: scale(1);
 }
 
+/* Screen top spacing so global floating bar never overlaps content on desktop */
+#screen-landing,
+#screen-lobby {
+  padding-top: 4.5rem;
+}
+
 /* ─── ORNATE GOTHIC CARD ─── */
 .card {
   background: var(--bg-glass-card);
@@ -813,7 +819,7 @@ select option {
   width: 100%;
   max-width: 960px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0.5rem 1rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
