@@ -671,143 +671,6 @@ function getMaxSFFrames(playerCount) {
 }
 
 // ─────────────────────────────────────────────
-// NAME MODERATION & FILTERING
-// ─────────────────────────────────────────────
-const BANNED_NAME_PATTERNS = [
-  // Racial / ethnic / hate slurs
-  /n+i+g+g+(?:e|a|u|i|o|r|3)+/i,
-  /\bn+i+g+g+(?:a|er|az|ah)?\b/i,
-  /n+e+g+r+o+/i,
-  /n+e+g+e+r+/i,
-  /\bz+e+n+c+i+\b/i,
-  /\bk+i+k+e+s?\b/i,
-  /\bc+h+i+n+k+s?\b/i,
-  /\bg+o+o+k+s?\b/i,
-  /\bs+p+i+c+s?\b/i,
-  /\bw+e+t+b+a+c+k+s?\b/i,
-  /\bf+a+g+g?o?t?s?\b/i,
-  /\bt+r+a+n+n+y+\b/i,
-  /\bi+b+n+e+\b/i,
-  /\bp+u+s+t+\b/i,
-
-  // Nazi / Hate ideology / Genocide
-  /h+i+t+l+e+r+/i,
-  /n+a+z+i+/i,
-  /s+w+a+s+t+i+k+a+/i,
-  /g+e+s+t+a+p+o+/i,
-  /\bkkk\b/i,
-  /k+u+k+l+u+x+k+l+a+n+/i,
-  /w+h+i+t+e+p+o+w+e+r+/i,
-  /a+u+s+c+h+w+i+t+z+/i,
-  /h+o+l+o+c+a+u+s+t+/i,
-
-  // Terrorist organizations / militant extremism
-  /p+k+k+/i,
-  /y+p+g+/i,
-  /f+e+t+o+/i,
-  /i+s+i+s+/i,
-  /d+a+e+s+h+/i,
-  /a+l+q+a+e+d+a+/i,
-  /e+l+k+a+i+d+e+/i,
-  /b+o+k+o+h+a+r+a+m+/i,
-  /h+e+z+b+o+l+l+a+h+/i,
-
-  // Sensitive / provocative political figures & leaders
-  /e+r+d+o+g+a+n+/i,
-  /t+a+y+y+i+p+/i,
-  /\brte\b/i,
-  /k+i+l+i+c+d+a+r+o+g+l+u+/i,
-  /i+m+a+m+o+g+l+u+/i,
-  /b+a+h+c+e+l+i+/i,
-  /o+c+a+l+a+n+/i,
-  /\bapo\b/i,
-  /a+t+a+t+u+r+k+/i,
-  /p+u+t+i+n+/i,
-  /s+t+a+l+i+n+/i,
-  /m+u+s+s+o+l+i+n+i+/i,
-
-  // Hate slurs targeting communities in Turkish
-  /e+r+m+e+n+i+d+o+l/i,
-  /y+a+h+u+d+i+d+o+l/i,
-  /r+u+m+t+o+h+u+m/i,
-  /k+u+r+d+o+/i,
-  /a+r+a+p+p+i+c/i,
-  /t+e+r+o+r+i+s+t+/i,
-
-  // Severe profanity / obscenity
-  /o+r+o+s+p+u+/i,
-  /\bp+i+c+\b/i,
-  /s+i+k+i+k+/i,
-  /a+m+c+i+k+/i,
-  /y+a+r+r+a+k+/i,
-  /t+a+s+s+a+k+/i,
-  /\ba+m+k+\b/i,
-  /\ba+q+\b/i
-];
-
-function isNameInappropriate(name) {
-  if (!name) return false;
-  let str = String(name).toLowerCase();
-
-  // 1. Homoglyphs & Turkish character normalization
-  const homoglyphs = {
-    'а': 'a', 'е': 'e', 'о': 'o', 'р': 'p', 'с': 'c', 'у': 'y', 'х': 'x', 'і': 'i', 'ј': 'j', 'ѕ': 's',
-    'α': 'a', 'β': 'b', 'ε': 'e', 'ι': 'i', 'κ': 'k', 'ο': 'o', 'ρ': 'p', 'τ': 't', 'υ': 'u',
-    'ı': 'i', 'i': 'i', 'ğ': 'g', 'ü': 'u', 'ş': 's', 'ö': 'o', 'ç': 'c'
-  };
-  str = str.replace(/[аеорсухіјѕαβεικορτυığüşöç]/g, ch => homoglyphs[ch] || ch);
-
-  // 2. Normalize accents
-  str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
-  // 3. Leetspeak substitutions
-  const leet = {
-    '0': 'o', '1': 'i', '!': 'i', '|': 'i', '3': 'e', '4': 'a', '@': 'a',
-    '5': 's', '$': 's', '7': 't', '+': 't', '8': 'b', '9': 'g'
-  };
-  const leetStr = str.replace(/[01!|34@5$7+89]/g, ch => leet[ch] || ch);
-
-  const targets = [
-    str,
-    str.replace(/[^a-z0-9]/g, ''),
-    leetStr.replace(/[^a-z0-9]/g, ''),
-    leetStr.replace(/[^a-z0-9]+/g, ' ').trim(),
-    leetStr.replace(/[^a-z0-9]/g, '').replace(/(.)\1+/g, '$1')
-  ];
-
-  for (const pattern of BANNED_NAME_PATTERNS) {
-    for (const target of targets) {
-      if (pattern.test(target)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-function validatePlayerName(rawName) {
-  const cleanName = String(rawName || '')
-    .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200D\uFEFF]/g, '')
-    .trim()
-    .slice(0, 24);
-
-  if (!cleanName || cleanName.length < 2) {
-    return { valid: false, key: 'err_name_min_chars', message: 'Name must be at least 2 characters.' };
-  }
-
-  if (isNameInappropriate(cleanName)) {
-    return {
-      valid: false,
-      key: 'err_inappropriate_name',
-      message: 'This name is not allowed as it contains hate speech, offensive or restricted terms.'
-    };
-  }
-
-  return { valid: true, cleanName };
-}
-
-// ─────────────────────────────────────────────
 // GAME STATE & ROOMS
 // ─────────────────────────────────────────────
 
@@ -2832,11 +2695,13 @@ io.on('connection', (socket) => {
       return socket.emit('error', { key: 'err_rate_limit_create', message: (language === 'tr' ? 'Lütfen yeni lobi kurmadan önce 30 saniye bekleyin.' : 'Too many rooms created. Please wait 30 seconds.') });
     }
 
-    const validation = validatePlayerName(name);
-    if (!validation.valid) {
-      return socket.emit('error', { key: validation.key, message: validation.message });
+    const cleanName = String(name || '')
+      .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200D\uFEFF]/g, '')
+      .trim()
+      .slice(0, 24);
+    if (!cleanName || cleanName.length < 2) {
+      return socket.emit('error', { key: 'err_name_min_chars', message: (language === 'tr' ? 'İsim en az 2 karakter olmalıdır.' : 'Name must be at least 2 characters.') });
     }
-    const cleanName = validation.cleanName;
 
     try {
       const { code, hostToken } = createRoom(socket.id, cleanName, language);
@@ -2856,16 +2721,14 @@ io.on('connection', (socket) => {
     if (cleanCode && !cleanCode.startsWith('SCH-') && cleanCode.length <= 5) {
       cleanCode = 'SCH-' + cleanCode;
     }
+    const cleanName = String(name || '')
+      .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200D\uFEFF]/g, '')
+      .trim()
+      .slice(0, 24);
 
-    if (!cleanCode) {
-      return socket.emit('error', { key: 'err_invalid_join', message: 'Geçerli bir oda kodu giriniz.' });
+    if (!cleanCode || !cleanName || cleanName.length < 2) {
+      return socket.emit('error', { key: 'err_invalid_join', message: 'Geçerli bir oda kodu ve en az 2 karakterli isim giriniz.' });
     }
-
-    const validation = validatePlayerName(name);
-    if (!validation.valid) {
-      return socket.emit('error', { key: validation.key, message: validation.message });
-    }
-    const cleanName = validation.cleanName;
 
     const room = rooms[cleanCode];
     if (!room) return socket.emit('error', { key: 'err_room_not_found', message: room?.language === 'tr' ? 'Oda bulunamadı.' : 'Room not found.' });
