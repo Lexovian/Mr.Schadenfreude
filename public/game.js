@@ -260,6 +260,7 @@ function leaveToLanding() {
     socket.emit('room:leave');
   }
   state.roomCode = null;
+  state.myName = null;
   state.isHost = false;
   state.gameState = null;
   state.privateState = null;
@@ -276,6 +277,9 @@ function leaveToLanding() {
   if (landingErr) landingErr.textContent = '';
   
   showScreen('landing', false);
+  if (window.location.hash !== '#landing' && window.location.hash !== '') {
+    history.replaceState({ screen: 'landing' }, '', '#landing');
+  }
 }
 
 function playAgain() {
@@ -562,6 +566,19 @@ socket.on('error', ({ message, key }) => {
 });
 
 socket.on('game:state', (gs) => {
+  // If player explicitly left the room, completely ignore room state broadcasts
+  if (!state.roomCode) {
+    showScreen('landing', false);
+    return;
+  }
+
+  // If player is no longer in this room's roster during lobby, return to landing
+  const inRoom = gs.players && gs.players.some(p => p.id === socket.id || p.name === state.myName);
+  if (!inRoom && gs.phase === 'lobby') {
+    leaveToLanding();
+    return;
+  }
+
   state.gameState = gs;
   // Automatically sync isHost based on current server state
   state.isHost = (gs.host === socket.id);

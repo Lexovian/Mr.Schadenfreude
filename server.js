@@ -2853,9 +2853,9 @@ io.on('connection', (socket) => {
     const code = socket.data.roomCode;
     const room = rooms[code];
     if (room) {
-      handlePlayerLeave(room, socket.id);
       socket.leave(code);
       socket.data.roomCode = null;
+      handlePlayerLeave(room, socket.id);
     }
   });
 
