@@ -1542,12 +1542,22 @@ function botDayChat(code) {
           es: `El Santo Tarot susurró que "${latestTarot.targetName}" se movía en las sombras anoche...`,
           fr: `Le Saint Tarot a murmuré que "${latestTarot.targetName}" s'agitait dans l'ombre la nuit dernière...`,
         };
+        const rahibeTitles = {
+          tr: `🃏 ${rahibeBot.name} (Rahibe)`,
+          en: `🃏 ${rahibeBot.name} (Priest)`,
+          ja: `🃏 ${rahibeBot.name} (司祭)`,
+          de: `🃏 ${rahibeBot.name} (Nonne)`,
+          es: `🃏 ${rahibeBot.name} (Monja)`,
+          fr: `🃏 ${rahibeBot.name} (Prêtre)`,
+        };
         const phrase = tarotPhrases[lang] || tarotPhrases.tr;
         const msg = {
-          name: rahibeBot.name,
+          name: rahibeTitles[lang] || rahibeTitles.en,
+          nameTranslations: rahibeTitles,
           message: phrase,
           translations: tarotPhrases,
           isBot: true,
+          isRahibe: true,
           time: Date.now(),
         };
         r.chat.push(msg);

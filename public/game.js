@@ -1858,7 +1858,8 @@ function renderChatMessages() {
     const senderName = typeof BotTranslator !== 'undefined' ? BotTranslator.translateSender(msg, currentL) : (msg.nameTranslations?.[currentL] || msg.name);
     const text = typeof BotTranslator !== 'undefined' ? BotTranslator.translateMessage(msg, currentL) : (msg.translations?.[currentL] || msg.message);
     const isSys = msg.isSystem ? ' is-system' : '';
-    return `<div class="chat-msg${isSys}"><span class="chat-name">${escHtml(senderName)}:</span><span class="chat-text">${escHtml(text)}</span></div>`;
+    const isRahibe = msg.isRahibe ? ' is-rahibe' : '';
+    return `<div class="chat-msg${isSys}${isRahibe}"><span class="chat-name">${escHtml(senderName)}:</span><span class="chat-text">${escHtml(text)}</span></div>`;
   }).join('');
   el.scrollTop = el.scrollHeight;
 }
@@ -1870,8 +1871,9 @@ function appendChatMsg(msg) {
   const senderName = typeof BotTranslator !== 'undefined' ? BotTranslator.translateSender(msg, currentL) : (msg.nameTranslations?.[currentL] || msg.name);
   const text = typeof BotTranslator !== 'undefined' ? BotTranslator.translateMessage(msg, currentL) : (msg.translations?.[currentL] || msg.message);
   const isSys = msg.isSystem ? ' is-system' : '';
+  const isRahibe = msg.isRahibe ? ' is-rahibe' : '';
   const div = document.createElement('div');
-  div.className = `chat-msg${isSys}`;
+  div.className = `chat-msg${isSys}${isRahibe}`;
   div.innerHTML = `<span class="chat-name">${escHtml(senderName)}:</span><span class="chat-text">${escHtml(text)}</span>`;
   el.appendChild(div);
   el.scrollTop = el.scrollHeight;
