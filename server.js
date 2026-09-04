@@ -700,8 +700,9 @@ function createRoom(hostId, hostName, language) {
       debugRole: 'auto',        // Test için rol seçimi ('auto' | 'sf' | 'kukla' | 'mortisyen' | ...)
     },
   };
-  addPlayer(code, hostId, hostName);
-  return code;
+  const hostToken = uuidv4();
+  addPlayer(code, hostId, hostName, hostToken);
+  return { code, hostToken };
 }
 
 function handlePlayerLeave(room, socketId) {
@@ -749,14 +750,24 @@ function generateRoomCode() {
   return code;
 }
 
-function addPlayer(code, socketId, name) {
+function addPlayer(code, socketId, name, playerToken) {
   const room = rooms[code];
-  if (!room) return false;
-  const existing = room.players.find(p => p.name === name);
+  if (!room) return null;
+  const existing = room.players.find(p => p.name.toLowerCase() === name.toLowerCase());
   if (existing) {
+    // 1) Eğer oyuncu şu anda aktif ve bağlıysa, kimliğin gasp edilmesini engelle
+    if (!existing.disconnected) {
+      return { error: 'already_connected' };
+    }
+    // 2) Eğer oyuncu kopmuşsa ve token varsa, token uyuşmazlığı kontrolü
+    if (existing.token && playerToken && existing.token !== playerToken) {
+      return { error: 'invalid_token' };
+    }
+
     const oldId = existing.id;
     existing.id = socketId;
     existing.disconnected = false;
+    if (!existing.token) existing.token = playerToken || uuidv4();
 
     // Rol ve Host ID referanslarını yeni soketle senkronize et
     if (room.host === oldId) room.host = socketId;
@@ -779,18 +790,22 @@ function addPlayer(code, socketId, name) {
       room.readyPlayers[socketId] = room.readyPlayers[oldId];
       delete room.readyPlayers[oldId];
     }
-    return true;
+    return { success: true, player: existing, isReconnect: true };
   }
-  room.players.push({
+
+  const newToken = playerToken || uuidv4();
+  const newPlayer = {
     id: socketId,
     name,
+    token: newToken,
     role: null,
     alive: true,
     disconnected: false,
     deathRound: null,
     deathCause: null,
-  });
-  return true;
+  };
+  room.players.push(newPlayer);
+  return { success: true, player: newPlayer, isReconnect: false };
 }
 
 function getPlayer(room, id) {
@@ -2622,11 +2637,11 @@ io.on('connection', (socket) => {
     }
 
     try {
-      const code = createRoom(socket.id, cleanName, language);
+      const { code, hostToken } = createRoom(socket.id, cleanName, language);
       socket.join(code);
       socket.data.roomCode = code;
       socket.data.name = cleanName;
-      socket.emit('room:created', { code });
+      socket.emit('room:created', { code, playerToken: hostToken });
       broadcastState(code);
     } catch (err) {
       socket.emit('error', { message: err.message });
@@ -2634,7 +2649,7 @@ io.on('connection', (socket) => {
   });
 
   // Join room (Sanitized & validated)
-  socket.on('room:join', ({ code, name }) => {
+  socket.on('room:join', ({ code, name, token }) => {
     const cleanCode = String(code || '').trim().toUpperCase().slice(0, 12);
     const cleanName = String(name || '')
       .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200D\uFEFF]/g, '')
@@ -2650,18 +2665,44 @@ io.on('connection', (socket) => {
     if (room.bannedNames && room.bannedNames.includes(cleanName.toLowerCase())) {
       return socket.emit('error', { message: room.language === 'tr' ? 'Bu lobiden yasaklandınız.' : 'You have been banned from this lobby.' });
     }
-    if (room.phase !== PHASES.LOBBY && !room.players.find(p => p.name === cleanName)) {
+
+    const existing = room.players.find(p => p.name.toLowerCase() === cleanName.toLowerCase());
+
+    // 1) LOBİDE: Aynı isimde başka biri varsa asla izin verme
+    if (room.phase === PHASES.LOBBY && existing) {
+      return socket.emit('error', {
+        message: room.language === 'tr' ? 'Bu isim zaten lobide kullanılıyor.' : 'This name is already taken in this lobby.'
+      });
+    }
+
+    // 2) OYUN SIRASINDA: Oyuncu listede yoksa oyun başladı katılamazsın
+    if (room.phase !== PHASES.LOBBY && !existing) {
       return socket.emit('error', { message: room.language === 'tr' ? 'Oyun başladı, katılamazsın.' : 'Game already started.' });
     }
-    if (room.players.length >= 15 && !room.players.find(p => p.name === cleanName)) {
+
+    // 3) OYUN SIRASINDA: Oyuncu zaten bağlı ve aktifse başka biri bu isimle giremez
+    if (room.phase !== PHASES.LOBBY && existing && !existing.disconnected) {
+      return socket.emit('error', {
+        message: room.language === 'tr' ? 'Bu oyuncu şu anda oyunda aktif ve bağlı.' : 'This player is currently active in the game.'
+      });
+    }
+
+    if (room.players.length >= 15 && !existing) {
       return socket.emit('error', { message: room.language === 'tr' ? 'Oda dolu.' : 'Room is full.' });
     }
 
-    addPlayer(cleanCode, socket.id, cleanName);
+    const result = addPlayer(cleanCode, socket.id, cleanName, token);
+    if (!result || result.error) {
+      const errMsg = result?.error === 'invalid_token'
+        ? (room.language === 'tr' ? 'Yetkisiz erişim: Oturum anahtarı uyuşmuyor.' : 'Unauthorized: Session token mismatch.')
+        : (room.language === 'tr' ? 'Bu oyuncu şu anda bağlı.' : 'Player already connected.');
+      return socket.emit('error', { message: errMsg });
+    }
+
     socket.join(cleanCode);
     socket.data.roomCode = cleanCode;
     socket.data.name = cleanName;
-    socket.emit('room:joined', { code: cleanCode });
+    socket.emit('room:joined', { code: cleanCode, playerToken: result.player?.token });
     if (room.phase !== PHASES.LOBBY) {
       socket.emit('game:role', buildPrivateState(room, socket.id));
     }

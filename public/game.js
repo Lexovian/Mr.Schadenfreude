@@ -420,17 +420,18 @@ function joinRoom() {
     setTimeout(() => btn.classList.remove('btn-loading'), 4000);
   }
 
+  const savedToken = localStorage.getItem('msf_token_' + code) || null;
   if (!socket.connected) {
     showServerConnectingBanner(t('server_waking_up'));
     showToast(t('server_waking_up'), 'info');
     pendingActionAfterConnect = () => {
-      socket.emit('room:join', { name, code });
+      socket.emit('room:join', { name, code, token: savedToken });
     };
     socket.connect();
     return;
   }
 
-  socket.emit('room:join', { name, code });
+  socket.emit('room:join', { name, code, token: savedToken });
 }
 
 function showError(id, msg) {
@@ -520,7 +521,10 @@ function switchMobileView(viewName) {
 }
 
 // ─── SOCKET EVENTS ───
-socket.on('room:created', ({ code }) => {
+socket.on('room:created', ({ code, playerToken }) => {
+  if (playerToken) {
+    try { localStorage.setItem('msf_token_' + code, playerToken); } catch (e) {}
+  }
   document.getElementById('btn-create')?.classList.remove('btn-loading');
   document.getElementById('btn-join')?.classList.remove('btn-loading');
   state.roomCode = code;
@@ -531,7 +535,10 @@ socket.on('room:created', ({ code }) => {
   showScreen('lobby');
 });
 
-socket.on('room:joined', ({ code }) => {
+socket.on('room:joined', ({ code, playerToken }) => {
+  if (playerToken) {
+    try { localStorage.setItem('msf_token_' + code, playerToken); } catch (e) {}
+  }
   document.getElementById('btn-create')?.classList.remove('btn-loading');
   document.getElementById('btn-join')?.classList.remove('btn-loading');
   state.roomCode = code;
