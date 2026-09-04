@@ -530,12 +530,21 @@ function generateMortisianClue(room, player, isDeep = true) {
     const focalPlayer = (framedPlayer && framedPlayer.alive) ? framedPlayer : (kuklaPlayer && kuklaPlayer.alive && kuklaPlayer.id !== room.sfId ? kuklaPlayer : null);
 
     if (focalPlayer) {
-      const distractors = alive.filter(p =>
+      let distractors = alive.filter(p =>
         p.id !== focalPlayer.id &&
         p.id !== room.sfId &&
         p.id !== player.id &&
-        p.id !== room.mortisyen
+        p.id !== room.mortisyen &&
+        (framedPlayer ? p.id !== room.kuklaId : true)
       );
+      if (distractors.length < 2 && framedPlayer) {
+        distractors = alive.filter(p =>
+          p.id !== focalPlayer.id &&
+          p.id !== room.sfId &&
+          p.id !== player.id &&
+          p.id !== room.mortisyen
+        );
+      }
       shuffle(distractors);
 
       const chosenDistractors = distractors.slice(0, 2);
@@ -551,11 +560,10 @@ function generateMortisianClue(room, player, isDeep = true) {
       const itemES = ROLE_ARCHETYPE_ITEMS.es[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.es.koylu[0];
       const itemFR = ROLE_ARCHETYPE_ITEMS.fr[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.fr.koylu[0];
 
-      // Behavioral trace of the killer only based on voting behavior in trial
+      // Behavioral trace of the focal player only based on voting behavior in trial
       const behTranslations = generateVotingBehaviorTrace(room, focalPlayer);
 
       const suspectsJoined = triad.join(', ');
-      const isFramed = !!framedPlayer;
 
       translations.tr = `🔍 Olay yerinde bulunan delil: "${itemTR}"! Bu ize uyan şüpheliler: ${suspectsJoined}.`;
       translations.en = `🔍 Evidence found at the crime scene: "${itemEN}"! Matching suspects: ${suspectsJoined}.`;
@@ -564,12 +572,12 @@ function generateMortisianClue(room, player, isDeep = true) {
       translations.es = `🔍 ¡Evidencia hallada en la escena: "${itemES}"! Sospechosos coincidentes: ${suspectsJoined}.`;
       translations.fr = `🔍 Indice retrouvé sur les lieux : "${itemFR}" ! Suspects correspondants : ${suspectsJoined}.`;
 
-      fabricTranslations.tr = `${itemTR} (${isFramed ? 'Olay Yerine Bırakılan Eşya' : 'Kişisel Zanaat & Rol İzi'})`;
-      fabricTranslations.en = `${itemEN} (${isFramed ? 'Planted Item' : 'Role & Craft Trace'})`;
-      fabricTranslations.ja = `${itemJA} (${isFramed ? '残された遺留品' : '役職の痕跡'})`;
-      fabricTranslations.de = `${itemDE} (${isFramed ? 'Platzierter Gegenstand' : 'Rollen-Spur'})`;
-      fabricTranslations.es = `${itemES} (${isFramed ? 'Objeto Plantado' : 'Rastro de Rol'})`;
-      fabricTranslations.fr = `${itemFR} (${isFramed ? 'Objet Déposé' : 'Trace de Rôle'})`;
+      fabricTranslations.tr = `${itemTR} (Olay Yeri & Rol İzi)`;
+      fabricTranslations.en = `${itemEN} (Crime Scene & Role Trace)`;
+      fabricTranslations.ja = `${itemJA} (現場遺留品・役職の痕跡)`;
+      fabricTranslations.de = `${itemDE} (Tatort & Rollen-Spur)`;
+      fabricTranslations.es = `${itemES} (Escena & Rastro de Rol)`;
+      fabricTranslations.fr = `${itemFR} (Scène de Crime & Trace de Rôle)`;
 
       behaviorTranslations.tr = behTranslations.tr;
       behaviorTranslations.en = behTranslations.en;
@@ -1934,7 +1942,23 @@ function handleNightEnd(code) {
         const actualKiller = (framedPlayer && framedPlayer.alive) ? framedPlayer : (kuklaPlayer && kuklaPlayer.alive && kuklaPlayer.id !== room.sfId ? kuklaPlayer : null);
         const killerName = actualKiller?.name || (kuklaPlayer?.name || 'Kukla');
 
-        const decoys = room.players.filter(p => p.alive && p.id !== mortTarget.id && p.id !== room.mortisyen && p.id !== actualKiller?.id && p.id !== room.sfId);
+        let decoys = room.players.filter(p =>
+          p.alive &&
+          p.id !== mortTarget.id &&
+          p.id !== room.mortisyen &&
+          p.id !== actualKiller?.id &&
+          p.id !== room.sfId &&
+          (framedPlayer ? p.id !== room.kuklaId : true)
+        );
+        if (decoys.length === 0 && framedPlayer) {
+          decoys = room.players.filter(p =>
+            p.alive &&
+            p.id !== mortTarget.id &&
+            p.id !== room.mortisyen &&
+            p.id !== actualKiller?.id &&
+            p.id !== room.sfId
+          );
+        }
         let decoyName = 'Biri';
         if (decoys.length > 0) {
           decoyName = decoys[Math.floor(Math.random() * decoys.length)].name;

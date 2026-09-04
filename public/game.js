@@ -1326,6 +1326,13 @@ function renderSFNightPanel(gs, priv, area) {
       document.querySelectorAll('#sf-target-list .target-card').forEach(x => x.classList.remove('selected'));
       li.classList.add('selected');
       state.sfTargetSelected = p.id;
+      // If kill target was selected as frame target, reset framing selection
+      if (state.sfFrameSelected === p.id) {
+        state.sfFrameSelected = null;
+        document.querySelectorAll('#sf-frame-list .target-card').forEach(x => x.classList.remove('selected'));
+        const liNone = document.querySelector('#sf-frame-list .frame-card');
+        if (liNone) liNone.classList.add('selected');
+      }
     };
     ulKill.appendChild(li);
   });
@@ -1374,6 +1381,10 @@ function renderSFNightPanel(gs, priv, area) {
     `;
     li.onclick = () => {
       if (typeof Sound !== 'undefined') Sound.playClick();
+      if (state.sfTargetSelected && state.sfTargetSelected === p.id) {
+        showToast(state.lang === 'tr' ? 'Kurbanın kendisine iftira atamazsınız, başka bir masum seçin.' : 'Cannot frame the victim, pick another innocent.', 'warning');
+        return;
+      }
       document.querySelectorAll('#sf-frame-list .target-card').forEach(x => x.classList.remove('selected'));
       li.classList.add('selected');
       state.sfFrameSelected = p.id;
