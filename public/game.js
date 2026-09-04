@@ -413,7 +413,10 @@ function createRoom() {
 function joinRoom() {
   if (typeof Sound !== 'undefined') Sound.playClick();
   const name = document.getElementById('join-name').value.trim();
-  const code = document.getElementById('join-code').value.trim().toUpperCase();
+  let code = document.getElementById('join-code').value.trim().toUpperCase();
+  if (code && !code.startsWith('SCH-') && code.length <= 5) {
+    code = 'SCH-' + code;
+  }
   if (!name) return showError('landing-error', t('error_name_required'));
   if (!code) return showError('landing-error', t('error_code_required'));
   state.myName = name;

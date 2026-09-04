@@ -745,7 +745,7 @@ function generateRoomCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code;
   do {
-    code = 'SCH-' + Array.from({ length: 3 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    code = 'SCH-' + Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   } while (rooms[code]);
   return code;
 }
@@ -2650,7 +2650,10 @@ io.on('connection', (socket) => {
 
   // Join room (Sanitized & validated)
   socket.on('room:join', ({ code, name, token }) => {
-    const cleanCode = String(code || '').trim().toUpperCase().slice(0, 12);
+    let cleanCode = String(code || '').trim().toUpperCase().slice(0, 12);
+    if (cleanCode && !cleanCode.startsWith('SCH-') && cleanCode.length <= 5) {
+      cleanCode = 'SCH-' + cleanCode;
+    }
     const cleanName = String(name || '')
       .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200D\uFEFF]/g, '')
       .trim()
