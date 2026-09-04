@@ -736,6 +736,7 @@ function handlePlayerLeave(room, socketId) {
   } else {
     // In active game: mark disconnected (60s grace period for rejoining)
     leavingPlayer.disconnected = true;
+    broadcastState(code);
   }
 }
 
@@ -2529,6 +2530,7 @@ function buildPublicState(room) {
       id: p.id,
       name: p.name,
       alive: p.alive,
+      disconnected: !!p.disconnected,
       // SF role is public only in puppetMaster mode; in secretKiller mode, revealed only on death/end
       role: (!p.alive || (!isSecretSF && p.id === room.sfId) || room.phase === PHASES.ENDED) ? p.role : null,
       isKukla: (!p.alive || room.phase === PHASES.ENDED) ? (!!p.isKukla || p.id === room.kuklaId || p.id === room.previousKuklaId || (room.kuklaHistory && room.kuklaHistory.includes(p.id))) : undefined,

@@ -1680,6 +1680,35 @@ select option {
   box-shadow: 0 0 8px rgba(255, 112, 67, 0.25);
 }
 
+.player-disconnected-badge {
+  font-family: var(--font-title);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffb74d;
+  background: rgba(230, 81, 0, 0.22);
+  border: 1px solid rgba(255, 152, 0, 0.45);
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  animation: pulse-disc-badge 2s infinite ease-in-out;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+@keyframes pulse-disc-badge {
+  0%, 100% { opacity: 0.95; box-shadow: 0 0 4px rgba(255, 152, 0, 0.2); }
+  50% { opacity: 0.55; box-shadow: 0 0 10px rgba(255, 152, 0, 0.45); }
+}
+
+.player-item-row.is-disconnected .player-name,
+.sf-list-item.is-disconnected .player-name {
+  opacity: 0.75;
+}
+
 .sf-list-badge {
   align-self: flex-start;
   background: rgba(183, 28, 28, 0.35);

@@ -1016,12 +1016,15 @@ function renderGamePlayers(players) {
   if (sfPlayer) {
     const dead = !sfPlayer.alive;
     const isMe = sfPlayer.name === state.myName;
+    const isDisc = !!sfPlayer.disconnected;
     const youLabel = isMe ? ` <em style="font-size:0.72rem;color:var(--gold-dim)">${t('you')}</em>` : '';
+    const discBadge = isDisc ? `<span class="player-disconnected-badge" title="${t('disconnected')}">⚡ ${t('disconnected')}</span>` : '';
     html += `
-      <li class="sf-list-item ${dead ? 'dead' : ''}${isMe ? ' is-me' : ''}">
+      <li class="sf-list-item ${dead ? 'dead' : ''}${isMe ? ' is-me' : ''}${isDisc ? ' is-disconnected' : ''}">
         <div class="player-main-row">
           <span class="player-status-dot ${dead ? 'dead' : 'sf-dot'}"></span>
           <span class="player-name">${escHtml(sfPlayer.name)}${youLabel}</span>
+          ${discBadge}
         </div>
         <div class="sf-list-badge">🎩 Mr. Schadenfreude</div>
       </li>
@@ -1031,7 +1034,9 @@ function renderGamePlayers(players) {
   html += others.map(p => {
     const isMe = p.name === state.myName;
     const dead = !p.alive;
+    const isDisc = !!p.disconnected;
     const youLabel = isMe ? ` <em style="font-size:0.72rem;color:var(--gold-dim)">${t('you')}</em>` : '';
+    const discBadge = isDisc ? `<span class="player-disconnected-badge" title="${t('disconnected')}">⚡ ${t('disconnected')}</span>` : '';
     let roleTag = '';
     if (dead && (p.role || p.isKukla)) {
       if (p.isKukla) {
@@ -1041,10 +1046,11 @@ function renderGamePlayers(players) {
         roleTag = `<div class="dead-role-badge">${roleLabel(p.role)}</div>`;
       }
     }
-    return `<li class="player-item-row ${dead ? 'dead' : 'alive'}${isMe ? ' is-me' : ''}">
+    return `<li class="player-item-row ${dead ? 'dead' : 'alive'}${isMe ? ' is-me' : ''}${isDisc ? ' is-disconnected' : ''}">
       <div class="player-main-row">
         <span class="player-status-dot ${dead ? 'dead' : ''}"></span>
         <span class="player-name">${escHtml(p.name)}${youLabel}</span>
+        ${discBadge}
       </div>
       ${roleTag}
     </li>`;
