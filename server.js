@@ -2174,7 +2174,20 @@ function handleKuklaDeathAfterKill(room, cause, announcements, lang) {
   }
   room.previousKuklaId = room.kuklaId;
   room.kuklaId = null; // Null out dead kukla slot
-  room.consecutiveInnocentLynches = 0; // Reset counter
+  const hadPickRight = (room.consecutiveInnocentLynches || 0) >= 2;
+  if (hadPickRight) {
+    const list = announcements || room.announcements || [];
+    list.push(makeAnnouncement('warning', {
+      tr: 'Kukla hayatını kaybetti — ancak dökülen masum kanları (2/2 Kaos) sayesinde Mr. Schadenfreude bu gece yeni bir kukla seçecek!',
+      en: 'The puppet has perished — but spilled innocent blood (2/2 Chaos) allows Mr. Schadenfreude to choose a new puppet tonight!',
+      ja: '人形は死亡した…しかし無実の血（2/2カオス）により、Mr.シャーデンフロイデは今夜新たな人形を選択する！',
+      de: 'Die Puppe ist gestorben — aber das vergossene unschuldige Blut (2/2 Chaos) erlaubt es Mr. Schadenfreude, heute Nacht eine neue Puppe zu wählen!',
+      es: 'La marioneta ha perecido, ¡pero la sangre inocente (2/2 Caos) le permite a Mr. Schadenfreude elegir una nueva marioneta esta noche!',
+      fr: 'La marionnette a péri — mais le sang innocent versé (2/2 Chaos) permet à Mr. Schadenfreude de choisir une nouvelle marionnette cette nuit !'
+    }));
+  } else {
+    room.consecutiveInnocentLynches = 0;
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -2209,7 +2222,7 @@ function startDawn(code) {
           }
 
           // If kukla died from curse
-          if (target.id === room.previousKuklaId || target.role === ROLES.KUKLA) {
+          if (target.id === room.kuklaId) {
             handleKuklaDeathAfterKill(room, 'madman_curse', room.announcements, lang);
             const win = checkWin(room);
             if (win) {
@@ -2934,10 +2947,12 @@ io.on('connection', (socket) => {
     // Update SF private state
     socket.emit('game:role', buildPrivateState(room, socket.id));
 
-    // If night0, end it early
+    // If night0, end it early; otherwise broadcast updated state to all players
     if (isNight0) {
       clearTimer(room);
       handleNight0End(code);
+    } else {
+      broadcastState(code);
     }
   });
 
