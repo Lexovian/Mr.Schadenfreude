@@ -2003,7 +2003,7 @@ function renderResult(gs) {
   const anns = gs.announcements || [];
   if (!anns.length) { el.innerHTML = ''; return; }
   el.innerHTML = anns.map(a => {
-    const text = typeof a === 'string' ? a : a.text;
+    const text = typeof a === 'string' ? a : (a.translations && a.translations[state.lang || 'tr']) || a.text || '';
     const type = typeof a === 'object' ? (a.type || 'info') : 'info';
     return `<div class="event-item ${type}" style="text-align:center">${escHtml(text)}</div>`;
   }).join('');

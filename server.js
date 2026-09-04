@@ -704,6 +704,8 @@ function createRoom(hostId, hostName, language) {
     timerEndsAt: null,
     sovalyeChallengesUsed: 0,
     sfFramesUsed: 0,
+    mortisyenSurveilled: false,
+    mortisyenLastPublishedClueId: null,
     bannedNames: [],
     settings: {
       gameMode: 'puppetMaster', // 'puppetMaster' | 'secretKiller'
@@ -910,6 +912,8 @@ function assignRoles(room) {
   room.firstLynchAnnounced = false;
   room.sovalyeChallengesUsed = 0;
   room.sfFramesUsed = 0;
+  room.mortisyenSurveilled = false;
+  room.mortisyenLastPublishedClueId = null;
   room.rahibeTarotAvailable = true;
   room.rahibeLastTarotRound = null;
   room.round = 0;
@@ -1360,15 +1364,18 @@ function botNightAction(code) {
       if (!r || r.phase !== PHASES.NIGHT) return;
       if (r.nightActions.mortisyen_mode) return;
 
+      const rahibeAlive = r.players.some(p => p.role === ROLES.RAHIBE && p.alive);
       const hasBodies = r.players.some(p => !p.alive);
-      if (!hasBodies || r.round === 1) {
-        // Round 1 or no dead: surveillance mode on highest suspicion player
+      // Mortisyen's core domain is corpse forensics/autopsy.
+      // Surveillance is only a fallback in Round 1 if no bodies exist, no living Rahibe (who handles night tracking), and haven't surveilled before.
+      if (!hasBodies && r.round === 1 && !rahibeAlive && !r.mortisyenSurveilled) {
         const candidates = r.players.filter(p => p.alive && p.id !== mortisyenPlayer.id && p.id !== r.sfId);
         if (candidates.length) {
           const sorted = [...candidates].sort((a, b) => getBotSuspicion(r, mortisyenPlayer, b) - getBotSuspicion(r, mortisyenPlayer, a));
           const target = sorted[0] || candidates[0];
           r.nightActions.mortisyen_mode = 'surveillance';
           r.nightActions.mortisyen_target = target.id;
+          r.mortisyenSurveilled = true;
         } else {
           r.nightActions.mortisyen_mode = 'forensics';
         }
@@ -1500,7 +1507,8 @@ function botDayChat(code) {
       const r = rooms[code];
       if (!r || r.phase !== PHASES.DAY) return;
       const latestClue = r.mortisyenClues[r.mortisyenClues.length - 1];
-      if (latestClue) {
+      if (latestClue && latestClue.id !== r.mortisyenLastPublishedClueId) {
+        r.mortisyenLastPublishedClueId = latestClue.id;
         const mortTitles = {
           tr: '⚰️ Mortisyen Gizli Raporu',
           en: '⚰️ Undertaker Confidential Report',
@@ -1534,6 +1542,14 @@ function botDayChat(code) {
       setTimeout(() => {
         const r = rooms[code];
         if (!r || r.phase !== PHASES.DAY) return;
+        const rahibeTitles = {
+          tr: `🃏 ${rahibeBot.name} (Rahibe)`,
+          en: `🃏 ${rahibeBot.name} (Priest)`,
+          ja: `🃏 ${rahibeBot.name} (司祭)`,
+          de: `🃏 ${rahibeBot.name} (Nonne)`,
+          es: `🃏 ${rahibeBot.name} (Monja)`,
+          fr: `🃏 ${rahibeBot.name} (Prêtre)`,
+        };
         const tarotPhrases = {
           tr: `Kutsal Tarot kartları dün gece "${latestTarot.targetName}" adlı köylünün karanlıkta hareket ettiğini fısıldadı...`,
           en: `The Holy Tarot cards whispered that "${latestTarot.targetName}" was moving in the shadows last night...`,
@@ -1544,7 +1560,8 @@ function botDayChat(code) {
         };
         const phrase = tarotPhrases[lang] || tarotPhrases.tr;
         const msg = {
-          name: rahibeBot.name,
+          name: rahibeTitles[lang] || rahibeTitles.en,
+          nameTranslations: rahibeTitles,
           message: phrase,
           translations: tarotPhrases,
           isBot: true,
@@ -1887,7 +1904,7 @@ function handleNightEnd(code) {
       de: 'Keine Schreie wurden heute Nacht gehört... Die dunkle Hand zog sich zurück.',
       es: 'No se escucharon gritos esta noche... La mano oscura retrocedió.',
       fr: 'Aucun cri n\'a été entendu cette nuit... La main sombre s\'est retirée.',
-    }));
+    }, lang));
   } else if (targetToKill) {
     const target = getPlayer(room, targetToKill);
     if (target && target.alive) {
@@ -1901,7 +1918,7 @@ function handleNightEnd(code) {
           de: 'Eine dunkle Hand streckte sich aus — aber jemand hielt sie auf.',
           es: 'Una mano oscura se extendió esta noche, pero alguien la bloqueó.',
           fr: 'Une main sombre s\'est tendue cette nuit — mais quelqu\'un l\'a arrêtée.',
-        }));
+        }, lang));
       } else {
         // Madman curse?
         if (target.role === ROLES.MADMAN) {
@@ -2151,7 +2168,7 @@ function killPlayer(room, player, cause, announcements, lang) {
       de: `Die Stimme der Nonne zitterte: "${player.name}" war ein ${roleLabel(player.role, 'de')}.`,
       es: `La voz de la Monja tembló: "${player.name}" era un ${roleLabel(player.role, 'es')}.`,
       fr: `La voix du Prêtre trembla : "${player.name}" était un ${roleLabel(player.role, 'fr')}.`,
-    }));
+    }, lang));
   } else {
     announcements.push(makeAnnouncement('death', {
       tr: `"${player.name}" bu gece hayatını kaybetti.`,
@@ -2160,7 +2177,7 @@ function killPlayer(room, player, cause, announcements, lang) {
       de: `"${player.name}" verlor diese Nacht ihr Leben.`,
       es: `"${player.name}" perdió la vida esta noche.`,
       fr: `"${player.name}" a perdu la vie cette nuit.`,
-    }));
+    }, lang));
   }
 
   // Mortisyen: private actionable clue (only if mortisyen is alive and not the victim)
@@ -2200,7 +2217,7 @@ function handleKuklaDeathAfterKill(room, cause, announcements, lang) {
       de: 'Die Puppe ist gestorben — aber das vergossene unschuldige Blut (2/2 Chaos) erlaubt es Mr. Schadenfreude, heute Nacht eine neue Puppe zu wählen!',
       es: 'La marioneta ha perecido, ¡pero la sangre inocente (2/2 Caos) le permite a Mr. Schadenfreude elegir una nueva marioneta esta noche!',
       fr: 'La marionnette a péri — mais le sang innocent versé (2/2 Chaos) permet à Mr. Schadenfreude de choisir une nouvelle marionnette cette nuit !'
-    }));
+    }, lang));
   } else {
     room.consecutiveInnocentLynches = 0;
   }
@@ -2228,7 +2245,7 @@ function startDawn(code) {
             de: `"${target.name}" erlebte den Morgen nicht. Der Fluch des Verrückten traf sie.`,
             es: `"${target.name}" no llegó a la mañana. La maldición del Demente los alcanzó.`,
             fr: `"${target.name}" n'a pas vu le matin. La malédiction du Fou les a frappés.`,
-          }));
+          }, lang));
 
           if (room.mortisyen) {
             const clueObj = generateMortisianClue(room, target);
@@ -2293,7 +2310,7 @@ function handleVoteEnd(code) {
       de: 'Das Volk konnte sich nicht entscheiden. Der Tag verging ohne Urteil.',
       es: 'El pueblo no pudo decidir. Este día pasó sin veredicto.',
       fr: 'Le peuple n\'a pas pu trancher. Cette journée s\'est achevée sans verdict.',
-    })];
+    }, lang)];
     startPhase(code, PHASES.RESULT);
     return;
   }
@@ -2320,7 +2337,7 @@ function handleVoteEnd(code) {
         de: `🎭 "${lynched.name}" wurde hingerichtet! Sie waren Mr. Schadenfreude! Dorfbewohner gewinnen!`,
         es: `🎭 ¡"${lynched.name}" fue ejecutado! ¡Era el Mr. Schadenfreude secreto! ¡Los aldeanos ganan!`,
         fr: `🎭 "${lynched.name}" a été exécuté ! C'était Mr. Schadenfreude ! Les villageois gagnent !`,
-      })];
+      }, lang)];
       endGame(code, 'villagers', lang === 'tr'
         ? 'Mr. Schadenfreude halk tarafından asıldı. Köylüler kazandı!'
         : 'Mr. Schadenfreude was executed by the people. Villagers win!');
@@ -2334,7 +2351,7 @@ function handleVoteEnd(code) {
         de: `Das Volk versuchte ${lynched.name} hinzurichten — aber sie konnten ihn nicht berühren. Er lachte.`,
         es: `El pueblo intentó ejecutar a ${lynched.name} — pero no pudieron tocarlo. Se rió.`,
         fr: `Le peuple a tenté d'exécuter ${lynched.name} — mais nul n'a pu le toucher. Il a ri.`,
-      })];
+      }, lang)];
       startPhase(code, PHASES.RESULT);
       return;
     }
@@ -2361,7 +2378,7 @@ function handleVoteEnd(code) {
       de: `Die Stimme der Nonne zitterte: "${lynched.name}" war ein ${isKukla ? `${roleLabel(ROLES.KUKLA, 'de')} (${roleLabel(lynched.role, 'de')})` : roleLabel(lynched.role, 'de')}.`,
       es: `La voz de la Monja tembló: "${lynched.name}" era un ${isKukla ? `${roleLabel(ROLES.KUKLA, 'es')} (${roleLabel(lynched.role, 'es')})` : roleLabel(lynched.role, 'es')}.`,
       fr: `La voix du Prêtre trembla : "${lynched.name}" était un ${isKukla ? `${roleLabel(ROLES.KUKLA, 'fr')} (${roleLabel(lynched.role, 'fr')})` : roleLabel(lynched.role, 'fr')}.`,
-    }));
+    }, lang));
   } else {
     announcements.push(makeAnnouncement(isKukla ? 'kukla_death' : 'lynch', {
       tr: isKukla
@@ -2382,7 +2399,7 @@ function handleVoteEnd(code) {
       fr: isKukla
         ? `🎭 "${lynched.name}" a été exécuté ! Rôle secret : ${roleLabel(ROLES.KUKLA, 'fr')} (${roleLabel(lynched.role, 'fr')}) !`
         : `"${lynched.name}" a été exécuté par le peuple. Rôle : ${roleLabel(lynched.role, 'fr')}.`,
-    }));
+    }, lang));
   }
 
   // Mortisyen clue (only if mortisyen is alive and not the victim)
@@ -2501,6 +2518,9 @@ function resetRoomToLobby(room) {
   room.voteHistory = [];
   room.mortisyenClueHistory = [];
   room.sovalyeChallengesUsed = 0;
+  room.sfFramesUsed = 0;
+  room.mortisyenSurveilled = false;
+  room.mortisyenLastPublishedClueId = null;
   room.readyPlayers = {};
 
   // Reset all players to alive and unassigned
@@ -2532,10 +2552,10 @@ function resetRoomToLobby(room) {
 // ─────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────
-function makeAnnouncement(type, texts) {
+function makeAnnouncement(type, texts, lang = 'en') {
   return {
     type: type || 'info',
-    text: texts.tr || texts.en || '',
+    text: texts[lang] || texts.en || texts.tr || '',
     translations: {
       tr: texts.tr || '',
       en: texts.en || texts.tr || '',
