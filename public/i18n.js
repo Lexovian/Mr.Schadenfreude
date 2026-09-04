@@ -267,6 +267,8 @@ const I18N = (function () {
       sf_frame_title: '🪶 Olay Yeri Şüphe İzi / Masumun Eşyası',
       sf_frame_desc: 'Olay yerine masum birinin kişisel eşyasını (şal, toka, gerdanlık vb.) bırakarak Mortisyen\'i yanılt:',
       sf_no_frame: '🚫 Doğal İz (Kuklanın Eşyası)',
+      sf_frame_uses_left: 'Kalan Hak',
+      sf_frame_exhausted: 'Eşya bırakma hakkınız tükendi.',
       clue_trace_necklace: 'Olay Yeri Eşyası',
 
       // Results
@@ -570,6 +572,8 @@ const I18N = (function () {
       sf_frame_title: '🪶 Plant Suspicion / Frame with Personal Item',
       sf_frame_desc: 'Plant an innocent\'s personal item (shawl, hairpin, necklace, etc.) at the scene to mislead the Undertaker:',
       sf_no_frame: '🚫 Natural Trace (Puppet\'s Item)',
+      sf_frame_uses_left: 'Charges Left',
+      sf_frame_exhausted: 'No evidence planting charges left.',
       clue_trace_necklace: 'Scene Evidence',
 
       // Results
@@ -817,6 +821,8 @@ const I18N = (function () {
       sf_frame_title: '📿 偽りの証拠 (首飾り)',
       sf_frame_desc: '現場に無実の者の首飾りを残し、葬儀屋を欺く:',
       sf_no_frame: '🚫 証拠を残さない',
+      sf_frame_uses_left: '残り回数',
+      sf_frame_exhausted: '偽証拠を残す回数が残っていません。',
       clue_trace_necklace: '首飾り / 偽証拠',
 
       // Ready system
@@ -1106,6 +1112,8 @@ const I18N = (function () {
       sf_frame_title: '📿 Falsche Beweise (Halskette)',
       sf_frame_desc: 'Platziere die Halskette eines Unschuldigen am Tatort:',
       sf_no_frame: '🚫 Keine Beweise',
+      sf_frame_uses_left: 'Verbleibende Versuche',
+      sf_frame_exhausted: 'Keine Beweisversuche mehr übrig.',
       clue_trace_necklace: 'Halskette / Beweis',
 
       // Ready system
@@ -1395,6 +1403,8 @@ const I18N = (function () {
       sf_frame_title: '📿 Evidencia Falsa (Collar)',
       sf_frame_desc: 'Deja el collar de un inocente en la escena para engañar al Sepulturero:',
       sf_no_frame: '🚫 No plantar evidencia',
+      sf_frame_uses_left: 'Usos restantes',
+      sf_frame_exhausted: 'No te quedan usos de evidencia falsa.',
       clue_trace_necklace: 'Collar / Evidencia Falsa',
 
       // Ready system
@@ -1684,6 +1694,8 @@ const I18N = (function () {
       sf_frame_title: '📿 Fausse Preuve (Collier)',
       sf_frame_desc: 'Laissez le collier d\'un innocent sur les lieux pour tromper le Croque-mort :',
       sf_no_frame: '🚫 Ne laisser aucune preuve',
+      sf_frame_uses_left: 'Utilisations restantes',
+      sf_frame_exhausted: 'Aucune utilisation de fausse preuve restante.',
       clue_trace_necklace: 'Collier / Fausse Preuve',
 
       // Ready system

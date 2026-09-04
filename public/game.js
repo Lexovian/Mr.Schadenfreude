@@ -1340,11 +1340,22 @@ function renderSFNightPanel(gs, priv, area) {
   box.appendChild(sec1);
 
   // Section 2: False Evidence / Necklace Framing
+  const framesLeft = priv?.sfFramesLeft !== undefined ? priv.sfFramesLeft : 0;
+  const framesMax = priv?.sfFramesMax !== undefined ? priv.sfFramesMax : 0;
+  if (framesLeft <= 0) {
+    state.sfFrameSelected = null;
+  }
+
   const sec2 = document.createElement('div');
   sec2.className = 'sf-action-section sf-framing-section';
   sec2.innerHTML = `
-    <h4 class="sf-section-title">${t('sf_frame_title')}</h4>
-    <p class="sf-section-subtitle">${t('sf_frame_desc')}</p>
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      <h4 class="sf-section-title" style="margin:0;">${t('sf_frame_title')}</h4>
+      <span class="sf-frame-badge" style="font-size:0.8rem; font-weight:700; padding:3px 9px; border-radius:12px; background:${framesLeft > 0 ? '#ff8a6522' : '#ffffff11'}; color:${framesLeft > 0 ? '#ff8a65' : '#888'}; border:1px solid ${framesLeft > 0 ? '#ff8a6566' : '#444'}">
+        ${t('sf_frame_uses_left')}: ${framesLeft}/${framesMax}
+      </span>
+    </div>
+    <p class="sf-section-subtitle">${framesLeft > 0 ? t('sf_frame_desc') : t('sf_frame_exhausted')}</p>
   `;
 
   const ulFrame = document.createElement('ul');
@@ -1379,16 +1390,25 @@ function renderSFNightPanel(gs, priv, area) {
       <div class="target-name">${escHtml(p.name)}</div>
       <div class="target-pill" style="background:#ff8a6522;color:#ff8a65;border-color:#ff8a6566">${t('pill_frame')}</div>
     `;
-    li.onclick = () => {
-      if (typeof Sound !== 'undefined') Sound.playClick();
-      if (state.sfTargetSelected && state.sfTargetSelected === p.id) {
-        showToast(state.lang === 'tr' ? 'Kurbanın kendisine iftira atamazsınız, başka bir masum seçin.' : 'Cannot frame the victim, pick another innocent.', 'warning');
-        return;
-      }
-      document.querySelectorAll('#sf-frame-list .target-card').forEach(x => x.classList.remove('selected'));
-      li.classList.add('selected');
-      state.sfFrameSelected = p.id;
-    };
+    if (framesLeft <= 0) {
+      li.style.opacity = '0.35';
+      li.style.cursor = 'not-allowed';
+      li.onclick = () => {
+        if (typeof Sound !== 'undefined') Sound.playClick();
+        showToast(t('sf_frame_exhausted'), 'warning');
+      };
+    } else {
+      li.onclick = () => {
+        if (typeof Sound !== 'undefined') Sound.playClick();
+        if (state.sfTargetSelected && state.sfTargetSelected === p.id) {
+          showToast(state.lang === 'tr' ? 'Kurbanın kendisine iftira atamazsınız, başka bir masum seçin.' : 'Cannot frame the victim, pick another innocent.', 'warning');
+          return;
+        }
+        document.querySelectorAll('#sf-frame-list .target-card').forEach(x => x.classList.remove('selected'));
+        li.classList.add('selected');
+        state.sfFrameSelected = p.id;
+      };
+    }
     ulFrame.appendChild(li);
   });
   sec2.appendChild(ulFrame);

@@ -663,6 +663,13 @@ function generateMortisianClue(room, player, isDeep = true) {
   };
 }
 
+function getMaxSFFrames(playerCount) {
+  if (playerCount <= 6) return 1;
+  if (playerCount <= 8) return 2;
+  if (playerCount <= 10) return 3;
+  return 4;
+}
+
 // ─────────────────────────────────────────────
 // GAME STATE & ROOMS
 // ─────────────────────────────────────────────
@@ -696,6 +703,7 @@ function createRoom(hostId, hostName, language) {
     timer: null,
     timerEndsAt: null,
     sovalyeChallengesUsed: 0,
+    sfFramesUsed: 0,
     bannedNames: [],
     settings: {
       gameMode: 'puppetMaster', // 'puppetMaster' | 'secretKiller'
@@ -901,6 +909,7 @@ function assignRoles(room) {
   room.firstDeathAnnounced = false;
   room.firstLynchAnnounced = false;
   room.sovalyeChallengesUsed = 0;
+  room.sfFramesUsed = 0;
   room.rahibeTarotAvailable = true;
   room.rahibeLastTarotRound = null;
   room.round = 0;
@@ -1280,9 +1289,11 @@ function botNightAction(code) {
         const target = threatSorted[0] || targets[0];
         r.nightActions.sf_target = target.id;
 
-        // Bot SF: 70% chance to plant false evidence on a trusted living innocent
+        // Bot SF: plants false evidence if charges remain
+        const botMaxFrames = getMaxSFFrames(r.players.length);
+        const botFramesLeft = Math.max(0, botMaxFrames - (r.sfFramesUsed || 0));
         const frameCandidates = r.players.filter(p => p.alive && p.id !== r.sfId && p.id !== r.kuklaId && p.id !== target.id);
-        if (frameCandidates.length > 0 && Math.random() < 0.7) {
+        if (botFramesLeft > 0 && frameCandidates.length > 0 && Math.random() < 0.7) {
           const sortedInnocents = [...frameCandidates].sort((a, b) => getBotSuspicion(r, sfPlayer, a) - getBotSuspicion(r, sfPlayer, b));
           const framed = sortedInnocents[0];
           r.nightActions.sf_frame = framed ? framed.id : null;
@@ -1903,6 +1914,11 @@ function handleNightEnd(code) {
           }
         } else {
           killPlayer(room, target, 'night', announcements, lang);
+        }
+
+        // Consume 1 framing charge if false evidence was planted at this murder scene
+        if (actions.sf_frame && actions.sf_frame !== room.sfId) {
+          room.sfFramesUsed = (room.sfFramesUsed || 0) + 1;
         }
       }
     }
@@ -2627,6 +2643,8 @@ function buildPrivateState(room, playerId) {
     shadowChat: ((isSF || isKukla) && !isSecretSF) ? (room.shadowChat || []) : undefined,
     canPickKukla: isSF && !isSecretSF && !room.kuklaId,
     sfCanPickCondition: isSF && !isSecretSF ? getSFPickCondition(room) : undefined,
+    sfFramesLeft: isSF ? Math.max(0, getMaxSFFrames(room.players.length) - (room.sfFramesUsed || 0)) : undefined,
+    sfFramesMax: isSF ? getMaxSFFrames(room.players.length) : undefined,
     // Şövalye: remaining challenge uses
     sovalyeChallengesLeft: isSovalye ? Math.max(0, 2 - (room.sovalyeChallengesUsed || 0)) : undefined,
     sovalyeActionDone: isSovalye ? (!!(room.nightActions.sovalye_protect || room.nightActions.sovalye_challenge)) : undefined,
@@ -2998,11 +3016,22 @@ io.on('connection', (socket) => {
     const target = getPlayer(room, targetId);
     if (!target || !target.alive || targetId === room.sfId || (!isSecretSF && targetId === room.kuklaId)) return;
 
+    const maxFrames = getMaxSFFrames(room.players.length);
+    const sfFramesLeft = Math.max(0, maxFrames - (room.sfFramesUsed || 0));
+
     room.nightActions.sf_target = targetId;
-    if (frameId && frameId !== room.sfId && (!isSecretSF && frameId !== room.kuklaId) && frameId !== targetId) {
+    if (frameId && sfFramesLeft > 0 && frameId !== room.sfId && (!isSecretSF && frameId !== room.kuklaId) && frameId !== targetId) {
       room.nightActions.sf_frame = frameId;
     } else {
       room.nightActions.sf_frame = null;
+      if (frameId && sfFramesLeft <= 0) {
+        socket.emit('private:message', {
+          type: 'warning',
+          message: room.language === 'tr'
+            ? 'Eşya bırakma hakkınız tükendiği için cinayet mahalline sahte delil bırakılamadı.'
+            : 'False evidence could not be planted because your framing charges are exhausted.'
+        });
+      }
     }
 
     if (isSecretSF) {
@@ -3040,6 +3069,8 @@ io.on('connection', (socket) => {
         message: (room.language === 'tr' ? 'Emir gönderildi.' : 'Order sent.') + frameNote,
       });
     }
+
+    socket.emit('game:role', buildPrivateState(room, socket.id));
   });
 
   // Night: SF explicitly passes / no order
