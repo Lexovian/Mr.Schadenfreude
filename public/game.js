@@ -553,11 +553,12 @@ socket.on('room:joined', ({ code, playerToken }) => {
   socket.emit('game:requestPrivate');
 });
 
-socket.on('error', ({ message }) => {
+socket.on('error', ({ message, key }) => {
   document.getElementById('btn-create')?.classList.remove('btn-loading');
   document.getElementById('btn-join')?.classList.remove('btn-loading');
-  showError('landing-error', message);
-  showToast(message, 'error');
+  const localizedMsg = (key && typeof I18N !== 'undefined' && t(key) !== key) ? t(key) : (message || t('unknown_error'));
+  showError('landing-error', localizedMsg);
+  showToast(localizedMsg, 'error');
 });
 
 socket.on('game:state', (gs) => {

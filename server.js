@@ -2625,7 +2625,7 @@ io.on('connection', (socket) => {
     const forwarded = socket.handshake.headers['x-forwarded-for'];
     const clientIp = (forwarded ? forwarded.split(',')[0].trim() : socket.handshake.address) || socket.id;
     if (isRateLimited(createRoomLimits, clientIp, 8, 30000)) {
-      return socket.emit('error', { message: (language === 'tr' ? 'Lütfen yeni lobi kurmadan önce 30 saniye bekleyin.' : 'Too many rooms created. Please wait 30 seconds.') });
+      return socket.emit('error', { key: 'err_rate_limit_create', message: (language === 'tr' ? 'Lütfen yeni lobi kurmadan önce 30 saniye bekleyin.' : 'Too many rooms created. Please wait 30 seconds.') });
     }
 
     const cleanName = String(name || '')
@@ -2633,7 +2633,7 @@ io.on('connection', (socket) => {
       .trim()
       .slice(0, 24);
     if (!cleanName || cleanName.length < 2) {
-      return socket.emit('error', { message: (language === 'tr' ? 'İsim en az 2 karakter olmalıdır.' : 'Name must be at least 2 characters.') });
+      return socket.emit('error', { key: 'err_name_min_chars', message: (language === 'tr' ? 'İsim en az 2 karakter olmalıdır.' : 'Name must be at least 2 characters.') });
     }
 
     try {
@@ -2657,13 +2657,13 @@ io.on('connection', (socket) => {
       .slice(0, 24);
 
     if (!cleanCode || !cleanName || cleanName.length < 2) {
-      return socket.emit('error', { message: 'Geçerli bir oda kodu ve en az 2 karakterli isim giriniz.' });
+      return socket.emit('error', { key: 'err_invalid_join', message: 'Geçerli bir oda kodu ve en az 2 karakterli isim giriniz.' });
     }
 
     const room = rooms[cleanCode];
-    if (!room) return socket.emit('error', { message: room?.language === 'tr' ? 'Oda bulunamadı.' : 'Room not found.' });
+    if (!room) return socket.emit('error', { key: 'err_room_not_found', message: room?.language === 'tr' ? 'Oda bulunamadı.' : 'Room not found.' });
     if (room.bannedNames && room.bannedNames.includes(cleanName.toLowerCase())) {
-      return socket.emit('error', { message: room.language === 'tr' ? 'Bu lobiden yasaklandınız.' : 'You have been banned from this lobby.' });
+      return socket.emit('error', { key: 'err_banned', message: room.language === 'tr' ? 'Bu lobiden yasaklandınız.' : 'You have been banned from this lobby.' });
     }
 
     const existing = room.players.find(p => p.name.toLowerCase() === cleanName.toLowerCase());
@@ -2671,32 +2671,38 @@ io.on('connection', (socket) => {
     // 1) LOBİDE: Aynı isimde başka biri varsa asla izin verme
     if (room.phase === PHASES.LOBBY && existing) {
       return socket.emit('error', {
+        key: 'err_lobby_name_taken',
         message: room.language === 'tr' ? 'Bu isim zaten lobide kullanılıyor.' : 'This name is already taken in this lobby.'
       });
     }
 
     // 2) OYUN SIRASINDA: Oyuncu listede yoksa oyun başladı katılamazsın
     if (room.phase !== PHASES.LOBBY && !existing) {
-      return socket.emit('error', { message: room.language === 'tr' ? 'Oyun başladı, katılamazsın.' : 'Game already started.' });
+      return socket.emit('error', { key: 'err_game_started', message: room.language === 'tr' ? 'Oyun başladı, katılamazsın.' : 'Game already started.' });
     }
 
     // 3) OYUN SIRASINDA: Oyuncu zaten bağlı ve aktifse başka biri bu isimle giremez
     if (room.phase !== PHASES.LOBBY && existing && !existing.disconnected) {
       return socket.emit('error', {
+        key: 'err_player_active',
         message: room.language === 'tr' ? 'Bu oyuncu şu anda oyunda aktif ve bağlı.' : 'This player is currently active in the game.'
       });
     }
 
     if (room.players.length >= 15 && !existing) {
-      return socket.emit('error', { message: room.language === 'tr' ? 'Oda dolu.' : 'Room is full.' });
+      return socket.emit('error', { key: 'err_room_full', message: room.language === 'tr' ? 'Oda dolu.' : 'Room is full.' });
     }
 
     const result = addPlayer(cleanCode, socket.id, cleanName, token);
     if (!result || result.error) {
-      const errMsg = result?.error === 'invalid_token'
+      const isTokenMismatch = result?.error === 'invalid_token';
+      const errMsg = isTokenMismatch
         ? (room.language === 'tr' ? 'Yetkisiz erişim: Oturum anahtarı uyuşmuyor.' : 'Unauthorized: Session token mismatch.')
         : (room.language === 'tr' ? 'Bu oyuncu şu anda bağlı.' : 'Player already connected.');
-      return socket.emit('error', { message: errMsg });
+      return socket.emit('error', {
+        key: isTokenMismatch ? 'err_token_mismatch' : 'err_player_connected',
+        message: errMsg
+      });
     }
 
     socket.join(cleanCode);
@@ -2718,6 +2724,7 @@ io.on('connection', (socket) => {
     const minRequired = isSecretSF ? 4 : 5;
     if (room.players.length < minRequired) {
       return socket.emit('error', {
+        key: isSecretSF ? 'err_min_players_secret' : 'err_min_players_classic',
         message: room.language === 'tr'
           ? (isSecretSF ? 'Gizli Katil modu için en az 4 oyuncu gerekli.' : 'Kukla Ustası modu için en az 5 oyuncu gerekli.')
           : (isSecretSF ? 'At least 4 players required for Secret Killer mode.' : 'At least 5 players required for Puppet Master mode.')
