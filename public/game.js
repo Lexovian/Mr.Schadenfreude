@@ -133,6 +133,7 @@ function changeLanguage(lang) {
   // 5. Re-render Active Phase Panel & Main Game State
   if (state.gameState) {
     renderState(state.gameState);
+    renderChaosIndicator(state.gameState);
     if (state.gameState.phase && state.gameState.phase !== 'lobby') {
       showPhasePanel(state.gameState.phase, state.gameState);
     }
@@ -2088,7 +2089,7 @@ function renderEnded(winner, reason, players) {
       </div>
       <div class="endgame-stat-card">
         <span class="stat-icon">🩸</span>
-        <span class="stat-label">${state.lang === 'tr' ? 'Kaos Skoru' : 'Chaos Score'}</span>
+        <span class="stat-label">${t('chaos_score') || (state.lang === 'tr' ? 'Kaos Skoru' : 'Chaos Score')}</span>
         <strong class="stat-value">${chaosCount}/2</strong>
       </div>
       <div class="endgame-stat-card">
@@ -2406,41 +2407,27 @@ function renderChaosIndicator(gs) {
     return;
   }
 
-  const lang        = gs.language || state.lang;
   const chaos       = Math.max(0, Math.min(2, gs.consecutiveInnocentLynches || 0));
   const kuklaEmpty  = gs.kuklaSlotEmpty;
-  const canPickNow  = gs.canSFPickThisNight;
-
-  const tr = lang === 'tr';
 
   let statusText = '';
   let statusClass = 'warning';
 
   if (chaos >= 2) {
     statusClass = 'danger';
-    if (kuklaEmpty) {
-      statusText = tr ? '🔥 2/2 Kaos: SF bu gece yeni kukla seçebilir!' : '🔥 2/2 Chaos: SF can pick a new puppet tonight!';
-    } else {
-      statusText = tr ? '💀 2/2 Kaos: Kukla ölürse SF yedek kukla seçebilir!' : '💀 2/2 Chaos: If puppet dies, SF can choose a replacement!';
-    }
+    statusText = kuklaEmpty ? t('chaos_2_can_pick') : t('chaos_2_active');
   } else if (chaos === 1) {
     statusClass = 'warning';
-    if (kuklaEmpty) {
-      statusText = tr ? '⚠️ 1/2 Masum Linç Edildi (SF 1 kurban bekliyor)' : '⚠️ 1/2 Innocent Lynched (SF awaits 1 more)';
-    } else {
-      statusText = tr ? '⚠️ 1/2 Masum Kurban Edildi' : '⚠️ 1/2 Innocent Sacrificed';
-    }
+    statusText = kuklaEmpty ? t('chaos_1_empty') : t('chaos_1');
   } else {
-    statusClass = kuklaEmpty ? 'safe' : 'safe';
-    if (kuklaEmpty) {
-      statusText = tr ? '🛡️ 0/2 Masum kanı dökülmedi' : '🛡️ 0/2 No innocent blood yet';
-    } else {
-      statusText = tr ? '🎭 0/2 Kukla aktif' : '🎭 0/2 Puppet active';
-    }
+    statusClass = 'safe';
+    statusText = kuklaEmpty ? t('chaos_empty_safe') : t('chaos_safe');
   }
 
+  const headerTitle = t('chaos_score') || 'Chaos Score';
+
   el.innerHTML = `
-    <div class="chaos-header">${tr ? 'Kaos Puanı' : 'Chaos Score'} (${chaos}/2)</div>
+    <div class="chaos-header">${headerTitle} (${chaos}/2)</div>
     <div class="chaos-dots">
       <span class="chaos-dot ${chaos >= 1 ? 'on' : 'off'} ${chaos === 2 ? 'pulse' : ''}"></span>
       <span class="chaos-dot ${chaos >= 2 ? 'on pulse' : 'off'}"></span>
