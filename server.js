@@ -704,8 +704,6 @@ function createRoom(hostId, hostName, language) {
     timerEndsAt: null,
     sovalyeChallengesUsed: 0,
     sfFramesUsed: 0,
-    mortisyenSurveilled: false,
-    mortisyenLastPublishedClueId: null,
     bannedNames: [],
     settings: {
       gameMode: 'puppetMaster', // 'puppetMaster' | 'secretKiller'
@@ -912,8 +910,6 @@ function assignRoles(room) {
   room.firstLynchAnnounced = false;
   room.sovalyeChallengesUsed = 0;
   room.sfFramesUsed = 0;
-  room.mortisyenSurveilled = false;
-  room.mortisyenLastPublishedClueId = null;
   room.rahibeTarotAvailable = true;
   room.rahibeLastTarotRound = null;
   room.round = 0;
@@ -1364,18 +1360,15 @@ function botNightAction(code) {
       if (!r || r.phase !== PHASES.NIGHT) return;
       if (r.nightActions.mortisyen_mode) return;
 
-      const rahibeAlive = r.players.some(p => p.role === ROLES.RAHIBE && p.alive);
       const hasBodies = r.players.some(p => !p.alive);
-      // Mortisyen's core domain is corpse forensics/autopsy.
-      // Surveillance is only a fallback in Round 1 if no bodies exist, no living Rahibe (who handles night tracking), and haven't surveilled before.
-      if (!hasBodies && r.round === 1 && !rahibeAlive && !r.mortisyenSurveilled) {
+      if (!hasBodies || r.round === 1) {
+        // Round 1 or no dead: surveillance mode on highest suspicion player
         const candidates = r.players.filter(p => p.alive && p.id !== mortisyenPlayer.id && p.id !== r.sfId);
         if (candidates.length) {
           const sorted = [...candidates].sort((a, b) => getBotSuspicion(r, mortisyenPlayer, b) - getBotSuspicion(r, mortisyenPlayer, a));
           const target = sorted[0] || candidates[0];
           r.nightActions.mortisyen_mode = 'surveillance';
           r.nightActions.mortisyen_target = target.id;
-          r.mortisyenSurveilled = true;
         } else {
           r.nightActions.mortisyen_mode = 'forensics';
         }
@@ -1507,8 +1500,7 @@ function botDayChat(code) {
       const r = rooms[code];
       if (!r || r.phase !== PHASES.DAY) return;
       const latestClue = r.mortisyenClues[r.mortisyenClues.length - 1];
-      if (latestClue && latestClue.id !== r.mortisyenLastPublishedClueId) {
-        r.mortisyenLastPublishedClueId = latestClue.id;
+      if (latestClue) {
         const mortTitles = {
           tr: '⚰️ Mortisyen Gizli Raporu',
           en: '⚰️ Undertaker Confidential Report',
@@ -1542,14 +1534,6 @@ function botDayChat(code) {
       setTimeout(() => {
         const r = rooms[code];
         if (!r || r.phase !== PHASES.DAY) return;
-        const rahibeTitles = {
-          tr: `🃏 ${rahibeBot.name} (Rahibe)`,
-          en: `🃏 ${rahibeBot.name} (Priest)`,
-          ja: `🃏 ${rahibeBot.name} (司祭)`,
-          de: `🃏 ${rahibeBot.name} (Nonne)`,
-          es: `🃏 ${rahibeBot.name} (Monja)`,
-          fr: `🃏 ${rahibeBot.name} (Prêtre)`,
-        };
         const tarotPhrases = {
           tr: `Kutsal Tarot kartları dün gece "${latestTarot.targetName}" adlı köylünün karanlıkta hareket ettiğini fısıldadı...`,
           en: `The Holy Tarot cards whispered that "${latestTarot.targetName}" was moving in the shadows last night...`,
@@ -1560,8 +1544,7 @@ function botDayChat(code) {
         };
         const phrase = tarotPhrases[lang] || tarotPhrases.tr;
         const msg = {
-          name: rahibeTitles[lang] || rahibeTitles.en,
-          nameTranslations: rahibeTitles,
+          name: rahibeBot.name,
           message: phrase,
           translations: tarotPhrases,
           isBot: true,
@@ -2519,8 +2502,6 @@ function resetRoomToLobby(room) {
   room.mortisyenClueHistory = [];
   room.sovalyeChallengesUsed = 0;
   room.sfFramesUsed = 0;
-  room.mortisyenSurveilled = false;
-  room.mortisyenLastPublishedClueId = null;
   room.readyPlayers = {};
 
   // Reset all players to alive and unassigned
