@@ -542,6 +542,8 @@ socket.on('room:joined', ({ code }) => {
   const hostActions = document.getElementById('lobby-host-actions');
   if (hostActions) hostActions.style.display = 'none';
   showScreen('lobby');
+  // Reconnect check: if joining an active game, immediately request private state
+  socket.emit('game:requestPrivate');
 });
 
 socket.on('error', ({ message }) => {
@@ -939,9 +941,9 @@ function renderLobbyPlayers(players) {
     if (state.isHost && !isHost && !isMe) {
       hostActionsHtml = `
         <div class="lobby-host-btn-cluster">
-          ${!isBot ? `<button class="lobby-mgmt-btn btn-transfer" onclick="transferHost('${p.id}', '${escHtml(p.name)}')" title="${t('transfer_host_btn')}">👑</button>` : ''}
-          <button class="lobby-mgmt-btn btn-kick" onclick="kickPlayer('${p.id}', '${escHtml(p.name)}')" title="${t('kick_btn')}">👢</button>
-          <button class="lobby-mgmt-btn btn-ban" onclick="banPlayer('${p.id}', '${escHtml(p.name)}')" title="${t('ban_btn')}">🚫</button>
+          ${!isBot ? `<button class="lobby-mgmt-btn btn-transfer" onclick="transferHost('${p.id}', this.dataset.name)" data-name="${escHtml(p.name)}" title="${t('transfer_host_btn')}">👑</button>` : ''}
+          <button class="lobby-mgmt-btn btn-kick" onclick="kickPlayer('${p.id}', this.dataset.name)" data-name="${escHtml(p.name)}" title="${t('kick_btn')}">👢</button>
+          <button class="lobby-mgmt-btn btn-ban" onclick="banPlayer('${p.id}', this.dataset.name)" data-name="${escHtml(p.name)}" title="${t('ban_btn')}">🚫</button>
         </div>
       `;
     }
@@ -970,8 +972,6 @@ function renderLobbyPlayers(players) {
     if (showVotesCb && document.activeElement !== showVotesCb) showVotesCb.checked = !!s.showVotes;
     const puppetRefuseCb = document.getElementById('setting-puppet-refuse');
     if (puppetRefuseCb && document.activeElement !== puppetRefuseCb) puppetRefuseCb.checked = !!s.puppetCanSkip;
-    const debugRoleSel = document.getElementById('setting-debug-role');
-    if (debugRoleSel && document.activeElement !== debugRoleSel && s.debugRole) debugRoleSel.value = s.debugRole;
   }
 }
 
@@ -1079,6 +1079,12 @@ function showPhasePanel(phase, gs) {
   PANEL_IDS.forEach(id => {
     document.getElementById('panel-' + id)?.classList.add('hidden');
   });
+
+  if (phase !== 'night') {
+    state.pendingKillTarget = null;
+    document.getElementById('pending-order-badge')?.classList.add('hidden');
+    document.getElementById('kill-modal')?.classList.add('hidden');
+  }
 
   const priv = state.privateState;
   const myRole = priv?.myRole;

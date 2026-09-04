@@ -37,6 +37,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 const MAX_ACTIVE_ROOMS = 200;
 const ALLOWED_LANGUAGES = ['tr', 'en', 'ja', 'de', 'es', 'fr'];
 
+const rooms = {}; // roomCode → gameState
+
 const createRoomLimits = new Map(); // socket/IP -> timestamps[]
 const chatLimits = new Map();       // socketId -> timestamps[]
 const voteLimits = new Map();       // socketId -> timestamps[]
@@ -655,9 +657,8 @@ function generateMortisianClue(room, player, isDeep = true) {
 }
 
 // ─────────────────────────────────────────────
-// GAME STATE
+// GAME STATE & ROOMS
 // ─────────────────────────────────────────────
-const rooms = {}; // roomCode → gameState
 
 function createRoom(hostId, hostName, language) {
   const code = generateRoomCode();
@@ -2659,6 +2660,9 @@ io.on('connection', (socket) => {
     socket.data.roomCode = cleanCode;
     socket.data.name = cleanName;
     socket.emit('room:joined', { code: cleanCode });
+    if (room.phase !== PHASES.LOBBY) {
+      socket.emit('game:role', buildPrivateState(room, socket.id));
+    }
     broadcastState(cleanCode);
   });
 
@@ -3192,6 +3196,9 @@ io.on('connection', (socket) => {
       broadcastState(code);
       return;
     }
+    const target = getPlayer(room, targetId);
+    if (!target || !target.alive) return;
+
     // In puppetMaster mode, cannot vote for immortal SF
     if (!isSecretSF && targetId === room.sfId) return;
     room.votes[socket.id] = targetId;
