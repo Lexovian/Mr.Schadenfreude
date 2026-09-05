@@ -103,6 +103,7 @@ function changeLanguage(lang) {
     I18N.setLanguage(lang);
     I18N.applyDOM();
   }
+  syncReadyUI();
   document.querySelectorAll('.lang-select').forEach(sel => {
     if (sel.value !== lang) sel.value = lang;
   });
@@ -752,13 +753,17 @@ function syncReadyUI() {
   const btnEl = document.getElementById('btn-phase-ready');
   const txtEl = document.getElementById('ready-btn-text');
   const iconEl = document.getElementById('ready-status-icon');
-  if (btnEl) btnEl.classList.toggle('is-ready', isMeReady);
+  if (btnEl) {
+    btnEl.classList.toggle('is-ready', isMeReady);
+    btnEl.title = isMeReady ? t('btn_ready_active') : t('btn_ready_title');
+  }
   if (txtEl) txtEl.textContent = isMeReady ? t('btn_ready_active') : t('btn_ready');
   if (iconEl) iconEl.textContent = isMeReady ? '✅' : '⚡';
 
   // Prominent Ready Triggers inside all Active Phase Cards
   document.querySelectorAll('.phase-ready-trigger').forEach(btn => {
     btn.classList.toggle('is-ready', isMeReady);
+    btn.title = isMeReady ? t('btn_ready_active') : t('btn_ready_title');
     const txt = btn.querySelector('.main-ready-text');
     const icon = btn.querySelector('.main-ready-icon');
     const count = btn.querySelector('.main-ready-counter');
