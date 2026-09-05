@@ -66,6 +66,7 @@ let state = {
   voteSelected: null,
   sfTargetSelected: null,
   sfFrameSelected: null,
+  sfKuklaSelected: null,
   sfActionConfirmed: false,
   sovalyeMode: 'protect',        // 'protect' | 'challenge'
   sovalyeTargetSelected: null,
@@ -881,6 +882,7 @@ function renderState(gs) {
     state.sfActionConfirmed = false;
     state.sfTargetSelected = null;
     state.sfFrameSelected = null;
+    state.sfKuklaSelected = null;
   }
 
   // Reset vote state when entering vote phase
@@ -1151,11 +1153,17 @@ function renderNight0(gs, myRole, priv) {
   const sfArea = document.getElementById('sf-pick-area');
   const waitArea = document.getElementById('waiting-night0');
   const desc = document.getElementById('night0-desc');
+  state.sfKuklaSelected = null;
 
   if (myRole === 'sf') {
     desc.textContent = t('night0_sf_desc');
     sfArea.classList.remove('hidden');
     waitArea.classList.add('hidden');
+    const confirmBtn = document.getElementById('btn-confirm-pick-kukla');
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.style.opacity = '0.5';
+    }
     const ul = document.getElementById('sf-pick-list');
     ul.className = 'target-selection-grid';
     ul.innerHTML = gs.players
@@ -1163,7 +1171,7 @@ function renderNight0(gs, myRole, priv) {
       .map(p => {
         const initial = (p.name || '?').charAt(0).toUpperCase();
         return `
-          <li class="target-card" onclick="sfPickKukla('${p.id}', this)">
+          <li class="target-card" onclick="sfSelectKukla('${p.id}', this)">
             <div class="target-avatar">${initial}</div>
             <div class="target-name">${escHtml(p.name)}</div>
             <div class="target-pill">${t('pill_pick_kukla')}</div>
@@ -1180,11 +1188,31 @@ function renderNight0(gs, myRole, priv) {
   }
 }
 
-function sfPickKukla(targetId, el) {
+function sfSelectKukla(targetId, el) {
   if (typeof Sound !== 'undefined') Sound.playClick();
   document.querySelectorAll('#sf-pick-list .target-card').forEach(li => li.classList.remove('selected'));
   el.classList.add('selected');
-  socket.emit('action:pickKukla', { targetId });
+  state.sfKuklaSelected = targetId;
+  const confirmBtn = document.getElementById('btn-confirm-pick-kukla');
+  if (confirmBtn) {
+    confirmBtn.disabled = false;
+    confirmBtn.style.opacity = '1';
+  }
+}
+
+function confirmSfPickKukla() {
+  if (!state.sfKuklaSelected) {
+    showToast(t('pick_kukla_first'), 'error');
+    return;
+  }
+  if (typeof Sound !== 'undefined') Sound.playClick();
+  const confirmBtn = document.getElementById('btn-confirm-pick-kukla');
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.style.opacity = '0.5';
+  }
+  socket.emit('action:pickKukla', { targetId: state.sfKuklaSelected });
+  showToast(t('kukla_selected_toast'), 'success');
 }
 
 // Night
@@ -1257,6 +1285,32 @@ function renderSFNightPanel(gs, priv, area) {
     if (cond === 'can_pick_condition2') {
       const ul = document.createElement('ul');
       ul.className = 'target-selection-grid';
+      state.sfKuklaSelected = null;
+
+      const confirmWrap = document.createElement('div');
+      confirmWrap.style.display = 'flex';
+      confirmWrap.style.justifyContent = 'center';
+      confirmWrap.style.marginTop = '1.2rem';
+
+      const btnConfirm = document.createElement('button');
+      btnConfirm.className = 'btn btn-danger btn-send-order';
+      btnConfirm.style.opacity = '0.5';
+      btnConfirm.style.minWidth = '210px';
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = `<span class="btn-shine"></span><span>${t('confirm_pick_kukla')}</span>`;
+      btnConfirm.onclick = () => {
+        if (!state.sfKuklaSelected) {
+          showToast(t('pick_kukla_first'), 'error');
+          return;
+        }
+        if (typeof Sound !== 'undefined') Sound.playClick();
+        btnConfirm.disabled = true;
+        btnConfirm.style.opacity = '0.5';
+        socket.emit('action:pickKukla', { targetId: state.sfKuklaSelected });
+        showToast(t('kukla_selected_toast'), 'success');
+      };
+      confirmWrap.appendChild(btnConfirm);
+
       gs.players.filter(p => p.alive && p.name !== state.myName).forEach(p => {
         const initial = (p.name || '?').charAt(0).toUpperCase();
         const li = document.createElement('li');
@@ -1270,12 +1324,15 @@ function renderSFNightPanel(gs, priv, area) {
           if (typeof Sound !== 'undefined') Sound.playClick();
           document.querySelectorAll('#night-action-area .target-card').forEach(x => x.classList.remove('selected'));
           li.classList.add('selected');
-          socket.emit('action:pickKukla', { targetId: p.id });
-          showToast(state.lang === 'tr' ? 'Yeni kukla seçildi.' : state.lang === 'ru' ? 'Новая кукла выбрана.' : 'New puppet selected.', 'success');
+          state.sfKuklaSelected = p.id;
+          btnConfirm.disabled = false;
+          btnConfirm.style.opacity = '1';
         };
         ul.appendChild(li);
       });
-      area.querySelector('.night-action-box').appendChild(ul);
+      const boxEl = area.querySelector('.night-action-box');
+      boxEl.appendChild(ul);
+      boxEl.appendChild(confirmWrap);
     }
     return;
   }

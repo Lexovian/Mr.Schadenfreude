@@ -448,6 +448,12 @@
           <div id="sf-pick-area" class="action-area hidden">
             <p class="action-prompt" data-i18n="pick_target">Kuklayı seç:</p>
             <ul id="sf-pick-list" class="target-list"></ul>
+            <div id="sf-pick-confirm-wrap" style="display:flex;justify-content:center;margin-top:1.2rem">
+              <button id="btn-confirm-pick-kukla" class="btn btn-danger btn-send-order" onclick="confirmSfPickKukla()" disabled style="opacity:0.5;min-width:210px">
+                <span class="btn-shine"></span>
+                <span data-i18n="confirm_pick_kukla">🪆 Kuklayı Onayla</span>
+              </button>
+            </div>
           </div>
           <div id="waiting-night0" class="waiting-msg">
             <div class="gothic-spinner"></div>
