@@ -35,7 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // SECURITY & RATE LIMITING
 // ─────────────────────────────────────────────
 const MAX_ACTIVE_ROOMS = 200;
-const ALLOWED_LANGUAGES = ['tr', 'en', 'ja', 'de', 'es', 'fr'];
+const ALLOWED_LANGUAGES = ['tr', 'en', 'ja', 'de', 'es', 'fr', 'ru'];
 
 const rooms = {}; // roomCode → gameState
 
@@ -297,6 +297,40 @@ const CLUE_TEMPLATES = {
       'Trace de malédiction : {name} a été emporté par le Fou.',
     ],
   },
+  ru: {
+    night_two: [
+      'На последнем издыхании было прошептано имя — {A} или {B}, разобрать трудно.',
+      'Нить на месте преступления напоминает ткань одежды {A} или {B}.',
+      'Кто-то заметил, что {A} или {B} вели себя странно этой ночью.',
+      'Взгляд жертвы застыл по направлению к тому месту, где стоял(а) {A} или {B}.',
+      'Обнаружен след, возможно принадлежащий {A} или {B} — точно сказать сложно.',
+    ],
+    night_one: [
+      'На теле обнаружен след, указывающий на {A} — подозрение не окончательное.',
+      'Поговаривают, что кто-то видел {A} вблизи места преступления той ночью.',
+    ],
+    night_unknown: [
+      'Смерть наступила от неясной темной силы. Четких следов не обнаружено.',
+      'Тело осмотрено — конкретной связи с подозреваемыми не установлено.',
+    ],
+    lynch_innocent_two: [
+      'Судебная ошибка... {name} был(а) невиновен(на). Кукла всё еще среди нас — {A} или {B}?',
+      'На {name} нет следа тени. Кто же кукла — {A} или {B}? Гробовщик не спускает глаз.',
+      'Эта казнь была ошибкой. {name} был(а) невиновен(на). {A} или {B}, возможно...',
+    ],
+    lynch_innocent_one: [
+      '{name} был(а) невиновен(на). Кукла всё еще на свободе — Гробовщик обновил записи.',
+      'Вскрытие: {name} был(а) чист(а). Тень пала на кого-то другого.',
+    ],
+    lynch_kukla: [
+      'Верный приговор! {name} действительно был(а) куклой — улики подтвердились.',
+      'Отличная интуиция! {name} был(а) куклой Mr. Schadenfreude. Теневая цепь разорвана.',
+    ],
+    madman_curse: [
+      'След проклятия: {name} попал(а) под силу Безумца. Этой ночью кукла действовала.',
+      'Вскрытие: проклятие принадлежит этой ночи. Кукла совершила убийство.',
+    ],
+  },
 };
 
 const FORENSIC_TRACES = {
@@ -382,6 +416,21 @@ const FORENSIC_TRACES = {
       'Aucune trace de lutte — la victime semblait faire confiance à la silhouette qui approchait.',
     ],
   },
+  ru: {
+    fabrics: [
+      'На теле обнаружены тонкие волокна шелка и пепельная пыль.',
+      'На одежде найдены следы ржавой железной пыли и потертости от ножен.',
+      'На месте преступления ощущается храмовая копоть и бледный аромат благовоний.',
+      'Под ногтями жертвы найдены частицы черной бархатной ткани.',
+    ],
+    behaviors: [
+      'В свои последние мгновения жертва ощутила силуэт, приближающийся холодными, неспешными шагами.',
+      'На месте преступления остались следы колебания, внезапного отступления и приглушенного шепота.',
+      'Убийца действовал с расчетливым спокойствием и методичной точностью.',
+      'Жертва не успела оказать сопротивления, словно доверяла подошедшему человеку.',
+      'Этой ночью в округе были зафиксированы крадущиеся, скрытые во тьме движения.',
+    ],
+  },
 };
 
 const ROLE_ARCHETYPE_ITEMS = {
@@ -433,6 +482,14 @@ const ROLE_ARCHETYPE_ITEMS = {
     koylu: ['Fibre de lin', 'Épingle en bois', 'Bouton en laiton', 'Trace de terre agricole', 'Mouchoir brodé'],
     sf: ['Fibre de velours violet', 'Ficelle de marionnette', 'Chaîne de montre de poche en argent'],
   },
+  ru: {
+    sovalye: ['Оружейная сталь и осколок доспеха', 'Обрывок кожаной перчатки', 'Оружейное масло и железная пыль'],
+    rahibe: ['Капля священного воска', 'Пепел благовоний', 'Бусина от четок'],
+    mortisyen: ['Царапина от скальпеля', 'Запах формалина', 'Осколок стеклянного флакона'],
+    madman: ['Меловой порошок', 'Пепел проклятия', 'Осколок разбитого зеркала'],
+    koylu: ['Льняная нить', 'Деревянная заколка', 'Латунная пуговица', 'След полевой земли', 'Вышитый платок'],
+    sf: ['Фиолетовая бархатная нить', 'Нить куклы', 'Цепочка серебряных карманных часов'],
+  },
 };
 
 function pickTpl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -450,6 +507,7 @@ function generateVotingBehaviorTrace(room, focalPlayer) {
       de: 'Keine Stimmverhaltensspur vorhanden, da noch kein Gericht stattfand.',
       es: 'No hay rastro de votación ya que aún no se ha celebrado ningún juicio.',
       fr: 'Aucune trace de vote car aucun procès n\'a encore eu lieu.',
+      ru: 'Суд еще не проводился, поэтому следов голосования не обнаружено.',
     };
   }
 
@@ -462,6 +520,7 @@ function generateVotingBehaviorTrace(room, focalPlayer) {
       de: 'Keine eindeutige Stimmverhaltensspur aus dem Gericht feststellbar.',
       es: 'No se pudo obtener un rastro concluyente del comportamiento de votación.',
       fr: 'Aucune trace concluante concernant le vote au tribunal n\'a pu être relevée.',
+      ru: 'Четких следов поведения во время голосования на суде обнаружить не удалось.',
     };
   }
 
@@ -476,6 +535,7 @@ function generateVotingBehaviorTrace(room, focalPlayer) {
       de: 'Spuren weisen darauf hin, dass der Mörder sich im letzten Gericht der Stimme enthalten hat.',
       es: 'Se determinó que el asesino se abstuvo o evitó votar en el último juicio.',
       fr: 'Il apparaît que le tueur s\'est abstenu ou a évité de voter lors du dernier procès.',
+      ru: 'Следы указывают на то, что убийца воздержался или избегал решающего голосования на прошлом суде.',
     };
   }
 
@@ -487,6 +547,7 @@ function generateVotingBehaviorTrace(room, focalPlayer) {
       de: 'Spuren deuten darauf hin, dass der Mörder im letzten Gericht für die Hinrichtung stimmte.',
       es: 'Los indicios señalan que el asesino votó a favor del linchamiento en el último juicio.',
       fr: 'Les indices indiquent que le tueur a voté en faveur de l\'exécution lors du dernier procès.',
+      ru: 'Следы показывают, что убийца голосовал вместе с большинством за казнь на прошлом суде.',
     };
   }
 
@@ -499,6 +560,7 @@ function generateVotingBehaviorTrace(room, focalPlayer) {
       de: `Spuren zeigen, dass der Mörder im letzten Gericht gegen "${votedTarget.name}" gestimmt hat.`,
       es: `Se detectó que el asesino emitió su voto en contra de "${votedTarget.name}" en el último juicio.`,
       fr: `Il a été relevé que le tueur a voté contre "${votedTarget.name}" lors du dernier procès.`,
+      ru: `Установлено, что убийца на прошлом суде голосовал против "${votedTarget.name}".`,
     };
   }
 
@@ -509,6 +571,7 @@ function generateVotingBehaviorTrace(room, focalPlayer) {
     de: 'Keine eindeutige Stimmverhaltensspur aus dem Gericht feststellbar.',
     es: 'No se pudo obtener un rastro concluyente del comportamiento de votación.',
     fr: 'Aucune trace concluante concernant le vote au tribunal n\'a pu être relevée.',
+    ru: 'Четких следов поведения во время голосования на суде обнаружить не удалось.',
   };
 }
 
@@ -559,6 +622,7 @@ function generateMortisianClue(room, player, isDeep = true) {
       const itemDE = ROLE_ARCHETYPE_ITEMS.de[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.de.koylu[0];
       const itemES = ROLE_ARCHETYPE_ITEMS.es[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.es.koylu[0];
       const itemFR = ROLE_ARCHETYPE_ITEMS.fr[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.fr.koylu[0];
+      const itemRU = ROLE_ARCHETYPE_ITEMS.ru[roleKey]?.[itemIdx] || ROLE_ARCHETYPE_ITEMS.ru.koylu[0];
 
       // Behavioral trace of the focal player only based on voting behavior in trial
       const behTranslations = generateVotingBehaviorTrace(room, focalPlayer);
@@ -571,6 +635,7 @@ function generateMortisianClue(room, player, isDeep = true) {
       translations.de = `🔍 Gefundener Beweis am Tatort: "${itemDE}"! Passende Verdächtige: ${suspectsJoined}.`;
       translations.es = `🔍 ¡Evidencia hallada en la escena: "${itemES}"! Sospechosos coincidentes: ${suspectsJoined}.`;
       translations.fr = `🔍 Indice retrouvé sur les lieux : "${itemFR}" ! Suspects correspondants : ${suspectsJoined}.`;
+      translations.ru = `🔍 Улика, найденная на месте преступления: "${itemRU}"! Подходящие подозреваемые: ${suspectsJoined}.`;
 
       fabricTranslations.tr = `${itemTR} (Olay Yeri & Rol İzi)`;
       fabricTranslations.en = `${itemEN} (Crime Scene & Role Trace)`;
@@ -578,6 +643,7 @@ function generateMortisianClue(room, player, isDeep = true) {
       fabricTranslations.de = `${itemDE} (Tatort & Rollen-Spur)`;
       fabricTranslations.es = `${itemES} (Escena & Rastro de Rol)`;
       fabricTranslations.fr = `${itemFR} (Scène de Crime & Trace de Rôle)`;
+      fabricTranslations.ru = `${itemRU} (Место преступления и след роли)`;
 
       behaviorTranslations.tr = behTranslations.tr;
       behaviorTranslations.en = behTranslations.en;
@@ -585,6 +651,7 @@ function generateMortisianClue(room, player, isDeep = true) {
       behaviorTranslations.de = behTranslations.de;
       behaviorTranslations.es = behTranslations.es;
       behaviorTranslations.fr = behTranslations.fr;
+      behaviorTranslations.ru = behTranslations.ru;
 
       evidenceType = 'suspects';
       suspects = triad;
@@ -595,6 +662,7 @@ function generateMortisianClue(room, player, isDeep = true) {
       translations.de = 'Von einem dunklen Schatten getötet. Keine eindeutige Gruppe ermittelt.';
       translations.es = 'Asesinado por una sombra oscura. Sin sospechosos claros.';
       translations.fr = 'Tué par une ombre mystérieuse. Aucun suspect clair identifié.';
+      translations.ru = 'Убит таинственной тенью. Четкой группы подозреваемых не выявлено.';
       evidenceType = 'info';
     }
 
@@ -607,6 +675,7 @@ function generateMortisianClue(room, player, isDeep = true) {
       translations.de = `Gerechtigkeit siegt! Die hingerichtete Person war Mr. Schadenfreudes Puppe (${roleLabel(player.role, 'de')})!`;
       translations.es = `¡Justicia cumplida! ¡La persona ejecutada era la Marioneta de Mr. Schadenfreude (${roleLabel(player.role, 'es')})!`;
       translations.fr = `Justice est faite ! La persona ejecutada était la Marionnette de Mr. Schadenfreude (${roleLabel(player.role, 'fr')}) !`;
+      translations.ru = `Справедливость восторжествовала! Казненный человек действительно был Куклой Mr. Schadenfreude (${roleLabel(player.role, 'ru')})!`;
       evidenceType = 'confirm';
       suspects = [];
     } else {
@@ -616,6 +685,7 @@ function generateMortisianClue(room, player, isDeep = true) {
       translations.de = `Justizirrtum... Die hingerichtete Person war ein unschuldiger ${roleLabel(player.role, 'de')}.`;
       translations.es = `Error judicial... La persona ejecutada era un inocente ${roleLabel(player.role, 'es')}.`;
       translations.fr = `Erreur judiciaire... La personne exécutée était un innocent ${roleLabel(player.role, 'fr')}.`;
+      translations.ru = `Судебная ошибка... Казненный человек был невинным ${roleLabel(player.role, 'ru')}.`;
       evidenceType = 'warning';
       suspects = [];
     }
@@ -627,6 +697,7 @@ function generateMortisianClue(room, player, isDeep = true) {
     translations.de = `Fluchspur: ${player.name} wurde vom Fluch des Verrückten ins Grab gezogen.`;
     translations.es = `Rastro de maldición: ${player.name} fue arrastrado a la tumba por la maldición del Demente.`;
     translations.fr = `Trace de malédiction : ${player.name} a été emporté dans la tombe par le Fou.`;
+    translations.ru = `След проклятия: ${player.name} был(а) утянут(а) в могилу проклятием Безумца.`;
     evidenceType = 'warning';
 
   } else {
@@ -636,6 +707,7 @@ function generateMortisianClue(room, player, isDeep = true) {
     translations.de = `Autopsiebericht: Unklare Spuren um den Tod von ${player.name}.`;
     translations.es = `Informe de autopsia: Rastros no concluyentes sobre la muerte de ${player.name}.`;
     translations.fr = `Rapport d'autopsie : Traces incertaines autour de la mort de ${player.name}.`;
+    translations.ru = `Отчет о вскрытии: вокруг смерти ${player.name} обнаружены неясные следы.`;
     evidenceType = 'info';
   }
 
@@ -657,6 +729,7 @@ function generateMortisianClue(room, player, isDeep = true) {
       de: roleLabel(player.role, 'de'),
       es: roleLabel(player.role, 'es'),
       fr: roleLabel(player.role, 'fr'),
+      ru: roleLabel(player.role, 'ru'),
     },
     fabricTranslations,
     behaviorTranslations,
@@ -1508,6 +1581,7 @@ function botDayChat(code) {
           de: '⚰️ Vertraulicher Bericht des Leichenbeschauers',
           es: '⚰️ Informe Confidencial del Sepulturero',
           fr: '⚰️ Rapport Confidentiel du Croque-mort',
+          ru: '⚰️ Секретный отчет Гробовщика',
         };
         const text = latestClue.translations?.[lang] || latestClue.clue;
         const msg = {
@@ -1541,6 +1615,7 @@ function botDayChat(code) {
           de: `Das Heilige Tarot flüsterte, dass "${latestTarot.targetName}" letzte Nacht in den Schatten aktiv war...`,
           es: `El Santo Tarot susurró que "${latestTarot.targetName}" se movía en las sombras anoche...`,
           fr: `Le Saint Tarot a murmuré que "${latestTarot.targetName}" s'agitait dans l'ombre la nuit dernière...`,
+          ru: `Священное Таро прошептало, что "${latestTarot.targetName}" прошлой ночью действовал(а) в тени...`,
         };
         const rahibeTitles = {
           tr: `🃏 ${rahibeBot.name} (Rahibe)`,
@@ -1549,6 +1624,7 @@ function botDayChat(code) {
           de: `🃏 ${rahibeBot.name} (Nonne)`,
           es: `🃏 ${rahibeBot.name} (Monja)`,
           fr: `🃏 ${rahibeBot.name} (Prêtre)`,
+          ru: `🃏 ${rahibeBot.name} (Священник)`,
         };
         const phrase = tarotPhrases[lang] || tarotPhrases.tr;
         const msg = {
@@ -1616,6 +1692,12 @@ function botDayChat(code) {
           `D'après les événements d'hier, ${topTarget.name} semble cacher quelque chose.`,
           `Soyons prudents pour protéger les innocents.`,
         ],
+        ru: [
+          `Я тоже нахожу поведение ${topTarget.name} весьма подозрительным, нам стоит сосредоточиться на нем.`,
+          `Нужно скорее поймать предателя, мой голос может пойти против ${topTarget.name}.`,
+          `Судя по вчерашним событиям, ${topTarget.name} явно что-то скрывает.`,
+          `Мы должны быть осторожны, чтобы защитить невинных, давайте верно направим подозрения.`,
+        ],
       };
 
       const phraseIdx = Math.floor(Math.random() * kuklaChameleonPhrases.tr.length);
@@ -1626,6 +1708,7 @@ function botDayChat(code) {
         de: kuklaChameleonPhrases.de[phraseIdx],
         es: kuklaChameleonPhrases.es[phraseIdx],
         fr: kuklaChameleonPhrases.fr[phraseIdx],
+        ru: kuklaChameleonPhrases.ru[phraseIdx],
       };
       const msgObj = {
         name: kuklaBot.name,
@@ -1672,6 +1755,7 @@ function botDayChat(code) {
           de: ['Ich bin unschuldig und versuche dem Dorf zu helfen!', 'Verschwendet eure Stimmen nicht an mich, sucht die echten Verdächtigen.', 'Man hängt mir etwas an, ich habe letzte Nacht nichts getan!'],
           es: ['¡Soy inocente, intento ayudar a la aldea!', 'No desperdicien sus votos en mí, miren a los verdaderos sospechosos.', '¡Me están incriminando, no hice nada anoche!'],
           fr: ['Je suis innocent, j\'essaie d\'aider le village !', 'Ne gaspillez pas vos votes sur moi, cherchez les vrais coupables.', 'On me tend un piège, je n\'ai rien fait la nuit dernière !'],
+          ru: ['Я невиновен, я пытаюсь помочь деревне!', 'Не тратьте на меня голоса, сосредоточьтесь на настоящих подозреваемых.', 'Меня подставляют, я ничего не делал прошлой ночью!'],
         };
         phraseIdx = Math.floor(Math.random() * phraseDict.tr.length);
       } else if (topSuspect && topSuspect.score >= 45) {
@@ -1683,6 +1767,7 @@ function botDayChat(code) {
           de: [`Ich habe starken Verdacht gegen ${topSuspect.name}, wir müssen aufpassen.`, `Ich finde das Verhalten von ${topSuspect.name} verdächtig.`, `${topSuspect.name} war gestern viel zu still.`],
           es: [`Tengo fuertes sospechas sobre ${topSuspect.name}, debemos vigilar.`, `Creo que el comportamiento de ${topSuspect.name} no inspira confianza.`, `${topSuspect.name} estuvo demasiado callado ayer.`],
           fr: [`J'ai de sérieux doutes sur ${topSuspect.name}, soyons vigilants.`, `Le comportement de ${topSuspect.name} me semble suspect.`, `${topSuspect.name} était bien trop discret hier.`],
+          ru: [`У меня серьезные подозрения насчет ${topSuspect.name}, нужно быть начеку.`, `Думаю, поведение ${topSuspect.name} не внушает доверия.`, `${topSuspect.name} вчера вел себя слишком тихо.`],
         };
         phraseIdx = Math.floor(Math.random() * phraseDict.tr.length);
       } else {
@@ -1694,6 +1779,7 @@ function botDayChat(code) {
           de: ['Wir müssen die Hinweise genau prüfen, keine Fehler erlaubt.', 'Wir sollten die gestrigen Stimmen analysieren, um die Puppe zu finden.', 'Jeder muss sich äußern, blindes Vertrauen bringt uns um.'],
           es: ['Debemos revisar las pistas con cuidado, no hay margen de error.', 'Deberíamos analizar los votos de ayer para hallar a la marioneta.', 'Todos deben hablar, la confianza ciega nos destruirá.'],
           fr: ['Examinons bien les indices, aucune erreur n\'est permise.', 'Analysons les votes d\'hier pour démasquer la marionnette.', 'Chacun doit s\'exprimer, la confiance aveugle nous perdra.'],
+          ru: ['Нужно внимательно изучить улики, права на ошибку не осталось.', 'Нам стоит проанализировать вчерашние голоса, чтобы найти куклу.', 'Каждый в деревне должен высказаться, слепое доверие погубит нас.'],
         };
         phraseIdx = Math.floor(Math.random() * phraseDict.tr.length);
       }
@@ -1706,6 +1792,7 @@ function botDayChat(code) {
           de: phraseDict.de[phraseIdx],
           es: phraseDict.es[phraseIdx],
           fr: phraseDict.fr[phraseIdx],
+          ru: phraseDict.ru[phraseIdx],
         };
         const msgObj = {
           name: chatter.name,
@@ -1897,6 +1984,7 @@ function handleNightEnd(code) {
       de: 'Keine Schreie wurden heute Nacht gehört... Die dunkle Hand zog sich zurück.',
       es: 'No se escucharon gritos esta noche... La mano oscura retrocedió.',
       fr: 'Aucun cri n\'a été entendu cette nuit... La main sombre s\'est retirée.',
+      ru: 'Этой ночью криков не было слышно... Тёмная рука отступила.',
     }, lang));
   } else if (targetToKill) {
     const target = getPlayer(room, targetToKill);
@@ -1911,6 +1999,7 @@ function handleNightEnd(code) {
           de: 'Eine dunkle Hand streckte sich aus — aber jemand hielt sie auf.',
           es: 'Una mano oscura se extendió esta noche, pero alguien la bloqueó.',
           fr: 'Une main sombre s\'est tendue cette nuit — mais quelqu\'un l\'a arrêtée.',
+          ru: 'Этой ночью протянулась тёмная рука — но кто-то остановил её.',
         }, lang));
       } else {
         // Madman curse?
@@ -2036,6 +2125,11 @@ function handleNightEnd(code) {
           : targetActed
             ? `⚠️ Activité nocturne : ${mortTarget.name} était actif dans l'obscurité cette nuit.`
             : `🛡️ Inactif : ${mortTarget.name} est resté paisible et a dormi tranquillement toute la nuit.`,
+        ru: isTargetKilled
+          ? `⚡ Свидетель преступления: на ${mortTarget.name} этой ночью напали! Убегающий силуэт был похож на "${nameA}" или "${nameB}".`
+          : targetActed
+            ? `⚠️ Ночная активность: ${mortTarget.name} этой ночью бодрствовал(а) и действовал(а) во тьме.`
+            : `🛡️ Спокойствие: ${mortTarget.name} всю ночь спал(а) совершенно спокойно.`,
       };
 
       const survClueObj = {
@@ -2054,6 +2148,7 @@ function handleNightEnd(code) {
           de: 'Überwachungsbericht',
           es: 'Informe de Vigilancia',
           fr: 'Rapport de Surveillance',
+          ru: 'Отчет о слежке',
         }
       };
       if (!room.mortisyenClues) room.mortisyenClues = [];
@@ -2108,6 +2203,9 @@ function handleNightEnd(code) {
           fr: targetActed
             ? `🃏 Saint Tarot : "${rahibeTarget.name}" était actif dans l'ombre cette nuit.`
             : `🕯️ Saint Tarot : "${rahibeTarget.name}" a dormi paisiblement cette nuit.`,
+          ru: targetActed
+            ? `🃏 Священное Таро: "${rahibeTarget.name}" этой ночью действовал(а) во тьме.`
+            : `🕯️ Священное Таро: "${rahibeTarget.name}" этой ночью мирно и глубоко спал(а).`,
         }
       };
 
@@ -2161,6 +2259,7 @@ function killPlayer(room, player, cause, announcements, lang) {
       de: `Die Stimme der Nonne zitterte: "${player.name}" war ein ${roleLabel(player.role, 'de')}.`,
       es: `La voz de la Monja tembló: "${player.name}" era un ${roleLabel(player.role, 'es')}.`,
       fr: `La voix du Prêtre trembla : "${player.name}" était un ${roleLabel(player.role, 'fr')}.`,
+      ru: `Голос Священника задрожал: "${player.name}" был(а) ${roleLabel(player.role, 'ru')}.`,
     }, lang));
   } else {
     announcements.push(makeAnnouncement('death', {
@@ -2170,6 +2269,7 @@ function killPlayer(room, player, cause, announcements, lang) {
       de: `"${player.name}" verlor diese Nacht ihr Leben.`,
       es: `"${player.name}" perdió la vida esta noche.`,
       fr: `"${player.name}" a perdu la vie cette nuit.`,
+      ru: `"${player.name}" погиб(ла) этой ночью.`,
     }, lang));
   }
 
@@ -2209,7 +2309,8 @@ function handleKuklaDeathAfterKill(room, cause, announcements, lang) {
       ja: '人形は死亡した…しかし無実の血（2/2カオス）により、Mr.シャーデンフロイデは今夜新たな人形を選択する！',
       de: 'Die Puppe ist gestorben — aber das vergossene unschuldige Blut (2/2 Chaos) erlaubt es Mr. Schadenfreude, heute Nacht eine neue Puppe zu wählen!',
       es: 'La marioneta ha perecido, ¡pero la sangre inocente (2/2 Caos) le permite a Mr. Schadenfreude elegir una nueva marioneta esta noche!',
-      fr: 'La marionnette a péri — mais le sang innocent versé (2/2 Chaos) permet à Mr. Schadenfreude de choisir une nouvelle marionnette cette nuit !'
+      fr: 'La marionnette a péri — mais le sang innocent versé (2/2 Chaos) permet à Mr. Schadenfreude de choisir une nouvelle marionnette cette nuit !',
+      ru: 'Кукла погибла — но пролитая невинная кровь (2/2 Хаос) позволяет Mr. Schadenfreude выбрать новую куклу этой ночью!'
     }, lang));
   } else {
     room.consecutiveInnocentLynches = 0;
@@ -2238,6 +2339,7 @@ function startDawn(code) {
             de: `"${target.name}" erlebte den Morgen nicht. Der Fluch des Verrückten traf sie.`,
             es: `"${target.name}" no llegó a la mañana. La maldición del Demente los alcanzó.`,
             fr: `"${target.name}" n'a pas vu le matin. La malédiction du Fou les a frappés.`,
+            ru: `"${target.name}" не дожил(а) до утра. Проклятие Безумца настигло его/её.`,
           }, lang));
 
           if (room.mortisyen) {
@@ -2303,6 +2405,7 @@ function handleVoteEnd(code) {
       de: 'Das Volk konnte sich nicht entscheiden. Der Tag verging ohne Urteil.',
       es: 'El pueblo no pudo decidir. Este día pasó sin veredicto.',
       fr: 'Le peuple n\'a pas pu trancher. Cette journée s\'est achevée sans verdict.',
+      ru: 'Горожане не смогли принять решение. Этот день прошел без приговора.',
     }, lang)];
     startPhase(code, PHASES.RESULT);
     return;
@@ -2330,6 +2433,7 @@ function handleVoteEnd(code) {
         de: `🎭 "${lynched.name}" wurde hingerichtet! Sie waren Mr. Schadenfreude! Dorfbewohner gewinnen!`,
         es: `🎭 ¡"${lynched.name}" fue ejecutado! ¡Era el Mr. Schadenfreude secreto! ¡Los aldeanos ganan!`,
         fr: `🎭 "${lynched.name}" a été exécuté ! C'était Mr. Schadenfreude ! Les villageois gagnent !`,
+        ru: `🎭 "${lynched.name}" был(а) казнен(а)! Это был скрытый Mr. Schadenfreude! Горожане победили!`,
       }, lang)];
       endGame(code, 'villagers', lang === 'tr'
         ? 'Mr. Schadenfreude halk tarafından asıldı. Köylüler kazandı!'
@@ -2344,6 +2448,7 @@ function handleVoteEnd(code) {
         de: `Das Volk versuchte ${lynched.name} hinzurichten — aber sie konnten ihn nicht berühren. Er lachte.`,
         es: `El pueblo intentó ejecutar a ${lynched.name} — pero no pudieron tocarlo. Se rió.`,
         fr: `Le peuple a tenté d'exécuter ${lynched.name} — mais nul n'a pu le toucher. Il a ri.`,
+        ru: `Горожане попытались казнить ${lynched.name} — но не смогли даже коснуться его. Он лишь рассмеялся.`,
       }, lang)];
       startPhase(code, PHASES.RESULT);
       return;
@@ -2371,6 +2476,7 @@ function handleVoteEnd(code) {
       de: `Die Stimme der Nonne zitterte: "${lynched.name}" war ein ${isKukla ? `${roleLabel(ROLES.KUKLA, 'de')} (${roleLabel(lynched.role, 'de')})` : roleLabel(lynched.role, 'de')}.`,
       es: `La voz de la Monja tembló: "${lynched.name}" era un ${isKukla ? `${roleLabel(ROLES.KUKLA, 'es')} (${roleLabel(lynched.role, 'es')})` : roleLabel(lynched.role, 'es')}.`,
       fr: `La voix du Prêtre trembla : "${lynched.name}" était un ${isKukla ? `${roleLabel(ROLES.KUKLA, 'fr')} (${roleLabel(lynched.role, 'fr')})` : roleLabel(lynched.role, 'fr')}.`,
+      ru: `Голос Священника задрожал: "${lynched.name}" был(а) ${isKukla ? `${roleLabel(ROLES.KUKLA, 'ru')} (${roleLabel(lynched.role, 'ru')})` : roleLabel(lynched.role, 'ru')}.`,
     }, lang));
   } else {
     announcements.push(makeAnnouncement(isKukla ? 'kukla_death' : 'lynch', {
@@ -2389,9 +2495,9 @@ function handleVoteEnd(code) {
       es: isKukla
         ? `🎭 ¡"${lynched.name}" fue ejecutado! Su rol secreto era: ${roleLabel(ROLES.KUKLA, 'es')} (${roleLabel(lynched.role, 'es')})!`
         : `"${lynched.name}" fue ejecutado por el pueblo. Rol: ${roleLabel(lynched.role, 'es')}.`,
-      fr: isKukla
-        ? `🎭 "${lynched.name}" a été exécuté ! Rôle secret : ${roleLabel(ROLES.KUKLA, 'fr')} (${roleLabel(lynched.role, 'fr')}) !`
-        : `"${lynched.name}" a été exécuté par le peuple. Rôle : ${roleLabel(lynched.role, 'fr')}.`,
+      ru: isKukla
+        ? `🎭 "${lynched.name}" был(а) казнен(а)! Тайная роль: ${roleLabel(ROLES.KUKLA, 'ru')} (${roleLabel(lynched.role, 'ru')})!`
+        : `"${lynched.name}" был(а) казнен(а) решением народа. Роль: ${roleLabel(lynched.role, 'ru')}.`,
     }, lang));
   }
 
@@ -2554,6 +2660,7 @@ function makeAnnouncement(type, texts, lang = 'en') {
       de: texts.de || texts.en || texts.tr || '',
       es: texts.es || texts.en || texts.tr || '',
       fr: texts.fr || texts.en || texts.tr || '',
+      ru: texts.ru || texts.en || texts.tr || '',
     }
   };
 }
@@ -2571,6 +2678,7 @@ function roleLabel(role, lang = 'en') {
     de: { sf: 'Mr. Schadenfreude', kukla: 'Puppe', mortisyen: 'Leichenbeschauer', rahibe: 'Nonne', sovalye: 'Ritter', madman: 'Verrückter', koylu: 'Dorfbewohner' },
     es: { sf: 'Mr. Schadenfreude', kukla: 'Marioneta', mortisyen: 'Sepulturero', rahibe: 'Monja', sovalye: 'Caballero', madman: 'Demente', koylu: 'Aldeano' },
     fr: { sf: 'Mr. Schadenfreude', kukla: 'Marionnette', mortisyen: 'Croque-mort', rahibe: 'Nonne', sovalye: 'Chevalier', madman: 'Fou', koylu: 'Villageois' },
+    ru: { sf: 'Mr. Schadenfreude', kukla: 'Кукла', mortisyen: 'Гробовщик', rahibe: 'Священник', sovalye: 'Рыцарь', madman: 'Безумец', koylu: 'Горожанин' },
   };
   return (labels[lang] || labels.en || labels.tr)[role] || role;
 }
@@ -3422,6 +3530,7 @@ io.on('connection', (socket) => {
             de: 'Zu Eurem Befehl, Meister...',
             es: 'A sus órdenes, mi Señor...',
             fr: 'À vos ordres, Maître...',
+            ru: 'Слушаюсь и повинуюсь, Хозяин...',
           },
           {
             tr: 'Sessizce halledeceğim.',
@@ -3430,6 +3539,7 @@ io.on('connection', (socket) => {
             de: 'Ich werde es leise erledigen.',
             es: 'Me encargaré de ello en silencio.',
             fr: 'Je m\'en occupe en silence.',
+            ru: 'Я сделаю всё тихо.',
           },
           {
             tr: 'Kimse bizden şüphelenmiyor...',
@@ -3438,6 +3548,7 @@ io.on('connection', (socket) => {
             de: 'Niemand verdächtigt uns...',
             es: 'Nadie sospecha de nosotros...',
             fr: 'Personne ne nous soupçonne...',
+            ru: 'Никто нас не подозревает...',
           },
           {
             tr: 'Kimi yok etmemi istersiniz?',
@@ -3446,6 +3557,7 @@ io.on('connection', (socket) => {
             de: 'Wen soll ich für Euch beseitigen?',
             es: '¿A quién desea que elimine?',
             fr: 'Qui voulez-vous que j\'élimine ?',
+            ru: 'Кого вы прикажете устранить?',
           },
         ];
         const replyObj = kuklaReplies[Math.floor(Math.random() * kuklaReplies.length)];
@@ -3459,6 +3571,7 @@ io.on('connection', (socket) => {
             de: 'Puppe',
             es: 'Marioneta',
             fr: 'Marionnette',
+            ru: 'Кукла',
           };
           const botMsg = {
             role: 'kukla',
@@ -3485,6 +3598,7 @@ io.on('connection', (socket) => {
             de: 'Gut gemacht, meine Puppe... Folge dem Rhythmus der Schatten.',
             es: 'Bien hecho, mi marioneta... Sigue el ritmo de las sombras.',
             fr: 'Bien joué, ma marionnette... Suis le rythme des ombres.',
+            ru: 'Отлично, моя кукла... Двигайся в такт теням.',
           },
           {
             tr: 'Sessiz ol ve geceyi bekle.',
@@ -3493,6 +3607,7 @@ io.on('connection', (socket) => {
             de: 'Sei still und warte auf die Nacht.',
             es: 'Guarda silencio y espera la noche.',
             fr: 'Reste discret et attends la nuit.',
+            ru: 'Тише... жди наступления ночи.',
           },
           {
             tr: 'Kaos büyüyecek...',
@@ -3501,6 +3616,7 @@ io.on('connection', (socket) => {
             de: 'Das Chaos wird wachsen...',
             es: 'El caos crecerá...',
             fr: 'Le chaos va grandir...',
+            ru: 'Хаос разрастётся...',
           },
         ];
         const replyObj = sfReplies[Math.floor(Math.random() * sfReplies.length)];
@@ -3514,6 +3630,7 @@ io.on('connection', (socket) => {
             de: 'Mr. Schadenfreude',
             es: 'Mr. Schadenfreude',
             fr: 'Mr. Schadenfreude',
+            ru: 'Mr. Schadenfreude',
           };
           const botMsg = {
             role: 'sf',

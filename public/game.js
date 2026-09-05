@@ -109,7 +109,7 @@ function changeLanguage(lang) {
   const soundLabel = document.getElementById('sound-label');
   if (soundLabel && typeof Sound !== 'undefined') {
     const isMuted = Sound.isMuted();
-    soundLabel.textContent = isMuted ? (lang === 'tr' ? 'Ses Kapalı' : 'Muted') : (lang === 'tr' ? 'Ses Açık' : 'Sound On');
+    soundLabel.textContent = isMuted ? (lang === 'tr' ? 'Ses Kapalı' : lang === 'ru' ? 'Без звука' : 'Muted') : (lang === 'tr' ? 'Ses Açık' : lang === 'ru' ? 'Звук вкл' : 'Sound On');
   }
 
   // 1. Re-render Announcements
@@ -716,7 +716,8 @@ socket.on('game:shadowChatMessage', (msg) => {
 
 socket.on('game:voteUpdate', ({ count, total }) => {
   const el = document.getElementById('vote-progress');
-  if (el) el.textContent = `${count} / ${total} ${state.lang === 'tr' ? 'oy kullandı' : 'voted'}`;
+  const votedLabel = state.lang === 'tr' ? 'oy kullandı' : state.lang === 'ru' ? 'проголосовали' : 'voted';
+  if (el) el.textContent = `${count} / ${total} ${votedLabel}`;
 });
 
 socket.on('game:ended', ({ winner, reason, players }) => {
@@ -782,7 +783,7 @@ function toggleReady() {
 }
 
 socket.on('room:botsAdded', ({ count }) => {
-  showToast(count === 1 ? (state.lang === 'tr' ? '🤖 1 bot eklendi' : '🤖 1 bot added') : (state.lang === 'tr' ? `🤖 ${count} bot eklendi` : `🤖 ${count} bots added`), 'success');
+  showToast(count === 1 ? (state.lang === 'tr' ? '🤖 1 bot eklendi' : state.lang === 'ru' ? '🤖 1 бот добавлен' : '🤖 1 bot added') : (state.lang === 'tr' ? `🤖 ${count} bot eklendi` : state.lang === 'ru' ? `🤖 Добавлено ботов: ${count}` : `🤖 ${count} bots added`), 'success');
 });
 
 // ─── STATE RENDERER ───
@@ -941,18 +942,19 @@ function renderLobbyPlayers(players) {
 
     let roleControlHtml = '';
     if (state.isHost) {
-      const autoLabel = state.lang === 'tr' ? '🎲 Rastgele Rol' : '🎲 Random Role';
+      const autoLabel = state.lang === 'tr' ? '🎲 Rastgele Rol' : state.lang === 'ru' ? '🎲 Случайная роль' : '🎲 Random Role';
+      const selectTitle = state.lang === 'tr' ? 'Bu oyuncunun rolünü belirle' : state.lang === 'ru' ? 'Назначить роль этому игроку' : 'Assign role for this player';
       roleControlHtml = `
         <div class="lobby-role-assign-wrap">
-          <select class="lobby-role-select" onchange="setPlayerLobbyRole('${p.id}', this.value)" title="Bu oyuncunun rolünü belirle">
+          <select class="lobby-role-select" onchange="setPlayerLobbyRole('${p.id}', this.value)" title="${selectTitle}">
             <option value="auto" ${assignedRole === 'auto' ? 'selected' : ''}>${autoLabel}</option>
-            <option value="sf" ${assignedRole === 'sf' ? 'selected' : ''}>🎩 Mr. Schadenfreude</option>
-            <option value="kukla" ${assignedRole === 'kukla' ? 'selected' : ''}>🪆 Kukla</option>
-            <option value="mortisyen" ${assignedRole === 'mortisyen' ? 'selected' : ''}>⚰️ Mortisyen</option>
-            <option value="rahibe" ${assignedRole === 'rahibe' ? 'selected' : ''}>🕯️ Rahibe</option>
-            <option value="sovalye" ${assignedRole === 'sovalye' ? 'selected' : ''}>⚔️ Şövalye</option>
-            <option value="madman" ${assignedRole === 'madman' ? 'selected' : ''}>🌀 Madman</option>
-            <option value="koylu" ${assignedRole === 'koylu' ? 'selected' : ''}>🌾 Köylü</option>
+            <option value="sf" ${assignedRole === 'sf' ? 'selected' : ''}>${ROLE_DATA.sf.symbol} ${roleLabel('sf')}</option>
+            <option value="kukla" ${assignedRole === 'kukla' ? 'selected' : ''}>${ROLE_DATA.kukla.symbol} ${roleLabel('kukla')}</option>
+            <option value="mortisyen" ${assignedRole === 'mortisyen' ? 'selected' : ''}>${ROLE_DATA.mortisyen.symbol} ${roleLabel('mortisyen')}</option>
+            <option value="rahibe" ${assignedRole === 'rahibe' ? 'selected' : ''}>${ROLE_DATA.rahibe.symbol} ${roleLabel('rahibe')}</option>
+            <option value="sovalye" ${assignedRole === 'sovalye' ? 'selected' : ''}>${ROLE_DATA.sovalye.symbol} ${roleLabel('sovalye')}</option>
+            <option value="madman" ${assignedRole === 'madman' ? 'selected' : ''}>${ROLE_DATA.madman.symbol} ${roleLabel('madman')}</option>
+            <option value="koylu" ${assignedRole === 'koylu' ? 'selected' : ''}>${ROLE_DATA.koylu.symbol} ${roleLabel('koylu')}</option>
           </select>
         </div>
       `;
@@ -1191,10 +1193,10 @@ function renderNight(gs, myRole, priv) {
       <div class="waiting-msg dead-waiting-msg" style="padding:2.2rem 1.2rem;text-align:center">
         <div style="font-size:2.8rem;margin-bottom:0.6rem">👻 ⚰️</div>
         <p style="color:var(--gold-light);font-size:1.1rem;font-family:var(--font-title);margin-bottom:0.4rem">
-          ${state.lang === 'tr' ? 'Ölüler Gece Eylem Yapamaz' : 'The Dead Cannot Act'}
+          ${state.lang === 'tr' ? 'Ölüler Gece Eylem Yapamaz' : state.lang === 'ru' ? 'Мертвые не могут действовать ночью' : 'The Dead Cannot Act'}
         </p>
         <p style="color:var(--text-muted);font-size:0.9rem;font-style:italic;max-width:380px;margin:0 auto">
-          ${state.lang === 'tr' ? 'Ruhun sessizliğe büründü. Köyün kaderini gölgelerden izliyorsun...' : 'Your spirit rests in peace. You watch the village fate from the shadows...'}
+          ${state.lang === 'tr' ? 'Ruhun sessizliğe büründü. Köyün kaderini gölgelerden izliyorsun...' : state.lang === 'ru' ? 'Твой дух погрузился в тишину. Ты наблюдаешь за судьбой деревни из теней...' : 'Your spirit rests in peace. You watch the village fate from the shadows...'}
         </p>
       </div>
     `;
@@ -1221,8 +1223,8 @@ function renderNight(gs, myRole, priv) {
     kuklaBanner.innerHTML = `
       <div class="kukla-overlay-icon">🪆</div>
       <div class="kukla-overlay-content">
-        <div class="kukla-overlay-title">${state.lang === 'tr' ? 'Mr. Schadenfreude Kuklasısın' : 'You are Mr. Schadenfreude\'s Puppet'}</div>
-        <div class="kukla-overlay-desc">${state.lang === 'tr' ? `Kendi ${roleLabel(myRole)} yeteneğini kullanabilirsin. Efendin infaz emrini verdiğinde ekranda belirecektir.` : `You can use your ${roleLabel(myRole)} ability. When your master issues an execution order, it will pop up.`}</div>
+        <div class="kukla-overlay-title">${state.lang === 'tr' ? 'Mr. Schadenfreude Kuklasısın' : state.lang === 'ru' ? 'Ты кукла Mr. Schadenfreude' : 'You are Mr. Schadenfreude\'s Puppet'}</div>
+        <div class="kukla-overlay-desc">${state.lang === 'tr' ? `Kendi ${roleLabel(myRole)} yeteneğini kullanabilirsin. Efendin infaz emrini verdiğinde ekranda belirecektir.` : state.lang === 'ru' ? `Ты можешь использовать способность роли ${roleLabel(myRole)}. Когда хозяин отдаст приказ об убийстве, он появится на экране.` : `You can use your ${roleLabel(myRole)} ability. When your master issues an execution order, it will pop up.`}</div>
       </div>
     `;
     area.prepend(kuklaBanner);
@@ -1261,7 +1263,7 @@ function renderSFNightPanel(gs, priv, area) {
           document.querySelectorAll('#night-action-area .target-card').forEach(x => x.classList.remove('selected'));
           li.classList.add('selected');
           socket.emit('action:pickKukla', { targetId: p.id });
-          showToast(state.lang === 'tr' ? 'Yeni kukla seçildi.' : 'New puppet selected.', 'success');
+          showToast(state.lang === 'tr' ? 'Yeni kukla seçildi.' : state.lang === 'ru' ? 'Новая кукла выбрана.' : 'New puppet selected.', 'success');
         };
         ul.appendChild(li);
       });
@@ -1401,7 +1403,7 @@ function renderSFNightPanel(gs, priv, area) {
       li.onclick = () => {
         if (typeof Sound !== 'undefined') Sound.playClick();
         if (state.sfTargetSelected && state.sfTargetSelected === p.id) {
-          showToast(state.lang === 'tr' ? 'Kurbanın kendisine iftira atamazsınız, başka bir masum seçin.' : 'Cannot frame the victim, pick another innocent.', 'warning');
+          showToast(state.lang === 'tr' ? 'Kurbanın kendisine iftira atamazsınız, başka bir masum seçin.' : state.lang === 'ru' ? 'Нельзя оклеветать саму жертву, выберите другого невиновного.' : 'Cannot frame the victim, pick another innocent.', 'warning');
           return;
         }
         document.querySelectorAll('#sf-frame-list .target-card').forEach(x => x.classList.remove('selected'));
@@ -1428,7 +1430,7 @@ function renderSFNightPanel(gs, priv, area) {
     btn.disabled = true;
     btn.style.opacity = '0.5';
     if (btnNoOrder) btnNoOrder.disabled = true;
-    showToast(isSecretSF ? (state.lang === 'tr' ? '🗡️ Hedef seçildi.' : '🗡️ Target selected.') : t('order_executed_toast'), 'confirm');
+    showToast(isSecretSF ? (state.lang === 'tr' ? '🗡️ Hedef seçildi.' : state.lang === 'ru' ? '🗡️ Цель выбрана.' : '🗡️ Target selected.') : t('order_executed_toast'), 'confirm');
   };
   btnRow.appendChild(btn);
 
@@ -2037,16 +2039,16 @@ function renderEnded(winner, reason, players) {
   const winnerTitle = t(isSF ? 'winner_sf' : 'winner_villagers');
   const winnerIcon = isSF ? '🎩' : '🌾';
   const winnerSubtitle = isSF 
-    ? (state.lang === 'tr' ? 'Köy tamamen gölgeye teslim oldu. Efendi kazandı.' : 'The village surrendered to darkness. The master wins.')
-    : (state.lang === 'tr' ? 'Kukla ipleri koptu! Köylüler karanlığı defetti.' : 'The puppet strings were severed! The villagers prevailed.');
+    ? (state.lang === 'tr' ? 'Köy tamamen gölgeye teslim oldu. Efendi kazandı.' : state.lang === 'ru' ? 'Деревня пала перед тьмой. Хозяин победил.' : 'The village surrendered to darkness. The master wins.')
+    : (state.lang === 'tr' ? 'Kukla ipleri koptu! Köylüler karanlığı defetti.' : state.lang === 'ru' ? 'Нити марионетки разорваны! Жители рассеяли тьму.' : 'The puppet strings were severed! The villagers prevailed.');
 
   const roundCount = state.gameState?.round || 1;
   const chaosCount = Math.max(0, Math.min(2, state.gameState?.consecutiveInnocentLynches || 0));
 
   const teamLabels = {
-    evil: { tr: 'Gölge / Kötü', en: 'Shadow / Evil', color: '#ff5252' },
-    town: { tr: 'Köy / Masum', en: 'Town / Innocent', color: '#66bb6a' },
-    neutral: { tr: 'Nötr / Kaos', en: 'Neutral / Chaos', color: '#ab47bc' }
+    evil: { tr: 'Gölge / Kötü', en: 'Shadow / Evil', de: 'Schatten / Böse', es: 'Sombra / Mal', fr: 'Ombre / Mal', ru: 'Тень / Зло', color: '#ff5252' },
+    town: { tr: 'Köy / Masum', en: 'Town / Innocent', de: 'Dorf / Unschuldig', es: 'Pueblo / Inocente', fr: 'Village / Innocent', ru: 'Город / Невиновный', color: '#66bb6a' },
+    neutral: { tr: 'Nötr / Kaos', en: 'Neutral / Chaos', de: 'Neutral / Chaos', es: 'Neutral / Caos', fr: 'Neutre / Chaos', ru: 'Нейтрал / Хаос', color: '#ab47bc' }
   };
 
   const castCardsHtml = finalPlayers.map(p => {
@@ -2058,20 +2060,20 @@ function renderEnded(winner, reason, players) {
     
     let statusText = '';
     if (dead) {
-      if (p.deathCause === 'night') statusText = state.lang === 'tr' ? '💀 Gece Katledildi' : '💀 Slain at Night';
-      else if (p.deathCause === 'lynch') statusText = state.lang === 'tr' ? '⚖️ İdam Edildi' : '⚖️ Executed';
-      else if (p.deathCause === 'madman_curse') statusText = state.lang === 'tr' ? '🌀 Lanetlendi' : '🌀 Cursed';
-      else statusText = state.lang === 'tr' ? '💀 Elendi' : '💀 Eliminated';
+      if (p.deathCause === 'night') statusText = state.lang === 'tr' ? '💀 Gece Katledildi' : state.lang === 'ru' ? '💀 Убит(а) ночью' : '💀 Slain at Night';
+      else if (p.deathCause === 'lynch') statusText = state.lang === 'tr' ? '⚖️ İdam Edildi' : state.lang === 'ru' ? '⚖️ Казнен(а)' : '⚖️ Executed';
+      else if (p.deathCause === 'madman_curse') statusText = state.lang === 'tr' ? '🌀 Lanetlendi' : state.lang === 'ru' ? '🌀 Проклят(а)' : '🌀 Cursed';
+      else statusText = state.lang === 'tr' ? '💀 Elendi' : state.lang === 'ru' ? '💀 Выбыл(а)' : '💀 Eliminated';
     } else {
-      statusText = state.lang === 'tr' ? '✨ Hayatta Kaldı' : '✨ Survived';
+      statusText = state.lang === 'tr' ? '✨ Hayatta Kaldı' : state.lang === 'ru' ? '✨ Выжил(а)' : '✨ Survived';
     }
 
     const isKukla = !!p.isKukla || roleKey === 'kukla';
     const team = (roleKey === 'sf' || isKukla) ? 'evil' : (roleKey === 'madman' ? 'neutral' : 'town');
     const tInfo = teamLabels[team] || teamLabels.town;
-    const tLabel = state.lang === 'tr' ? tInfo.tr : tInfo.en;
+    const tLabel = tInfo[state.lang] || tInfo.en;
     const roleText = isKukla 
-      ? (roleKey === 'kukla' ? roleLabel('kukla') : `${roleLabel(roleKey)} + 🪆 Kukla`) 
+      ? (roleKey === 'kukla' ? roleLabel('kukla') : `${roleLabel(roleKey)} + 🪆 ${roleLabel('kukla')}`) 
       : roleLabel(roleKey);
 
     return `
@@ -2117,17 +2119,17 @@ function renderEnded(winner, reason, players) {
     <div class="endgame-stats-row">
       <div class="endgame-stat-card">
         <span class="stat-icon">🌙</span>
-        <span class="stat-label">${state.lang === 'tr' ? 'Toplam Tur' : 'Rounds'}</span>
+        <span class="stat-label">${state.lang === 'tr' ? 'Toplam Tur' : state.lang === 'ru' ? 'Всего раундов' : 'Rounds'}</span>
         <strong class="stat-value">${roundCount}</strong>
       </div>
       <div class="endgame-stat-card">
         <span class="stat-icon">🩸</span>
-        <span class="stat-label">${t('chaos_score') || (state.lang === 'tr' ? 'Kaos Skoru' : 'Chaos Score')}</span>
+        <span class="stat-label">${t('chaos_score') || (state.lang === 'tr' ? 'Kaos Skoru' : state.lang === 'ru' ? 'Очки хаоса' : 'Chaos Score')}</span>
         <strong class="stat-value">${chaosCount}/2</strong>
       </div>
       <div class="endgame-stat-card">
         <span class="stat-icon">👥</span>
-        <span class="stat-label">${state.lang === 'tr' ? 'Oyuncular' : 'Cast'}</span>
+        <span class="stat-label">${state.lang === 'tr' ? 'Oyuncular' : state.lang === 'ru' ? 'Игроки' : 'Cast'}</span>
         <strong class="stat-value">${finalPlayers.length}</strong>
       </div>
     </div>
@@ -2135,7 +2137,7 @@ function renderEnded(winner, reason, players) {
     <div class="endgame-cast-section">
       <div class="endgame-section-header">
         <span class="section-flourish">── ❦ ──</span>
-        <h3 class="endgame-section-title">${state.lang === 'tr' ? 'Sahne Kapanışı — Tüm Roller' : 'Curtain Call — All Roles'}</h3>
+        <h3 class="endgame-section-title">${state.lang === 'tr' ? 'Sahne Kapanışı — Tüm Roller' : state.lang === 'ru' ? 'Занавес — Все роли' : 'Curtain Call — All Roles'}</h3>
         <span class="section-flourish">── ❦ ──</span>
       </div>
       <div class="endgame-cast-grid">
@@ -2159,11 +2161,11 @@ function renderPrivateInfo(priv) {
 
   if (isKukla) {
     html += `<div class="private-kukla-badge">🪆 + ${t('role_kukla')}</div>`;
-    html += `<span style="color:var(--red-light);font-size:0.78rem;display:block;margin-top:0.3rem">${lang === 'tr' ? 'Mr. Schadenfreude\'nin emrini bekle.' : 'Await SF\'s command.'}</span>`;
+    html += `<span style="color:var(--red-light);font-size:0.78rem;display:block;margin-top:0.3rem">${lang === 'tr' ? 'Mr. Schadenfreude\'nin emrini bekle.' : lang === 'ru' ? 'Жди приказа Mr. Schadenfreude.' : 'Await SF\'s command.'}</span>`;
   }
 
   if (role === 'sf') {
-    html += `<br/><span style="margin-top:0.5rem;display:block">${t('sf_kukla_info')} <strong>${priv.kuklaName ? escHtml(priv.kuklaName) : (lang === 'tr' ? 'Henüz yok' : 'None yet')}</strong></span>`;
+    html += `<br/><span style="margin-top:0.5rem;display:block">${t('sf_kukla_info')} <strong>${priv.kuklaName ? escHtml(priv.kuklaName) : (lang === 'tr' ? 'Henüz yok' : lang === 'ru' ? 'Пока нет' : 'None yet')}</strong></span>`;
   }
   el.innerHTML = html;
 
@@ -2282,7 +2284,7 @@ function renderMorticianLedger() {
   const isAlive = (myPlayer?.alive ?? state.privateState?.alive) ?? true;
   const canPublish = isDay && isAlive;
   const publishBtnTitle = !isAlive
-    ? (state.lang === 'tr' ? 'Ölüyken rapor paylaşamazsın' : 'Cannot publish while dead')
+    ? (state.lang === 'tr' ? 'Ölüyken rapor paylaşamazsın' : state.lang === 'ru' ? 'Нельзя публиковать отчет будучи мертвым' : 'Cannot publish while dead')
     : (!isDay ? t('publish_clue_day_only') : '');
 
   // If we have 2+ clues, render a Consolidated Dossier Summary Card at top!
@@ -2292,7 +2294,7 @@ function renderMorticianLedger() {
 
     let commonHtml = '';
     if (commonSuspects.length > 0) {
-      const vakaLabel = currentL === 'tr' ? 'vaka' : currentL === 'ja' ? '件' : currentL === 'de' ? 'Fälle' : currentL === 'es' ? 'casos' : currentL === 'fr' ? 'cas' : 'cases';
+      const vakaLabel = currentL === 'tr' ? 'vaka' : currentL === 'ru' ? 'дел' : currentL === 'ja' ? '件' : currentL === 'de' ? 'Fälle' : currentL === 'es' ? 'casos' : currentL === 'fr' ? 'cas' : 'cases';
       commonHtml = `
         <div class="dossier-common-row">
           <span class="dossier-common-label">${t('mortisyen_common_suspect')}</span>
@@ -2303,9 +2305,10 @@ function renderMorticianLedger() {
       `;
     }
 
+    const corpseWord = currentL === 'tr' ? 'Ceset' : currentL === 'ru' ? 'Тело' : 'Corpse';
     const fullDossierText = clues.map(c => {
       const cText = c.translations?.[currentL] || c.clue;
-      return `[${c.name || 'Ceset'}]: ${cText}`;
+      return `[${c.name || corpseWord}]: ${cText}`;
     }).join(' | ');
 
     summaryLi.innerHTML = `
@@ -2383,7 +2386,7 @@ function publishClue(text) {
   const myPlayer = state.gameState?.players?.find(p => p.id === socket.id || p.name === state.myName);
   const isAlive = (myPlayer?.alive ?? state.privateState?.alive) ?? true;
   if (!isAlive) {
-    showToast(state.lang === 'tr' ? 'Ölüyken rapor paylaşamazsın.' : 'Cannot publish reports while dead.', 'error');
+    showToast(state.lang === 'tr' ? 'Ölüyken rapor paylaşamazsın.' : state.lang === 'ru' ? 'Нельзя публиковать отчет будучи мертвым.' : 'Cannot publish reports while dead.', 'error');
     return;
   }
   if (state.gameState?.phase !== 'day') {
@@ -2414,13 +2417,14 @@ function renderRahibeTarotLedger() {
     const statusIcon = t.targetActed ? '🃏' : '🕯️';
     const borderCol = t.targetActed ? '#ba68c8' : '#81c784';
     const statusTxt = t.targetActed
-      ? (lang === 'tr' ? 'Hareketliydi' : 'Active')
-      : (lang === 'tr' ? 'Sessizce Uyudu' : 'Slept Peacefully');
+      ? (lang === 'tr' ? 'Hareketliydi' : lang === 'ru' ? 'Действовал(а)' : 'Active')
+      : (lang === 'tr' ? 'Sessizce Uyudu' : lang === 'ru' ? 'Спал(а) мирно' : 'Slept Peacefully');
+    const roundLabel = lang === 'tr' ? 'Tur' : lang === 'ru' ? 'Раунд' : 'Round';
 
     return `
       <li class="clue-card" style="border-left:3px solid ${borderCol};background:rgba(26,16,40,0.7);margin-bottom:0.5rem;padding:0.6rem;border-radius:4px">
         <div style="font-size:0.75rem;color:var(--text-muted);display:flex;justify-content:space-between;margin-bottom:0.3rem">
-          <span style="font-weight:600;color:#f3e5f5">${statusIcon} Tur ${t.round || 1} — ${escHtml(t.targetName || '')}</span>
+          <span style="font-weight:600;color:#f3e5f5">${statusIcon} ${roundLabel} ${t.round || 1} — ${escHtml(t.targetName || '')}</span>
           <span style="color:${borderCol};font-weight:600">${statusTxt}</span>
         </div>
         <div style="font-size:0.85rem;color:#f3e5f5;line-height:1.4">${escHtml(text)}</div>
@@ -2478,10 +2482,17 @@ function showRoleModal(role, isKukla) {
   const descEl = document.getElementById('role-modal-desc');
 
   if (symEl) symEl.textContent = kuklaActive ? `${data.symbol} 🪆` : (isSecretSF ? '🗡️' : data.symbol);
-  if (titleEl) titleEl.textContent = kuklaActive ? `${roleLabel(role)} + ${t('role_kukla')}` : (isSecretSF ? `${roleLabel(role)} (Gizli Katil)` : roleLabel(role));
+  const secretKillerLabel = state.lang === 'tr' ? 'Gizli Katil' : state.lang === 'ru' ? 'Тайный убийца' : 'Secret Killer';
+  if (titleEl) titleEl.textContent = kuklaActive ? `${roleLabel(role)} + ${t('role_kukla')}` : (isSecretSF ? `${roleLabel(role)} (${secretKillerLabel})` : roleLabel(role));
   if (descEl) {
     const baseDesc = isSecretSF ? t('desc_sf_secret') : (typeof I18N !== 'undefined' ? I18N.roleDesc(role) : '');
-    const kuklaDesc = kuklaActive ? `<br/><br/><strong style="color:#ff7043">🪆 ${state.lang === 'tr' ? 'KUKLA DURUMU:' : 'PUPPET STATUS:'}</strong> ${state.lang === 'tr' ? 'Aynı zamanda Mr. Schadenfreude\'nin kuklasısın! Kendi rol yeteneğini kullanırken, gece efendinin göndereceği infaz emirlerini de yerine getireceksin.' : 'You are also Mr. Schadenfreude\'s puppet! While using your role abilities, you will also carry out your master\'s execution orders at night.'}` : '';
+    const kuklaTitle = state.lang === 'tr' ? 'KUKLA DURUMU:' : state.lang === 'ru' ? 'СТАТУС КУКЛЫ:' : 'PUPPET STATUS:';
+    const kuklaText = state.lang === 'tr'
+      ? 'Aynı zamanda Mr. Schadenfreude\'nin kuklasısın! Kendi rol yeteneğini kullanırken, gece efendinin göndereceği infaz emirlerini de yerine getireceksin.'
+      : state.lang === 'ru'
+      ? 'Ты также кукла Mr. Schadenfreude! Используя способности своей роли, ночью ты также будешь исполнять приказы хозяина об убийстве.'
+      : 'You are also Mr. Schadenfreude\'s puppet! While using your role abilities, you will also carry out your master\'s execution orders at night.';
+    const kuklaDesc = kuklaActive ? `<br/><br/><strong style="color:#ff7043">🪆 ${kuklaTitle}</strong> ${kuklaText}` : '';
     descEl.innerHTML = baseDesc + kuklaDesc;
   }
   document.getElementById('role-modal')?.classList.remove('hidden');
@@ -2502,7 +2513,7 @@ function confirmKill() {
   }
   document.getElementById('kill-modal')?.classList.add('hidden');
   document.getElementById('pending-order-badge')?.classList.add('hidden');
-  showToast(state.lang === 'tr' ? 'Emir yerine getirildi.' : 'Order carried out.', 'confirm');
+  showToast(state.lang === 'tr' ? 'Emir yerine getirildi.' : state.lang === 'ru' ? 'Приказ исполнен.' : 'Order carried out.', 'confirm');
 }
 
 function closeKillModal() {
