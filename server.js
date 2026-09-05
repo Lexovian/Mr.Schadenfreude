@@ -2764,6 +2764,9 @@ function buildPrivateState(room, playerId) {
     sfCanPickCondition: isSF && !isSecretSF ? getSFPickCondition(room) : undefined,
     sfFramesLeft: isSF ? Math.max(0, getMaxSFFrames(room.players.length) - (room.sfFramesUsed || 0)) : undefined,
     sfFramesMax: isSF ? getMaxSFFrames(room.players.length) : undefined,
+    sfActionDone: isSF ? (!!room.nightActions.sf_target) : undefined,
+    sfTarget: isSF ? room.nightActions.sf_target : undefined,
+    sfFrame: isSF ? room.nightActions.sf_frame : undefined,
     // Şövalye: remaining challenge uses
     sovalyeChallengesLeft: isSovalye ? Math.max(0, 2 - (room.sovalyeChallengesUsed || 0)) : undefined,
     sovalyeActionDone: isSovalye ? (!!(room.nightActions.sovalye_protect || room.nightActions.sovalye_challenge)) : undefined,
@@ -3128,6 +3131,7 @@ io.on('connection', (socket) => {
         type: 'info',
         message: room.language === 'tr' ? '🚫 Bu gece infaz emri verilmedi (Pas geçildi).' : '🚫 No kill order sent tonight (Passed).',
       });
+      socket.emit('game:role', buildPrivateState(room, socket.id));
       return;
     }
 
@@ -3221,6 +3225,7 @@ io.on('connection', (socket) => {
       type: 'info',
       message: room.language === 'tr' ? '🚫 Bu gece infaz emri verilmedi (Pas geçildi).' : '🚫 No kill order sent tonight.',
     });
+    socket.emit('game:role', buildPrivateState(room, socket.id));
   });
 
   // Kukla confirms kill

@@ -65,6 +65,8 @@ let state = {
   timerDuration: 0,
   voteSelected: null,
   sfTargetSelected: null,
+  sfFrameSelected: null,
+  sfActionConfirmed: false,
   sovalyeMode: 'protect',        // 'protect' | 'challenge'
   sovalyeTargetSelected: null,
   sovalyeActionConfirmed: false, // locks panel after confirm
@@ -871,6 +873,7 @@ function renderState(gs) {
     state.rahibeActionConfirmed = false;
     state.rahibePassed = false;
     state.rahibeTargetSelected = null;
+    state.sfActionConfirmed = false;
     state.sfTargetSelected = null;
     state.sfFrameSelected = null;
   }
@@ -1272,6 +1275,44 @@ function renderSFNightPanel(gs, priv, area) {
     return;
   }
 
+  // Check if SF already performed action this night (closes the order panel)
+  const isActionDone = state.sfActionConfirmed || priv?.sfActionDone;
+  if (isActionDone) {
+    const isPass = (state.sfTargetSelected === 'none' || priv?.sfTarget === 'none');
+    const targetPlayer = !isPass && (state.sfTargetSelected || priv?.sfTarget)
+      ? gs.players.find(p => p.id === (state.sfTargetSelected || priv?.sfTarget))
+      : null;
+    const framedPlayer = (state.sfFrameSelected || priv?.sfFrame)
+      ? gs.players.find(p => p.id === (state.sfFrameSelected || priv?.sfFrame))
+      : null;
+
+    let targetInfo = '';
+    if (isPass) {
+      targetInfo = isSecretSF ? t('sf_pass_done') : t('sf_no_order_done');
+    } else if (targetPlayer) {
+      targetInfo = isSecretSF
+        ? `${t('sf_target_locked')}: <strong>${escHtml(targetPlayer.name)}</strong>`
+        : `${t('sf_order_sent_to_kukla')}: <strong>${escHtml(targetPlayer.name)}</strong>`;
+      if (framedPlayer) {
+        targetInfo += `<br/><span style="color:var(--text-muted);font-size:0.8rem">🎭 ${t('sf_frame_locked')}: <strong>${escHtml(framedPlayer.name)}</strong></span>`;
+      }
+    }
+
+    area.innerHTML = `
+      <div class="night-action-box sf-done-waiting-box" style="text-align:center;padding:2.2rem 1.2rem;background:radial-gradient(ellipse at center, rgba(183,28,28,0.12) 0%, rgba(10,8,16,0.6) 80%);border:1px solid rgba(183,28,28,0.3);border-radius:8px">
+        <div style="font-size:2.8rem;margin-bottom:0.6rem">${isSecretSF ? '🗡️ 🕯️' : '🎭 🪆'}</div>
+        <p style="color:var(--gold-light);font-size:1.15rem;font-family:var(--font-title);margin-bottom:0.4rem">
+          ${isSecretSF ? t('sf_secret_done_title') : t('sf_order_done_title')}
+        </p>
+        <p style="color:var(--text-muted);font-size:0.88rem;max-width:420px;margin:0 auto;line-height:1.4">
+          ${isSecretSF ? t('sf_secret_done_desc') : t('sf_order_done_desc')}
+        </p>
+        ${targetInfo ? `<div style="margin-top:1rem;padding:0.6rem 1.1rem;background:rgba(183,28,28,0.18);border:1px solid rgba(183,28,28,0.35);border-radius:6px;display:inline-block;font-size:0.88rem;color:var(--text-light)">${targetInfo}</div>` : ''}
+      </div>
+    `;
+    return;
+  }
+
   // SF night action box
   const box = document.createElement('div');
   box.className = 'night-action-box sf-night-multiaction-box';
@@ -1427,10 +1468,9 @@ function renderSFNightPanel(gs, priv, area) {
     if (!state.sfTargetSelected) return showToast(t('pick_target'), 'error');
     if (typeof Sound !== 'undefined') Sound.playKill();
     socket.emit('action:sfTarget', { targetId: state.sfTargetSelected, frameId: state.sfFrameSelected });
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
-    if (btnNoOrder) btnNoOrder.disabled = true;
+    state.sfActionConfirmed = true;
     showToast(isSecretSF ? (state.lang === 'tr' ? '🗡️ Hedef seçildi.' : state.lang === 'ru' ? '🗡️ Цель выбрана.' : '🗡️ Target selected.') : t('order_executed_toast'), 'confirm');
+    renderSFNightPanel(gs, priv, area);
   };
   btnRow.appendChild(btn);
 
@@ -1440,10 +1480,11 @@ function renderSFNightPanel(gs, priv, area) {
   btnNoOrder.onclick = () => {
     if (typeof Sound !== 'undefined') Sound.playClick();
     socket.emit('action:sfTarget', { targetId: 'none', frameId: null });
-    btn.disabled = true;
-    btnNoOrder.disabled = true;
-    btnNoOrder.style.opacity = '0.5';
+    state.sfActionConfirmed = true;
+    state.sfTargetSelected = 'none';
+    state.sfFrameSelected = null;
     showToast(isSecretSF ? t('sf_btn_pass_secret_toast') : t('sf_no_order_toast'), 'info');
+    renderSFNightPanel(gs, priv, area);
   };
   btnRow.appendChild(btnNoOrder);
 
