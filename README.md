@@ -43,7 +43,7 @@ The vocalists whose character archetypes inspired the in-game villagers and abil
 | **GUMI** (Megpoid) | Villager | **Megumi Nakajima** (中島愛) | [X (Twitter)](https://x.com/mamegu_staff) • [Official Website](https://nakajima-megumi.jp/) |
 | **Camui Gackpo** (神威がくぽ) | Villager | **GACKT** | [X (Twitter)](https://x.com/GACKT) • [YouTube Channel](https://www.youtube.com/c/GACKT) • [Official Website](https://gackt.com/) |
 
-> *All original characters, lore, voice assets, art concepts, and musical themes belong to their respective creators and copyright owners (Crypton Future Media, Internet Co., Ltd., Yamaha). This project is open-source and created strictly for non-commercial community entertainment and artistic appreciation.*
+> *All original characters, lore, voice assets, art concepts, and musical themes belong to their respective creators and copyright owners (Crypton Future Media, Internet Co., Ltd., Yamaha). This project is an unofficial fan tribute created strictly for non-commercial community entertainment and artistic appreciation.*
 
 ---
 
