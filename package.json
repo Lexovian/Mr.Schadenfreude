@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Mr. Schadenfreude themed Vampir Köylü web game",
   "main": "server.js",
+  "license": "UNLICENSED",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"

@@ -155,4 +155,6 @@ Switch between 6 supported languages in real time:
 
 ## License
 
-Distributed under the [MIT License](LICENSE).
+Copyright © 2026 Lexovian. All Rights Reserved.
+
+This project is proprietary software. No part of this software may be copied, modified, distributed, or transmitted without explicit written permission. See [LICENSE](LICENSE) for full terms.
