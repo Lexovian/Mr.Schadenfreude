@@ -1,9 +1,42 @@
+FAN TRIBUTE DISCLAIMER & SOURCE CODE LICENSE
+=============================================
+
+1. THIRD-PARTY INTELLECTUAL PROPERTY & FAN TRIBUTE DISCLAIMER
+--------------------------------------------------------------
+"Mr. Schadenfreude" (ミスター・シャーデンフロイデ) is an original musical work and 
+intellectual property created by:
+- Music & Lyrics: Hitoshizuku-P (ひとしずく) × Yama△ (やま△)
+- Character Design & Illustrations: Suzunosuke (鈴ノ助)
+- Video & Movie Production: TSO (とさお)
+
+All original characters, lore, character names (including Hatsune Miku, KAITO, 
+Kagamine Rin & Len, Megurine Luka, MEIKO, GUMI, Camui Gackpo), and thematic role 
+concepts belong entirely to their respective copyright holders, including 
+Hitoshizuku-P × Yama△, Suzunosuke, Crypton Future Media, INC., and INTERNET Co., Ltd.
+
+This project is an unofficial, non-commercial, fan-made interactive web tribute. 
+No claim of ownership or copyright is made regarding any original characters, 
+names, storylines, musical compositions, or lore. No revenue, donations, or 
+commercial gain is derived from this project.
+
+
+2. SOURCE CODE & IMPLEMENTATION COPYRIGHT (ALL RIGHTS RESERVED)
+---------------------------------------------------------------
 Copyright (c) 2026 Lexovian. All Rights Reserved.
 
-This software and its associated documentation, source code, visual assets, audio, and graphics are the proprietary property of Lexovian ("Owner").
+Subject to the third-party intellectual property rights noted above, all original 
+underlying source code, software architecture, game logic algorithms, procedural 
+Web Audio synthesizer implementation (sound.js), user interface design, and 
+stylesheets (CSS) contained within this repository are the proprietary work of Lexovian.
 
-All rights reserved.
+PERMISSIONS AND RESTRICTIONS:
+- You may view, clone, or run this repository locally for strictly personal, 
+  educational, and non-commercial evaluation purposes.
+- UNAUTHORIZED REDISTRIBUTION, HOSTING, OR CLONING: You may NOT re-host, publish, 
+  deploy to public servers, distribute, sell, license, or sub-license this game or 
+  its source code (in whole or in substantial part) without prior express written 
+  permission from Lexovian.
+- Plagiarism, removing author attribution, or falsely claiming authorship of this 
+  web implementation is strictly prohibited.
 
-No part of this software may be copied, reproduced, distributed, republished, downloaded, displayed, posted, modified, reverse engineered, decompiled, or transmitted in any form or by any means, including but not limited to electronic, mechanical, photocopying, recording, or otherwise, without the prior express written permission of the copyright owner.
-
-Unauthorized copying, modification, distribution, or public display of this software, via any medium, is strictly prohibited.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.

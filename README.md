@@ -8,7 +8,7 @@
 [![Socket.IO](https://img.shields.io/badge/Socket.IO-v4.7%2B-010101.svg)](https://socket.io/)
 [![Express](https://img.shields.io/badge/Express-4.x-lightgrey.svg)](https://expressjs.com/)
 [![Render](https://img.shields.io/badge/Deploy%20on-Render-46E3B7.svg)](https://render.com/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
+[![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg)](#license)
 
 [Original Credits](#original-credits--tribute) • [Vocal Cast](#vocaloid-cast--voice-providers) • [Key Features](#key-features) • [Roles & Abilities](#roles--abilities) • [Local Setup](#getting-started) • [Deploy to Render](#deployment-rendercom)
 
@@ -155,6 +155,8 @@ Switch between 6 supported languages in real time:
 
 ## License
 
-Copyright © 2026 Lexovian. All Rights Reserved.
+This project operates under a **Fan Tribute Disclaimer & Source Code Copyright**:
+- **Third-Party IP & Lore:** All original characters, names, storyline, and song concepts belong to **Hitoshizuku-P × Yama△**, **Suzunosuke**, **Crypton Future Media**, and **Internet Co., Ltd.** This is an unofficial, non-commercial fan tribute.
+- **Source Code & Web Implementation:** Copyright © 2026 Lexovian. All Rights Reserved. Re-hosting, public server deployment, plagiarism, or redistribution of the web implementation and source code without prior written permission is strictly prohibited.
 
-This project is proprietary software. No part of this software may be copied, modified, distributed, or transmitted without explicit written permission. See [LICENSE](LICENSE) for full terms.
+See the full terms in [LICENSE](LICENSE).
