@@ -12,23 +12,23 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="gothic-theme">
-  <!-- Sahne Gölgeleri & Kukla İpleri Efekti -->
+  <!-- Atmospheric Stage Vignette & Strings -->
   <div class="stage-overlay">
     <div class="puppet-strings"></div>
     <div class="vignette-layer"></div>
     <div class="candle-ambient"></div>
   </div>
 
-  <!-- Arka plan parçacık ve kül efekti -->
+  <!-- Background Ash & Ember Canvas -->
   <canvas id="particles"></canvas>
 
-  <!-- Sunucu Bağlantı / Uyanma Bildirimi (Render Cold-Start Banner) -->
+  <!-- Server Cold-Start & Connectivity Banner -->
   <div id="server-status-banner" class="server-status-banner hidden">
     <span class="banner-pulse"></span>
     <span id="server-status-text" data-i18n="server_waking_up">🕯️ Server is waking up, please wait a few seconds...</span>
   </div>
 
-  <!-- Üst Bar: Ses ve Grimoire / Kılavuz Butonları -->
+  <!-- Global Floating Navigation & Audio Controls -->
   <header class="global-floating-bar">
     <button id="btn-grimoire-open" class="floating-btn grimoire-btn" onclick="openGrimoire()" title="Grimoire — Guide & Roles" data-i18n-title="grimoire_btn_title">
       <span class="btn-icon">📜</span>
@@ -41,7 +41,7 @@
     </button>
   </header>
 
-  <!-- 1. GİRİŞ EKRANI -->
+  <!-- 1. LANDING SCREEN -->
   <div id="screen-landing" class="screen active">
     <div class="landing-container">
       <div class="landing-decor-top">
@@ -213,7 +213,7 @@
     </div>
   </div>
 
-  <!-- 2. LOBİ EKRANI -->
+  <!-- 2. LOBBY SCREEN -->
   <div id="screen-lobby" class="screen">
     <div class="lobby-container">
       <!-- Lobby Header: Room Code & Quick Info -->
@@ -342,7 +342,7 @@
     </div>
   </div>
 
-  <!-- 3. OYUN EKRANI -->
+  <!-- 3. GAME SCREEN -->
   <div id="screen-game" class="screen">
     <!-- Top bar -->
     <div class="game-topbar card">
@@ -402,7 +402,7 @@
       </div>
     </div>
 
-    <!-- Mobil Sekme Seçici (Mobile Tabs Navigation) -->
+    <!-- Mobile Navigation Tabs -->
     <nav class="mobile-game-nav" aria-label="Mobil Oyun Sekmeleri">
       <button class="mob-tab-btn active" id="mob-tab-main" onclick="switchMobileView('main')">
         <span class="mob-tab-icon">🌾</span>
@@ -420,7 +420,7 @@
     </nav>
 
     <div class="game-body">
-      <!-- Left: player list -->
+      <!-- Left Column: Player List -->
       <aside class="game-sidebar card mob-view-panel" id="game-sidebar-left">
         <div class="card-corner tl">✦</div>
         <div class="card-corner tr">✦</div>
@@ -432,7 +432,7 @@
         <div id="chaos-indicator" class="chaos-indicator"></div>
       </aside>
 
-      <!-- Center: main area -->
+      <!-- Center Column: Primary Phase Stage -->
       <main class="game-main mob-view-panel mob-panel-active" id="game-main-area">
         <!-- Announcements -->
         <div id="announcements" class="announcements-area"></div>
@@ -578,7 +578,7 @@
         </div>
       </main>
 
-      <!-- Right: private info -->
+      <!-- Right Column: Secret Dossier & Logs -->
       <aside class="game-sidebar game-sidebar-right card mob-view-panel" id="game-sidebar-right">
         <div class="card-corner tl">✦</div>
         <div class="card-corner tr">✦</div>
@@ -595,7 +595,7 @@
           <ul id="clue-list"></ul>
         </div>
 
-        <!-- Rahibe Tarot Defteri -->
+        <!-- Priest Tarot Divination Ledger -->
         <div id="rahibe-tarot-log" class="clue-log hidden">
           <div class="clue-log-header">
             <span class="clue-seal">🃏</span>
@@ -604,7 +604,7 @@
           <ul id="rahibe-tarot-list"></ul>
         </div>
 
-        <!-- Gölge Sohbeti (SF & Kukla Özel) -->
+        <!-- Shadow Chat (Mr. Schadenfreude & Puppet) -->
         <div id="shadow-chat-container" class="shadow-chat-box hidden">
           <div class="shadow-chat-header">
             <span class="shadow-chat-icon">🔮</span>
@@ -661,7 +661,7 @@
       </div>
     </div>
 
-    <!-- Bekleyen İnfaz Emri Bildirimi (Kukla küçülttüğünde görünür) -->
+    <!-- Pending Execution Order Pill -->
     <div id="pending-order-badge" class="pending-order-badge hidden" onclick="reopenKillModal()">
       <span class="pending-order-pulse"></span>
       <span class="pending-order-icon">💀</span>
@@ -669,7 +669,7 @@
     </div>
   </div>
 
-  <!-- Ayrılma Onay Modalı (Global Leave Confirmation Modal) -->
+  <!-- Leave Room Confirmation Modal -->
   <div id="leave-modal" class="modal hidden">
     <div class="modal-inner card" style="max-width:420px;text-align:center">
       <div class="card-corner tl">✦</div>
@@ -693,7 +693,7 @@
     </div>
   </div>
 
-  <!-- GRIMOIRE / REHBER & ROLLER MODAL -->
+  <!-- Grimoire & Role Compendium Modal -->
   <div id="grimoire-modal" class="modal-overlay hidden" onclick="if(event.target===this) closeGrimoire()">
     <div class="grimoire-book">
       <div class="grimoire-header">
@@ -844,7 +844,7 @@
     </div>
   </div>
 
-  <!-- ROL DETAY REHBERİ POPUP (Role Detail Modal) -->
+  <!-- Role Dossier Detail Modal -->
   <div id="role-detail-modal" class="modal-overlay hidden" onclick="if(event.target===this) closeRoleDetail()">
     <div class="role-detail-book card">
       <div class="card-corner tl">✦</div>
@@ -897,10 +897,10 @@
     </div>
   </div>
 
-  <!-- Toast bildirimleri -->
+  <!-- Toast Notifications Container -->
   <div id="toast-container"></div>
 
-  <!-- Framework & Ses Motoru & Çeviri & Oyun Kodları -->
+  <!-- Core Scripts: Socket.io, Audio Engine, i18n & Client Logic -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="i18n.js"></script>
   <script src="sound.js"></script>

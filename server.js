@@ -799,13 +799,11 @@ function handlePlayerLeave(room, socketId) {
   if (!leavingPlayer) return;
 
   if (room.phase === PHASES.LOBBY) {
-    // In lobby, immediately remove player
+    // Lobby cleanup: remove player and teardown room if no humans remain
     room.players = room.players.filter(p => p.id !== socketId);
 
-    // Check if any human players left
     const humanPlayers = room.players.filter(p => !p.isBot);
     if (humanPlayers.length === 0) {
-      // No human players left in lobby -> destroy room
       delete rooms[code];
       return;
     }
@@ -841,11 +839,11 @@ function addPlayer(code, socketId, name, playerToken) {
   if (!room) return null;
   const existing = room.players.find(p => p.name.toLowerCase() === name.toLowerCase());
   if (existing) {
-    // 1) Eğer oyuncu şu anda aktif ve bağlıysa, kimliğin gasp edilmesini engelle
+    // Reject join if player identity is already active and connected
     if (!existing.disconnected) {
       return { error: 'already_connected' };
     }
-    // 2) Eğer oyuncu kopmuşsa ve token varsa, token uyuşmazlığı kontrolü
+    // Validate token integrity for reconnecting players
     if (existing.token && playerToken && existing.token !== playerToken) {
       return { error: 'invalid_token' };
     }
@@ -855,7 +853,7 @@ function addPlayer(code, socketId, name, playerToken) {
     existing.disconnected = false;
     if (!existing.token) existing.token = playerToken || uuidv4();
 
-    // Rol ve Host ID referanslarını yeni soketle senkronize et
+    // Re-bind role and host socket references
     if (room.host === oldId) room.host = socketId;
     if (room.sfId === oldId) room.sfId = socketId;
     if (room.kuklaId === oldId) room.kuklaId = socketId;
@@ -1004,7 +1002,7 @@ function checkWin(room) {
   const villagerCount = alive.filter(p => p.id !== room.sfId && p.id !== room.kuklaId).length;
   const evilCount = (sfAlive ? 1 : 0) + (kuklaAlive ? 1 : 0);
 
-  // All villagers dead -> SF wins
+  // Win resolution: evil domination vs puppet neutralisation
   if (villagerCount === 0) {
     return { winner: 'sf', reason: room.language === 'tr' ? 'Köy yok edildi. Mr. Schadenfreude kazandı.' : 'The village is destroyed. Mr. Schadenfreude wins.' };
   }
@@ -1096,14 +1094,13 @@ function recordLynchResultForBots(room, lynchedPlayer, voteMap) {
   initBotMemory(room);
   const isEvil = lynchedPlayer.role === ROLES.KUKLA || lynchedPlayer.id === room.sfId;
   if (!isEvil) {
-    // Lynched player was innocent! Voters who targeted this innocent gain suspicion
+    // Heuristic adjustments: penalize mislynch instigators, credit evil hunters
     for (const [voterId, targetId] of Object.entries(voteMap || {})) {
       if (targetId === lynchedPlayer.id && voterId !== lynchedPlayer.id) {
         room.botMemory.lynchVotesOnInnocents[voterId] = (room.botMemory.lynchVotesOnInnocents[voterId] || 0) + 1;
       }
     }
   } else {
-    // Lynched player was evil! Voters who helped convict gain innocence credit
     for (const [voterId, targetId] of Object.entries(voteMap || {})) {
       if (targetId === lynchedPlayer.id) {
         room.botMemory.knownInnocents[voterId] = true;
@@ -1150,7 +1147,7 @@ function getBotSuspicion(room, botPlayer, targetPlayer) {
     return 0; // Cannot lynch SF in classic mode
   }
 
-  // A) Mortisyen public suspect sightings (+30 per appearance)
+  // Heuristic weight aggregation: forensic sightings, tarot divination, voting history & retaliation
   const mortCount = mem.publicSuspects?.[targetPlayer.id] || 0;
   score += mortCount * 30;
 
@@ -1337,7 +1334,7 @@ function botNightAction(code) {
     }, 2000 + Math.random() * 4000);
   }
 
-  // 2) Şövalye bot: protect or challenge
+  // 2) Knight bot: protect or challenge
   const sovalyePlayer = room.players.find(p => p.role === ROLES.SOVALYE && p.isBot && p.alive);
   if (sovalyePlayer) {
     setTimeout(() => {
@@ -1686,7 +1683,7 @@ function botDayChat(code) {
       let phraseDict = null;
       let phraseIdx = 0;
 
-      // A) If chatter was voted in previous round, defend self
+      // Behavioral dialog trees: self-defense, accusing top suspects, or general deduction
       const lastVoteHistory = r.voteHistory?.[r.voteHistory.length - 1];
       const votesOnMe = lastVoteHistory ? Object.values(lastVoteHistory.votes || {}).filter(v => v === chatter.id).length : 0;
 
@@ -1702,7 +1699,6 @@ function botDayChat(code) {
         };
         phraseIdx = Math.floor(Math.random() * phraseDict.tr.length);
       } else if (topSuspect && topSuspect.score >= 45) {
-        // B) Point out top suspect
         phraseDict = {
           tr: [`${topSuspect.name} hakkında ciddi şüphelerim var, dikkatle dinlemeliyiz.`, `Bence ${topSuspect.name}'in hareketleri güven vermiyor.`, `${topSuspect.name} dünkü olaylarda çok sessizdi.`],
           en: [`I have strong suspicions about ${topSuspect.name}, we must watch closely.`, `I think ${topSuspect.name}'s behavior is untrustworthy.`, `${topSuspect.name} was too quiet during yesterday's events.`],
@@ -1714,7 +1710,6 @@ function botDayChat(code) {
         };
         phraseIdx = Math.floor(Math.random() * phraseDict.tr.length);
       } else {
-        // C) General village discussion
         phraseDict = {
           tr: ['İpuçlarını dikkatlice incelemeliyiz, hata yapma şansımız kalmadı.', 'Kuklanın kim olduğunu bulmak için dünkü oylara bakmalıyız.', 'Köydeki herkes sessizliğini bozmalı, kimseye körü körüne güvenemeyiz.'],
           en: ['We must examine the clues carefully, no room for mistakes.', 'We should analyze yesterday\'s votes to find the puppet.', 'Everyone must speak up, blind trust will ruin us.'],
@@ -1853,7 +1848,7 @@ function handleNight0End(code) {
   const room = rooms[code];
   if (!room) return;
 
-  // Gece 0'da kukla seçilmediyse ZORUNLU olarak rastgele yaşayan bir oyuncu kukla yapılır
+  // Fallback: force-assign random living candidate if puppet wasn't chosen in time
   if (!room.kuklaId) {
     const candidates = room.players.filter(p => p.alive && p.id !== room.sfId);
     if (candidates.length > 0) {
@@ -1892,7 +1887,7 @@ function handleNightEnd(code) {
   const actions = room.nightActions;
   const isSecretSF = room.settings?.gameMode === 'secretKiller';
 
-  // Şövalye protection & challenge
+  // Knight protection & challenge resolution
   const sovalyeProtected = actions.sovalye_protect || null;
   const sovalyeChallenge = actions.sovalye_challenge || null;
 
@@ -1904,7 +1899,7 @@ function handleNightEnd(code) {
     targetToKill = actions.kukla_kill || (!actions.kukla_refused && actions.sf_target && actions.sf_target !== 'none' ? actions.sf_target : null);
   }
 
-  // Şövalye challenge (directly stops the night kill order)
+  // Knight challenge intercepts and blocks night kill order
   if (sovalyeChallenge) {
     targetToKill = null;
     const sovalyePlayer = room.players.find(p => p.role === ROLES.SOVALYE);
@@ -1932,7 +1927,7 @@ function handleNightEnd(code) {
   } else if (targetToKill) {
     const target = getPlayer(room, targetToKill);
     if (target && target.alive) {
-      // Protected by Şövalye?
+      // Target shielded by Knight?
       if (sovalyeProtected && sovalyeProtected === targetToKill) {
         recordKnightShieldSaveForBots(room, target);
         announcements.push(makeAnnouncement('blocked', {
@@ -2101,7 +2096,7 @@ function handleNightEnd(code) {
     }
   }
 
-  // Rahibe Tarot / Gece Hareketi resolution & Cooldown management
+  // Priest Tarot divination resolution & cooldown tracking
   const rahibeTargetId = actions.rahibe_target;
   const rahibePlayer = room.players.find(p => p.role === ROLES.RAHIBE && p.alive);
   if (rahibeTargetId && rahibePlayer && room.rahibeTarotAvailable) {
@@ -2476,7 +2471,7 @@ function handleVoteEnd(code) {
     room.kuklaId = null;
 
     if (hadPickRight) {
-      // SF yeni kukla seçme hakkına sahip (2 masum önceden asılmıştı) -> Oyun devam eder
+      // SF earned replacement right (Chaos 2/2) -> Match continues
       announcements.push({
         type: 'warning',
         text: lang === 'tr'
@@ -2484,7 +2479,7 @@ function handleVoteEnd(code) {
           : 'The puppet was executed — but past innocent blood allows Mr. Schadenfreude to choose a new puppet tonight!'
       });
     } else {
-      // SF'nin yeni kukla seçme hakkı yok -> Köylüler anında kazanır
+      // SF cannot replace puppet -> Villagers win immediately
       room.consecutiveInnocentLynches = 0;
       room.announcements = announcements;
       endGame(code, 'villagers',
@@ -2494,7 +2489,7 @@ function handleVoteEnd(code) {
       return;
     }
   } else if (lynched.id !== room.sfId) {
-    // Masum köylü / şövalye / mortisyen / rahibe / madman linç edildi -> Kaos puanı artar
+    // Innocent lynched -> Increment Chaos Score
     room.consecutiveInnocentLynches = Math.min(2, (room.consecutiveInnocentLynches || 0) + 1);
   }
 
@@ -2563,7 +2558,7 @@ function resetRoomToLobby(room) {
   room.sfFramesUsed = 0;
   room.readyPlayers = {};
 
-  // Reset all players to alive and unassigned
+  // Reset player roster, heuristics engine, and client session states
   room.players.forEach(p => {
     p.alive = true;
     p.role = null;
@@ -2572,10 +2567,8 @@ function resetRoomToLobby(room) {
     p.deathRound = null;
   });
 
-  // Re-initialize bot memory
   initBotMemory(room);
 
-  // Send empty private state to all players so their client roles reset
   room.players.forEach(p => {
     if (!p.isBot) {
       io.to(p.id).emit('game:role', {});
@@ -2634,11 +2627,10 @@ function broadcastState(code) {
   const room = rooms[code];
   if (!room) return;
 
-  // Send public state to all
+  // Synchronize public room state and individual player dossiers
   const publicState = buildPublicState(room);
   io.to(code).emit('game:state', publicState);
 
-  // Send synchronized private state to each player
   room.players.forEach(p => {
     if (!p.isBot) {
       io.to(p.id).emit('game:role', buildPrivateState(room, p.id));
@@ -2697,10 +2689,9 @@ function buildPrivateState(room, playerId) {
     isSecretKiller: isSF && isSecretSF,
     gameMode: room.settings?.gameMode || 'puppetMaster',
     puppetCanSkip: room.settings.puppetCanSkip,
-    // SF knows who kukla is (only in puppetMaster mode)
+    // Role-specific secret telemetry: Puppet identity, shadow chat, ability charges & dossiers
     kuklaId: (isSF && !isSecretSF) ? room.kuklaId : undefined,
     kuklaName: (isSF && !isSecretSF && room.kuklaId) ? getPlayer(room, room.kuklaId)?.name : undefined,
-    // SF & Kukla private chat history
     shadowChat: ((isSF || isKukla) && !isSecretSF) ? (room.shadowChat || []) : undefined,
     canPickKukla: isSF && !isSecretSF && !room.kuklaId,
     sfCanPickCondition: isSF && !isSecretSF ? getSFPickCondition(room) : undefined,
@@ -2709,16 +2700,13 @@ function buildPrivateState(room, playerId) {
     sfActionDone: isSF ? (!!room.nightActions.sf_target) : undefined,
     sfTarget: isSF ? room.nightActions.sf_target : undefined,
     sfFrame: isSF ? room.nightActions.sf_frame : undefined,
-    // Şövalye: remaining challenge uses
     sovalyeChallengesLeft: isSovalye ? Math.max(0, 2 - (room.sovalyeChallengesUsed || 0)) : undefined,
     sovalyeActionDone: isSovalye ? (!!(room.nightActions.sovalye_protect || room.nightActions.sovalye_challenge)) : undefined,
-    // Mortisyen: active investigation state
     isMortisyen: player.role === ROLES.MORTISYEN,
     mortisyenActionDone: player.role === ROLES.MORTISYEN ? (!!room.nightActions.mortisyen_mode) : undefined,
     mortisyenMode: player.role === ROLES.MORTISYEN ? room.nightActions.mortisyen_mode : undefined,
     mortisyenTarget: player.role === ROLES.MORTISYEN ? room.nightActions.mortisyen_target : undefined,
     mortisyenClues: player.role === ROLES.MORTISYEN ? (room.mortisyenClues || []) : undefined,
-    // Rahibe: tarot prophecy state
     isRahibe: player.role === ROLES.RAHIBE,
     rahibeActionDone: player.role === ROLES.RAHIBE ? (!!room.nightActions.rahibe_target || !!room.nightActions.rahibe_passed) : undefined,
     rahibePassed: player.role === ROLES.RAHIBE ? !!room.nightActions.rahibe_passed : undefined,
@@ -2791,7 +2779,7 @@ io.on('connection', (socket) => {
 
     const existing = room.players.find(p => p.name.toLowerCase() === cleanName.toLowerCase());
 
-    // 1) LOBİDE: Aynı isimde başka biri varsa asla izin verme
+    // Lobby: prevent duplicate player names
     if (room.phase === PHASES.LOBBY && existing) {
       return socket.emit('error', {
         key: 'err_lobby_name_taken',
@@ -2799,12 +2787,12 @@ io.on('connection', (socket) => {
       });
     }
 
-    // 2) OYUN SIRASINDA: Oyuncu listede yoksa oyun başladı katılamazsın
+    // In-game: reject unregistered players attempting to join mid-game
     if (room.phase !== PHASES.LOBBY && !existing) {
       return socket.emit('error', { key: 'err_game_started', message: room.language === 'tr' ? 'Oyun başladı, katılamazsın.' : 'Game already started.' });
     }
 
-    // 3) OYUN SIRASINDA: Oyuncu zaten bağlı ve aktifse başka biri bu isimle giremez
+    // In-game: prevent hijacking active player slots
     if (room.phase !== PHASES.LOBBY && existing && !existing.disconnected) {
       return socket.emit('error', {
         key: 'err_player_active',
@@ -2868,7 +2856,7 @@ io.on('connection', (socket) => {
         : 'Mr. Schadenfreude is hidden among the villagers. Night begins.');
       startPhase(code, PHASES.NIGHT);
     } else if (room.kuklaId) {
-      // Kukla önceden atandıysa doğrudan 1. Gece'den başla
+      // If puppet is already selected, transition straight to Night 1
       room.round = 1;
       addAnnouncement(room, room.language === 'tr'
         ? 'Mr. Schadenfreude karanlıkta kuklasını seçti.'
@@ -2992,7 +2980,7 @@ io.on('connection', (socket) => {
     room.newKuklaJustSet = !isNight0; // Track if this is a re-pick (not initial)
     room.consecutiveInnocentLynches = 0;
 
-    // Notify kukla (only if human)
+    // Dispatch puppet assignment notifications and resolve phase progression
     if (!target.isBot) {
       io.to(targetId).emit('game:becomeKukla', {
         baseRole: target.role,
@@ -3002,7 +2990,6 @@ io.on('connection', (socket) => {
       });
     }
 
-    // Notify SF
     socket.emit('private:message', {
       type: 'success',
       message: room.language === 'tr'
@@ -3010,10 +2997,8 @@ io.on('connection', (socket) => {
         : `"${target.name}" is now your puppet.`,
     });
 
-    // Update SF private state
     socket.emit('game:role', buildPrivateState(room, socket.id));
 
-    // If night0, end it early; otherwise broadcast updated state to all players
     if (isNight0) {
       clearTimer(room);
       handleNight0End(code);
@@ -3287,7 +3272,7 @@ io.on('connection', (socket) => {
     broadcastState(code);
   });
 
-  // Şövalye action
+  // Knight night action
   socket.on('action:sovalye', ({ type, targetId }) => {
     const code = socket.data.roomCode;
     const room = rooms[code];

@@ -15,7 +15,7 @@ const I18N = (function () {
   ];
 
   const DICTIONARIES = {
-    // ─── TÜRKÇE (TR) ───
+    // ─── TURKISH (TR) ───
     tr: {
       // General
       app_title: 'Mr. Schadenfreude — Vampir Köylü',
@@ -1568,7 +1568,7 @@ const I18N = (function () {
       sf_btn_pass_secret_toast: '🚫 Se pasó la ejecución de esta noche.',
     },
 
-    // ─── FRENCH (FRANÇAIS) ───
+    // ─── FRENCH (FR) ───
     fr: {
       app_title: 'Mr. Schadenfreude — Déduction Gothique',
       app_subtitle: 'Jeu de déduction sociale gothique inspiré de la chanson Vocaloid "Mr. Schadenfreude"',

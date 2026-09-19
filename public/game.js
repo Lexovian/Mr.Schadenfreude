@@ -230,7 +230,7 @@ function closeRoleDetail() {
   if (modal) modal.classList.add('hidden');
 }
 
-// Eski setLang çağrıları için uyumluluk
+// Legacy backward compatibility
 function setLang(lang) { changeLanguage(lang); }
 
 // ─── SCREENS & NAVIGATION (History API) ───
@@ -890,14 +890,14 @@ function renderState(gs) {
     state.voteSelected = null;
   }
 
-  // Gece dışı fazlarda bekleyen kukla emirlerini ve modalı temizle
+  // Clear pending puppet orders and execution modals outside night phases
   if (gs.phase !== 'night') {
     state.pendingKillTarget = null;
     document.getElementById('pending-order-badge')?.classList.add('hidden');
     document.getElementById('kill-modal')?.classList.add('hidden');
   }
 
-  // Faz geçiş ses efekti ve dinamik gotik ambiyans
+  // Phase transition sound effects and ambient soundscape update
   if (state.lastRenderedPhase !== gs.phase && typeof Sound !== 'undefined') {
     Sound.setAmbience(gs.phase);
     if (gs.phase === 'night0' || gs.phase === 'night') Sound.playNightBell();

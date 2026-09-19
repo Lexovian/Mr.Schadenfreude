@@ -313,7 +313,7 @@ const Sound = (function() {
   // ══════════════════════════════════════════════════════════════
 
   /**
-   * 1. Gotik Kilise Gece Çanı (Warm Cathedral Bell)
+   * 1. Warm Cathedral Bell (Night Phase)
    * Warm sine partials (no piercing high overtones)
    */
   function playNightBell() {
@@ -350,7 +350,7 @@ const Sound = (function() {
   }
 
   /**
-   * 2. Şafak Korosu (Soothing Gregorian Dawn Chords)
+   * 2. Gregorian Dawn Chords (Dawn Phase)
    */
   function playDawn() {
     if (muted) return;
@@ -382,7 +382,7 @@ const Sound = (function() {
   }
 
   /**
-   * 3. Mahkeme Tokmağı (Deep Mahogany Gavel Thud)
+   * 3. Deep Mahogany Gavel Thud (Vote Phase)
    * Deep acoustic wood resonance (no harsh click)
    */
   function playGavel() {
@@ -422,7 +422,7 @@ const Sound = (function() {
   }
 
   /**
-   * 4. İnfaz / Ölüm Darbesi (Cinematic Lethal Slash & Visceral Death Impact)
+   * 4. Execution & Lethal Strike (Result Phase)
    * Layer 1: Fast Razor-Sharp Blade Slice (swept bandpass noise)
    * Layer 2: Heavy Visceral Body Impact Punch (punchy pitch drop)
    * Layer 3: Ominous Low Death Stinger Chord (Dark minor chord bloom)
@@ -501,7 +501,7 @@ const Sound = (function() {
   }
 
   /**
-   * 5. Gölge Fısıltısı (Smooth Spectral Whisper)
+   * 5. Smooth Spectral Whisper
    */
   function playWhisper() {
     if (muted) return;
@@ -532,7 +532,7 @@ const Sound = (function() {
   }
 
   /**
-   * 6. Rahibe Tarot Kartı (Velvety Crystal Raindrop Chimes)
+   * 6. Priest Tarot Chimes (Crystal Raindrops)
    * Warm pentatonic scale with lowpass filtering (no piercing highs)
    */
   function playTarot() {
@@ -570,7 +570,7 @@ const Sound = (function() {
   }
 
   /**
-   * 7. Mortisyen Otopsi / İpucu (Warm Music Box Motif)
+   * 7. Mortician Autopsy & Clue Motif (Music Box)
    */
   function playClue() {
     if (muted) return;
@@ -600,7 +600,7 @@ const Sound = (function() {
   }
 
   /**
-   * 8. Şövalye Kılıç Çarpışması / Kılıç Çekme (Authentic Steel Sword Clash & Schwing)
+   * 8. Knight Blade Clash & Challenge
    * Layer 1: High-friction metallic scrape (bandpass noise sweep)
    * Layer 2: Harmonic singing steel ring (dual ringing harmonics at 987Hz & 1974Hz)
    * Layer 3: Solid steel mass impact
@@ -674,7 +674,7 @@ const Sound = (function() {
   }
 
   /**
-   * 9. Şövalye Kalkan Koruma Sesi (Deep Holy Shield Gong)
+   * 9. Knight Holy Shield Gong (Protection)
    */
   function playShield() {
     if (muted) return;
@@ -738,7 +738,7 @@ const Sound = (function() {
   }
 
   /**
-   * 11. Mahkeme Oyu / Mühürleme (Soft Wax Seal Tap)
+   * 11. Trial Ballot & Wax Seal Tap
    */
   function playVote() {
     if (muted) return;
@@ -764,7 +764,7 @@ const Sound = (function() {
   }
 
   /**
-   * 12. Geri Sayım Saat Çarkı (Warm Wooden Metronome Tick)
+   * 12. Clockwork Metronome Tick (Final Countdown)
    * Lowered from harsh 1.2kHz to gentle 320Hz/420Hz wood tick
    */
   function playTick(urgent = false) {
@@ -791,7 +791,7 @@ const Sound = (function() {
   }
 
   /**
-   * 13. Buton & Arayüz Dokunuşu (Subtle Soft Click)
+   * 13. UI Interaction & Button Click
    */
   function playClick() {
     try {
@@ -856,7 +856,7 @@ const Sound = (function() {
   }
 
   /**
-   * 15. Zafer: Köylüler Kazandı (Warm Triumphant Fanfare)
+   * 15. Victory: Villagers Triumphant Fanfare
    */
   function playVillagersWin() {
     if (muted) return;
