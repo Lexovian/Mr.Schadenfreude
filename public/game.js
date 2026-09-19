@@ -918,7 +918,6 @@ function renderLobbyPlayers(players) {
   const ul = document.getElementById('lobby-players');
   if (!ul) return;
   const hostId = state.gameState?.host;
-  const assigned = state.gameState?.assignedRoles || {};
   const settings = state.gameState?.settings || {};
 
   const countBadge = document.getElementById('lobby-player-count');
@@ -936,7 +935,6 @@ function renderLobbyPlayers(players) {
     const isHost = p.id === hostId || (!hostId && idx === 0);
     const isMe = p.name === state.myName;
     const isBot = !!p.isBot;
-    const assignedRole = assigned[p.id] || 'auto';
 
     const hostBadge = isHost
       ? `<span class="lobby-badge-host">👑 Host</span>`
@@ -949,34 +947,6 @@ function renderLobbyPlayers(players) {
       : '';
 
     const initial = (p.name || '?').charAt(0).toUpperCase();
-
-    let roleControlHtml = '';
-    if (state.isHost) {
-      const autoLabel = state.lang === 'tr' ? '🎲 Rastgele Rol' : state.lang === 'ru' ? '🎲 Случайная роль' : '🎲 Random Role';
-      const selectTitle = state.lang === 'tr' ? 'Bu oyuncunun rolünü belirle' : state.lang === 'ru' ? 'Назначить роль этому игроку' : 'Assign role for this player';
-      roleControlHtml = `
-        <div class="lobby-role-assign-wrap">
-          <select class="lobby-role-select" onchange="setPlayerLobbyRole('${p.id}', this.value)" title="${selectTitle}">
-            <option value="auto" ${assignedRole === 'auto' ? 'selected' : ''}>${autoLabel}</option>
-            <option value="sf" ${assignedRole === 'sf' ? 'selected' : ''}>${ROLE_DATA.sf.symbol} ${roleLabel('sf')}</option>
-            <option value="kukla" ${assignedRole === 'kukla' ? 'selected' : ''}>${ROLE_DATA.kukla.symbol} ${roleLabel('kukla')}</option>
-            <option value="mortisyen" ${assignedRole === 'mortisyen' ? 'selected' : ''}>${ROLE_DATA.mortisyen.symbol} ${roleLabel('mortisyen')}</option>
-            <option value="rahibe" ${assignedRole === 'rahibe' ? 'selected' : ''}>${ROLE_DATA.rahibe.symbol} ${roleLabel('rahibe')}</option>
-            <option value="sovalye" ${assignedRole === 'sovalye' ? 'selected' : ''}>${ROLE_DATA.sovalye.symbol} ${roleLabel('sovalye')}</option>
-            <option value="madman" ${assignedRole === 'madman' ? 'selected' : ''}>${ROLE_DATA.madman.symbol} ${roleLabel('madman')}</option>
-            <option value="koylu" ${assignedRole === 'koylu' ? 'selected' : ''}>${ROLE_DATA.koylu.symbol} ${roleLabel('koylu')}</option>
-          </select>
-        </div>
-      `;
-    } else if (assignedRole && assignedRole !== 'auto') {
-      const rData = ROLE_DATA[assignedRole] || { symbol: '🎭' };
-      roleControlHtml = `
-        <div class="lobby-role-assigned-tag">
-          <span>${rData.symbol}</span>
-          <span>${roleLabel(assignedRole)}</span>
-        </div>
-      `;
-    }
 
     let hostActionsHtml = '';
     if (state.isHost && !isHost && !isMe) {
@@ -996,7 +966,6 @@ function renderLobbyPlayers(players) {
           <span class="player-name">${escHtml(p.name)}</span>
           <span class="player-role-hint">${isHost ? t('lobby_role_host') : (isBot ? t('lobby_role_bot') : t('lobby_role_actor'))}</span>
         </div>
-        ${roleControlHtml}
         ${hostActionsHtml}
         <div class="lobby-player-badges">
           ${hostBadge}
@@ -1035,11 +1004,6 @@ function banPlayer(targetId, targetName) {
     if (typeof Sound !== 'undefined') Sound.playClick();
     socket.emit('room:banPlayer', { targetId });
   }
-}
-
-function setPlayerLobbyRole(targetId, role) {
-  if (typeof Sound !== 'undefined') Sound.playClick();
-  socket.emit('room:setPlayerRole', { targetId, role });
 }
 
 // ─── GAME PLAYERS ───

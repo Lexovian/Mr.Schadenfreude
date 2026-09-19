@@ -785,7 +785,6 @@ function createRoom(hostId, hostName, language) {
       voteDuration: PHASE_DURATIONS.vote,
       showVotes: true,          // Oyları Açık Göster
       puppetCanSkip: true,      // Kukla Pas Geçebilir
-      debugRole: 'auto',        // Test için rol seçimi ('auto' | 'sf' | 'kukla' | 'mortisyen' | ...)
     },
   };
   const hostToken = uuidv4();
@@ -802,7 +801,6 @@ function handlePlayerLeave(room, socketId) {
   if (room.phase === PHASES.LOBBY) {
     // In lobby, immediately remove player
     room.players = room.players.filter(p => p.id !== socketId);
-    if (room.assignedRoles) delete room.assignedRoles[socketId];
 
     // Check if any human players left
     const humanPlayers = room.players.filter(p => !p.isBot);
@@ -866,10 +864,6 @@ function addPlayer(code, socketId, name, playerToken) {
     if (room.mortisyen === oldId) room.mortisyen = socketId;
     if (room.sovalye === oldId) room.sovalye = socketId;
 
-    if (room.assignedRoles && room.assignedRoles[oldId] !== undefined) {
-      room.assignedRoles[socketId] = room.assignedRoles[oldId];
-      delete room.assignedRoles[oldId];
-    }
     if (room.votes && room.votes[oldId] !== undefined) {
       room.votes[socketId] = room.votes[oldId];
       delete room.votes[oldId];
@@ -910,69 +904,18 @@ function getAlive(room) {
 function assignRoles(room) {
   const count = room.players.length;
   const roleList = buildRoleList(count);
-  const assigned = room.assignedRoles || {};
 
-  const unassignedPlayers = [];
-  let sfAssigned = false;
-  let kuklaAssigned = false;
-
-  // 1) First, apply per-player assigned roles from lobby
-  room.players.forEach(p => {
-    let customRole = assigned[p.id];
-    // Fallback to host debugRole setting if not set specifically
-    if ((!customRole || customRole === 'auto') && p.id === room.host && room.settings?.debugRole && room.settings.debugRole !== 'auto') {
-      customRole = room.settings.debugRole;
-    }
-
-    if (customRole && customRole !== 'auto') {
-      if (customRole === ROLES.KUKLA) {
-        kuklaAssigned = true;
-        room.kuklaId = p.id;
-        p.isKukla = true;
-        if (!room.kuklaHistory) room.kuklaHistory = [];
-        if (!room.kuklaHistory.includes(p.id)) room.kuklaHistory.push(p.id);
-        p.role = ROLES.KOYLU; // Default base role for Kukla if not specified
-      } else {
-        p.role = customRole;
-      }
-      p.alive = true;
-      p.deathRound = null;
-      p.deathCause = null;
-
-      if (customRole === ROLES.SF) sfAssigned = true;
-
-      // Remove role from roleList if present
-      const rIdx = roleList.indexOf(p.role);
-      if (rIdx !== -1) {
-        roleList.splice(rIdx, 1);
-      } else {
-        const koyluIdx = roleList.indexOf(ROLES.KOYLU);
-        if (koyluIdx !== -1) roleList.splice(koyluIdx, 1);
-      }
-    } else {
-      unassignedPlayers.push(p);
-    }
-  });
-
-  // 2) Ensure Mr. Schadenfreude is present if no one was manually assigned SF
-  if (!sfAssigned && !roleList.includes(ROLES.SF)) {
-    roleList.unshift(ROLES.SF);
-    const koyluIdx = roleList.lastIndexOf(ROLES.KOYLU);
-    if (koyluIdx !== -1) roleList.splice(koyluIdx, 1);
-  }
-
-  // 3) Shuffle and assign remaining roles to unassigned players
   shuffle(roleList);
-  unassignedPlayers.forEach((p, i) => {
+  room.players.forEach((p, i) => {
     p.role = roleList[i] || ROLES.KOYLU;
     p.alive = true;
     p.deathRound = null;
     p.deathCause = null;
   });
 
-  // 4) Map special pointers
+  // Map special pointers
   room.sfId = room.players.find(p => p.role === ROLES.SF)?.id || null;
-  if (!kuklaAssigned) room.kuklaId = null;
+  room.kuklaId = null;
   room.previousKuklaId = null;
   room.rahibe = room.players.find(p => p.role === ROLES.RAHIBE)?.id || null;
   room.mortisyen = room.players.find(p => p.role === ROLES.MORTISYEN)?.id || null;
@@ -2735,7 +2678,6 @@ function buildPublicState(room) {
     consecutiveInnocentLynches: room.consecutiveInnocentLynches || 0,
     kuklaSlotEmpty: !isSecretSF && !room.kuklaId && !!room.sfId,
     canSFPickThisNight: !isSecretSF && !room.kuklaId && !!room.sfId && !room.newKuklaJustSet && ((room.consecutiveInnocentLynches || 0) >= 2),
-    assignedRoles: room.assignedRoles || {},
   };
 }
 
@@ -2946,20 +2888,6 @@ io.on('connection', (socket) => {
     resetRoomToLobby(room);
   });
 
-  // Host sets role for any player in lobby
-  socket.on('room:setPlayerRole', ({ targetId, role }) => {
-    const code = socket.data.roomCode;
-    const room = rooms[code];
-    if (!room || room.host !== socket.id || room.phase !== PHASES.LOBBY) return;
-    if (!room.assignedRoles) room.assignedRoles = {};
-    if (role === 'auto') {
-      delete room.assignedRoles[targetId];
-    } else {
-      room.assignedRoles[targetId] = role;
-    }
-    broadcastState(code);
-  });
-
   // Host transfers host privileges to another player
   socket.on('room:transferHost', ({ targetId }) => {
     const code = socket.data.roomCode;
@@ -2984,7 +2912,6 @@ io.on('connection', (socket) => {
 
     const targetName = target.name;
     room.players = room.players.filter(p => p.id !== targetId);
-    if (room.assignedRoles) delete room.assignedRoles[targetId];
 
     if (!target.isBot) {
       io.to(targetId).emit('room:kicked', {
@@ -3014,7 +2941,6 @@ io.on('connection', (socket) => {
     }
 
     room.players = room.players.filter(p => p.id !== targetId);
-    if (room.assignedRoles) delete room.assignedRoles[targetId];
 
     if (!target.isBot) {
       io.to(targetId).emit('room:banned', {
@@ -3358,7 +3284,6 @@ io.on('connection', (socket) => {
     }
     if (typeof settings.showVotes === 'boolean') room.settings.showVotes = settings.showVotes;
     if (typeof settings.puppetCanSkip === 'boolean') room.settings.puppetCanSkip = settings.puppetCanSkip;
-    if (settings.debugRole) room.settings.debugRole = settings.debugRole;
     broadcastState(code);
   });
 
