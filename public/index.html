@@ -897,6 +897,48 @@
     </div>
   </div>
 
+  <!-- ─── COOKIE / LOCAL STORAGE CONSENT BANNER ─── -->
+  <div id="cookie-consent-banner" class="cookie-banner hidden" role="dialog" aria-live="polite" aria-label="Cookie consent">
+    <div class="cookie-banner-inner">
+      <div class="cookie-banner-left">
+        <span class="cookie-banner-icon">🕯️</span>
+        <div class="cookie-banner-text">
+          <strong id="cookie-banner-title" data-i18n="cookie_banner_title">This site uses local storage</strong>
+          <span id="cookie-banner-desc" data-i18n="cookie_banner_desc">We store your session token and language preference locally to keep you connected. No tracking or advertising data is collected.</span>
+          <button class="cookie-learn-link" id="cookie-learn-btn" data-i18n="cookie_learn_more" onclick="openPrivacyModal()">Learn more</button>
+        </div>
+      </div>
+      <div class="cookie-banner-actions">
+        <button class="btn-cookie-accept" id="btn-cookie-accept" data-i18n="cookie_accept" onclick="cookieConsent('accept')">Accept</button>
+        <button class="btn-cookie-decline" id="btn-cookie-decline" data-i18n="cookie_decline" onclick="cookieConsent('decline')">Decline</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PRIVACY DETAIL MODAL ─── -->
+  <div id="privacy-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-box privacy-modal-box">
+      <div class="modal-header">
+        <h2 id="privacy-modal-title" data-i18n="cookie_modal_title">🕯️ Privacy &amp; Local Storage</h2>
+        <button class="modal-close-x" onclick="closePrivacyModal()" aria-label="Close">✕</button>
+      </div>
+      <div class="privacy-modal-body">
+        <p id="privacy-modal-intro" data-i18n="cookie_modal_intro">Mr. Schadenfreude uses <strong>browser localStorage</strong> — not cookies — to store the following functional data:</p>
+        <ul id="privacy-modal-list">
+          <li><strong data-i18n="cookie_modal_item_token_title">Session Token</strong> — <span data-i18n="cookie_modal_item_token_desc">Allows you to reconnect to your game room if your connection drops. Stored as <code>msf_token_&lt;room_code&gt;</code>. Cleared when the browser tab is closed.</span></li>
+          <li><strong data-i18n="cookie_modal_item_lang_title">Language Preference</strong> — <span data-i18n="cookie_modal_item_lang_desc">Remembers which language (TR/EN/JA/DE/ES/FR/RU) you last selected, stored as <code>sf_language_v2</code>.</span></li>
+        </ul>
+        <p id="privacy-modal-note" data-i18n="cookie_modal_note">No personal data, analytics, or advertising trackers are used. All stored data is purely functional and stays entirely on your device. You can clear it anytime via your browser's site data settings.</p>
+        <p id="privacy-modal-decline-note" data-i18n="cookie_modal_decline_note">If you decline, the site will still function normally — your session token and language preference simply won't be saved between sessions.</p>
+      </div>
+      <div class="privacy-modal-footer">
+        <button class="btn-cookie-accept" data-i18n="cookie_accept" onclick="cookieConsent('accept'); closePrivacyModal();">Accept</button>
+        <button class="btn-cookie-decline" data-i18n="cookie_decline" onclick="cookieConsent('decline'); closePrivacyModal();">Decline</button>
+        <button class="btn btn-ghost" data-i18n="cookie_close" onclick="closePrivacyModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notifications Container -->
   <div id="toast-container"></div>
 

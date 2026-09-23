@@ -2793,3 +2793,94 @@ if (document.readyState === 'loading') {
 } else {
   initApp();
 }
+
+// ─── COOKIE / LOCAL STORAGE CONSENT ───────────────────────────────────────
+const CONSENT_KEY = 'msf_storage_consent';
+
+function getStoredConsent() {
+  try {
+    return sessionStorage.getItem(CONSENT_KEY) || localStorage.getItem(CONSENT_KEY) || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function cookieConsent(decision) {
+  try {
+    sessionStorage.setItem(CONSENT_KEY, decision);
+    if (decision === 'accept') {
+      localStorage.setItem(CONSENT_KEY, 'accept');
+    } else {
+      localStorage.removeItem(CONSENT_KEY);
+      // Clear game-related stored data if user declines
+      try {
+        Object.keys(localStorage).forEach(k => {
+          if (k.startsWith('msf_token_') || k === 'sf_language_v2' || k === 'sf_language') {
+            localStorage.removeItem(k);
+          }
+        });
+      } catch (e) {}
+    }
+  } catch (e) {}
+
+  const banner = document.getElementById('cookie-consent-banner');
+  if (banner) {
+    banner.style.transition = 'transform 0.35s ease, opacity 0.3s ease';
+    banner.style.transform = 'translateY(110%)';
+    banner.style.opacity = '0';
+    setTimeout(() => banner.classList.add('hidden'), 360);
+  }
+}
+
+function initCookieConsent() {
+  const consent = getStoredConsent();
+  if (consent !== null) return;
+  const banner = document.getElementById('cookie-consent-banner');
+  if (!banner) return;
+  setTimeout(() => {
+    banner.classList.remove('hidden');
+    updateCookieBannerLanguage();
+  }, 1200);
+}
+
+function openPrivacyModal() {
+  const modal = document.getElementById('privacy-modal');
+  if (!modal) return;
+  updatePrivacyModalLanguage();
+  modal.classList.remove('hidden');
+}
+
+function closePrivacyModal() {
+  const modal = document.getElementById('privacy-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function updateCookieBannerLanguage(lang) {
+  if (typeof I18N !== 'undefined') {
+    if (lang && I18N.getLanguage() !== lang) {
+      I18N.setLanguage(lang);
+    } else {
+      const banner = document.getElementById('cookie-consent-banner');
+      if (banner) I18N.applyDOM(banner);
+    }
+  }
+}
+
+function updatePrivacyModalLanguage(lang) {
+  if (typeof I18N !== 'undefined') {
+    if (lang && I18N.getLanguage() !== lang) {
+      I18N.setLanguage(lang);
+    } else {
+      const modal = document.getElementById('privacy-modal');
+      if (modal) I18N.applyDOM(modal);
+    }
+  }
+}
+
+// Boot the consent check after app init
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initCookieConsent);
+} else {
+  initCookieConsent();
+}
+
